@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Bestiefy | How Well Do You Know Me?",
+  title: "findmeway | How Well Do You Know Me?",
   description: "Create custom quizzes and secret letters for your besties and partners. Find out who really knows you best!",
 };
 

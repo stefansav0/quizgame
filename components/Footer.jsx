@@ -12,7 +12,7 @@ export default function Footer() {
           {/* Brand & Tagline */}
           <div className="flex flex-col items-center md:items-start text-center md:text-left">
             <Link href="/" className="text-2xl font-black bg-gradient-to-r from-emerald-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-2 inline-block hover:scale-105 transition-transform">
-              Bestiefy ✨
+              Findmeway ✨
             </Link>
             <p className="text-slate-500 text-sm font-medium">
               Test your friendships. Share the love. 100% Free.
@@ -42,7 +42,7 @@ export default function Footer() {
 
         {/* Copyright & Made With Love */}
         <div className="mt-10 pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-600 font-medium">
-          <p>© {currentYear} Bestiefy. All rights reserved.</p>
+          <p>© {currentYear} Findmeway. All rights reserved.</p>
           <p className="flex items-center gap-1">
             Made with <span className="text-pink-500 animate-pulse text-sm">💖</span> for besties everywhere.
           </p>
