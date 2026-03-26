@@ -193,7 +193,7 @@ export default function CreateQuiz() {
 
   // --- LOCAL STORAGE CHECK ON MOUNT ---
   useEffect(() => {
-    // Check if user already made a quiz in this browser
+    // Check if user already made a quiz in this browser using localStorage
     const existingQuizId = localStorage.getItem('spicy_quiz_id');
     
     if (existingQuizId) {

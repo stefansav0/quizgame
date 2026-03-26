@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
-import Footer from "@/components/Footer"; // <-- IMPORT YOUR NEW FOOTER
+import Header from "@/components/Header"; // <-- IMPORT HEADER
+import Footer from "@/components/Footer";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -26,20 +27,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        {/* Google AdSense Global Script */}
-        <Script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1234567890123456"
-          crossOrigin="anonymous"
-          strategy="afterInteractive"
-        />
-      </head>
-      {/* Added flex column layout to keep the footer at the bottom! */}
+    
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#0f111a] text-white flex flex-col min-h-screen`}>
         
-        {/* Main Content Area */}
-        <main className="flex-grow w-full">
+        {/* Global Header (Sticky) */}
+        <Header />
+
+        {/* Main Content Area - Added pt-20 to account for the fixed 80px high Header */}
+        <main className="flex-grow w-full pt-20">
           {children}
         </main>
 

@@ -2,7 +2,6 @@
 
 import { motion, Variants } from "framer-motion";
 import Link from "next/link";
-import AdBanner from "@/components/AdBanner"; // Ensure you created this component from the previous step!
 
 export default function Home() {
   // --- ANIMATION VARIANTS ---
@@ -40,21 +39,15 @@ export default function Home() {
       <motion.div variants={floatingVariants} animate="animate" transition={{ delay: 2 }} className="fixed bottom-[20%] left-[20%] text-4xl opacity-50 hidden md:block select-none pointer-events-none z-0">🥺</motion.div>
       <motion.div variants={floatingVariants} animate="animate" transition={{ delay: 1.5 }} className="fixed bottom-[25%] right-[20%] text-4xl opacity-50 hidden md:block select-none pointer-events-none z-0">🔥</motion.div>
 
-      <div className="w-full max-w-[1400px] flex gap-8 relative z-10">
+      {/* Main Container - Centered without ad sidebars */}
+      <div className="w-full max-w-5xl relative z-10 flex flex-col items-center">
         
-        {/* === LEFT AD BANNER (Desktop Only) === */}
-        <div className="hidden xl:block w-[300px] sticky top-10 h-[600px] flex-shrink-0">
-          <p className="text-[10px] text-slate-500 text-center mb-2 uppercase tracking-widest font-bold">Advertisement</p>
-          {/* Replace dataAdSlot with your actual Google AdSense slot ID */}
-          <AdBanner dataAdSlot="1111111111" dataAdFormat="vertical" className="w-full h-full bg-black/40 backdrop-blur-md" />
-        </div>
-
         {/* === MAIN CENTER CONTENT === */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="show"
-          className="flex-1 flex flex-col items-center py-10"
+          className="w-full flex flex-col items-center py-10"
         >
           {/* --- HERO SECTION --- */}
           <motion.div variants={itemVariants} className="text-center mb-10 max-w-2xl">
@@ -134,14 +127,6 @@ export default function Home() {
           </motion.div>
 
         </motion.div>
-
-        {/* === RIGHT AD BANNER (Desktop Only) === */}
-        <div className="hidden xl:block w-[300px] sticky top-10 h-[600px] flex-shrink-0">
-          <p className="text-[10px] text-slate-500 text-center mb-2 uppercase tracking-widest font-bold">Advertisement</p>
-          {/* Replace dataAdSlot with your actual Google AdSense slot ID */}
-          <AdBanner dataAdSlot="2222222222" dataAdFormat="vertical" className="w-full h-full bg-black/40 backdrop-blur-md" />
-        </div>
-
       </div>
     </div>
   );

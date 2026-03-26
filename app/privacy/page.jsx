@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export const metadata = {
   title: "Privacy Policy | Bestiefy",
-  description: "How we collect and use your data on Bestiefy.",
+  description: "How we collect and use your data on getknowify.",
 };
 
 export default function PrivacyPage() {
@@ -19,7 +19,7 @@ export default function PrivacyPage() {
         <div className="space-y-8 leading-relaxed">
           <section>
             <h2 className="text-2xl font-bold text-white mb-4">1. Information We Collect</h2>
-            <p>When you use Bestiefy, we collect certain information to make the app function:</p>
+            <p>When you use getknowify, we collect certain information to make the app function:</p>
             <ul className="list-disc pl-6 mt-4 space-y-2">
               <li><strong>Information you provide:</strong> Names, quiz questions, quiz answers, and letter contents that you voluntarily enter into our forms.</li>
               <li><strong>Automatically collected information:</strong> We may collect non-personally identifiable information such as your browser type, device type, and basic usage data.</li>
@@ -47,7 +47,7 @@ export default function PrivacyPage() {
 
           <section>
             <h2 className="text-2xl font-bold text-white mb-4">5. Contact Us</h2>
-            <p>If you have any questions about this Privacy Policy or wish to have your data removed, please contact us at [Insert Your Email Here].</p>
+            <p>If you have any questions about this Privacy Policy or wish to have your data removed, please contact us at [getknowify@gmail.com].</p>
           </section>
         </div>
       </div>

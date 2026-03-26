@@ -1,7 +1,9 @@
+// app/quiz/[id]/results/ResultsClient.jsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 
 // Helper function to dynamically assign emojis and ranks based on the score
 const getScoreReaction = (percentage) => {
@@ -13,38 +15,13 @@ const getScoreReaction = (percentage) => {
   return { emoji: "🤡", rank: "Complete strangers.", color: "text-red-500" };
 };
 
-export default function ResultPage({ params }) {
-  const [results, setResults] = useState([]);
+export default function ResultsClient({ quizId, creatorName, totalQuestions, results }) {
   const [expandedIndex, setExpandedIndex] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
-
-  useEffect(() => {
-    const fetchResults = async () => {
-      try {
-        setLoading(true);
-
-        const res = await fetch(`/api/leaderboard/${params.id}`);
-        const data = await res.json();
-
-        if (!res.ok) throw new Error(data.error || "Failed to load");
-
-        setResults(data);
-      } catch (err) {
-        console.error(err);
-        setError("Something went wrong 😢");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchResults();
-  }, [params.id]);
 
   const handleCopyLink = () => {
     const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
-    navigator.clipboard.writeText(`${baseUrl}/quiz/${params.id}`);
+    navigator.clipboard.writeText(`${baseUrl}/quiz/${quizId}`);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -52,10 +29,7 @@ export default function ResultPage({ params }) {
   // Framer Motion Animation Variants
   const containerVariants = {
     hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1 }
-    }
+    show: { opacity: 1, transition: { staggerChildren: 0.1 } }
   };
 
   const itemVariants = {
@@ -63,16 +37,11 @@ export default function ResultPage({ params }) {
     show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
   };
 
-  // Assume the first result is the top scorer or most recent
+  // Featured Result Calculations
   const featuredResult = results.length > 0 ? results[0] : null;
-  const featuredPercentage = featuredResult ? (featuredResult.percentage || 0) : 0;
+  const featuredPercentage = featuredResult ? featuredResult.percentage : 0;
   const reaction = getScoreReaction(featuredPercentage);
   
-  // SAFE MATH: Prevent dividing by zero if the user scored 0%
-  const totalQuestions = featuredResult 
-    ? (featuredResult.answers ? featuredResult.answers.length : 10) 
-    : 10;
-
   // SVG Circle calculations
   const radius = 60;
   const circumference = 2 * Math.PI * radius;
@@ -88,12 +57,12 @@ export default function ResultPage({ params }) {
         
         {/* --- HEADER CONTROLS --- */}
         <div className="flex justify-between items-center mb-6">
-          <button 
-            onClick={() => window.location.href = '/'}
+          <Link 
+            href="/"
             className="text-slate-400 hover:text-white transition-colors text-sm font-bold flex items-center gap-2"
           >
             <span>←</span> Home
-          </button>
+          </Link>
           
           <button 
             onClick={handleCopyLink}
@@ -103,31 +72,19 @@ export default function ResultPage({ params }) {
           </button>
         </div>
 
-        {/* --- LOADING & ERRORS --- */}
-        {loading && (
-          <div className="flex flex-col items-center justify-center py-20 gap-4">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500"></div>
-            <p className="text-emerald-400/70 font-bold uppercase tracking-widest text-xs animate-pulse">Calculating Results...</p>
-          </div>
-        )}
-
-        {error && (
-          <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-6 py-4 rounded-2xl text-center">
-            {error}
-          </div>
-        )}
+        {/* --- TITLE --- */}
+        <div className="text-center mb-6">
+          <h1 className="text-2xl font-black text-emerald-400">
+            {creatorName}'s Dashboard
+          </h1>
+          <p className="text-slate-400 text-sm">
+            Total Questions: {totalQuestions} | Players: {results.length}
+          </p>
+        </div>
 
         {/* --- FEATURED RESULT & CELEBRATION ANIMATION --- */}
-        {!loading && featuredResult && (
+        {featuredResult && (
           <div className="flex flex-col items-center text-center mt-4">
-            <motion.h1 
-              initial={{ opacity: 0, y: -10 }} 
-              animate={{ opacity: 1, y: 0 }} 
-              className="text-3xl font-black text-white mb-6"
-            >
-              Quiz Complete!
-            </motion.h1>
-
             {/* Animated SVG Circular Score */}
             <div className="relative w-48 h-48 flex items-center justify-center mb-6">
               {/* Particle Explosion Animation */}
@@ -150,15 +107,7 @@ export default function ResultPage({ params }) {
               ))}
 
               <svg className="w-full h-full transform -rotate-90 relative z-10" viewBox="0 0 140 140">
-                {/* Background Track */}
-                <circle 
-                  cx="70" cy="70" r={radius} 
-                  stroke="currentColor" 
-                  strokeWidth="12" 
-                  fill="transparent" 
-                  className="text-white/5" 
-                />
-                {/* Animated Foreground Ring */}
+                <circle cx="70" cy="70" r={radius} stroke="currentColor" strokeWidth="12" fill="transparent" className="text-white/5" />
                 <motion.circle 
                   cx="70" cy="70" r={radius} 
                   stroke="url(#gradient)" 
@@ -207,14 +156,14 @@ export default function ResultPage({ params }) {
         )}
 
         {/* --- EMPTY STATE (No one took it yet) --- */}
-        {!loading && results.length === 0 && !error && (
+        {results.length === 0 && (
           <div className="text-center py-10">
             <div className="text-5xl mb-4 animate-pulse">👀</div>
             <h2 className="text-2xl font-bold text-white mb-2">It's quiet here...</h2>
             <p className="text-slate-400 text-sm mb-6">No one has taken your quiz yet. Copy your link and send it to your friends!</p>
             <button 
               onClick={handleCopyLink}
-              className="bg-emerald-500 text-emerald-950 font-bold px-6 py-3 rounded-xl hover:bg-emerald-400 transition-colors"
+              className="bg-emerald-500 text-emerald-950 font-bold px-6 py-3 rounded-xl hover:bg-emerald-400 transition-colors shadow-lg shadow-emerald-500/20"
             >
               {copied ? "Copied! ✔" : "Copy Link"}
             </button>
@@ -222,7 +171,7 @@ export default function ResultPage({ params }) {
         )}
 
         {/* --- LEADERBOARD SECTION --- */}
-        {!loading && results.length > 0 && (
+        {results.length > 0 && (
           <div className="w-full">
             <h2 className="text-xl font-bold text-center mb-5 flex items-center justify-center gap-2">
               🏆 Leaderboard
@@ -235,7 +184,7 @@ export default function ResultPage({ params }) {
                 return (
                   <motion.div
                     variants={itemVariants}
-                    key={i}
+                    key={r.id}
                     onClick={() => setExpandedIndex(expandedIndex === i ? null : i)}
                     className={`rounded-2xl p-4 cursor-pointer transition-all border ${
                       isTopPlayer 
@@ -300,22 +249,26 @@ export default function ResultPage({ params }) {
           </div>
         )}
 
-        {/* --- BOTTOM BUTTON --- */}
-        {!loading && (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.5 }}
-            className="mt-10"
+        {/* --- BOTTOM BUTTONS --- */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="mt-10 flex gap-4"
+        >
+          <Link 
+            href={`/quiz/${quizId}`}
+            className="flex-1 text-center bg-slate-700/50 border border-white/10 text-white font-bold py-4 rounded-xl hover:bg-slate-600 transition-colors"
           >
-            <button 
-              onClick={() => window.location.href = '/create'} 
-              className="w-full bg-white hover:bg-slate-200 text-black font-black text-lg py-4 rounded-2xl transition-all active:scale-95 shadow-lg flex items-center justify-center gap-2"
-            >
-              Create Your Own Quiz 🚀
-            </button>
-          </motion.div>
-        )}
+            Play Quiz
+          </Link>
+          <Link 
+            href="/create" 
+            className="flex-1 text-center bg-emerald-500 text-emerald-950 font-black py-4 rounded-xl hover:bg-emerald-400 transition-all active:scale-95 shadow-lg shadow-emerald-500/20"
+          >
+            Create New 🚀
+          </Link>
+        </motion.div>
 
       </div>
     </div>

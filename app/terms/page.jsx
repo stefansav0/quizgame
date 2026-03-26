@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export const metadata = {
   title: "Terms of Service | Bestiefy",
-  description: "Terms and conditions for using Bestiefy.",
+  description: "Terms and conditions for using getknowify.",
 };
 
 export default function TermsPage() {
@@ -19,12 +19,12 @@ export default function TermsPage() {
         <div className="space-y-8 leading-relaxed">
           <section>
             <h2 className="text-2xl font-bold text-white mb-4">1. Acceptance of Terms</h2>
-            <p>By accessing and using Bestiefy ("we", "our", "the App"), you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by these terms, please do not use this service.</p>
+            <p>By accessing and using getknowify ("we", "our", "the App"), you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by these terms, please do not use this service.</p>
           </section>
 
           <section>
             <h2 className="text-2xl font-bold text-white mb-4">2. Description of Service</h2>
-            <p>Bestiefy provides an entertainment platform where users can create customized quizzes and send digital letters to friends and family. The service is provided "as is" and is intended for entertainment purposes only.</p>
+            <p>getknowify provides an entertainment platform where users can create customized quizzes and send digital letters to friends and family. The service is provided "as is" and is intended for entertainment purposes only.</p>
           </section>
 
           <section>
@@ -40,7 +40,7 @@ export default function TermsPage() {
 
           <section>
             <h2 className="text-2xl font-bold text-white mb-4">4. Intellectual Property</h2>
-            <p>The app's original content, features, and functionality are owned by Bestiefy and are protected by international copyright, trademark, and other intellectual property laws.</p>
+            <p>The app's original content, features, and functionality are owned by getknowify and are protected by international copyright, trademark, and other intellectual property laws.</p>
           </section>
 
           <section>
