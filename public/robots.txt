@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://getknowify.com
+
+# Sitemaps
+Sitemap: https://getknowify.com/sitemap.xml

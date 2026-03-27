@@ -17,23 +17,13 @@ export default function Footer() {
           {/* Brand & Tagline (Takes up more space on desktop) */}
           <div className="md:col-span-5 flex flex-col items-center md:items-start text-center md:text-left">
             <Link href="/" className="text-3xl font-black bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-200 bg-clip-text text-transparent mb-4 inline-block hover:scale-105 transition-transform duration-300">
-              Findmeway ✨
+              Getknowify ✨
             </Link>
             <p className="text-slate-400 text-sm font-medium leading-relaxed max-w-sm mb-6">
               The ultimate platform to test your friendships, discover who knows you best, and share the love. 100% Free forever.
             </p>
             {/* Optional: Social Media Placeholders (Great for AdSense E-E-A-T) */}
-            <div className="flex items-center gap-4">
-              <a href="#" className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:bg-emerald-500/20 hover:text-emerald-400 hover:border-emerald-500/50 transition-all">
-                𝕏
-              </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:bg-pink-500/20 hover:text-pink-400 hover:border-pink-500/50 transition-all">
-                IG
-              </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:bg-blue-500/20 hover:text-blue-400 hover:border-blue-500/50 transition-all">
-                FB
-              </a>
-            </div>
+            
           </div>
 
           {/* Navigation Links Grid */}

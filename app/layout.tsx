@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Script from "next/script";
-import Header from "@/components/Header"; // <-- IMPORT HEADER
+import Header from "@/components/Header"; 
 import Footer from "@/components/Footer";
+import Script from "next/script"; // <-- IMPORT SCRIPT COMPONENT
 import "./globals.css";
 
 const geistSans = Geist({
@@ -16,8 +16,14 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "findmeway | How Well Do You Know Me?",
+  title: "Getknowify | How Well Do You Know Me?",
   description: "Create custom quizzes and secret letters for your besties and partners. Find out who really knows you best!",
+  // ✅ CACHE BUSTING: Added ?v=2 to force the browser to update the icon
+  icons: {
+    icon: "/favicon.ico?v=2",
+    shortcut: "/favicon.ico?v=2",
+    apple: "/favicon.ico?v=2",
+  },
 };
 
 export default function RootLayout({
@@ -27,7 +33,26 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-    
+      <head>
+        {/* ✅ GOOGLE ANALYTICS (GA4) */}
+        <Script
+          strategy="afterInteractive"
+          src="https://www.googletagmanager.com/gtag/js?id=G-9YDEEPLCYP"
+        />
+        <Script
+          id="google-analytics"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-9YDEEPLCYP');
+            `,
+          }}
+        />
+      </head>
+      
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#0f111a] text-white flex flex-col min-h-screen`}>
         
         {/* Global Header (Sticky) */}

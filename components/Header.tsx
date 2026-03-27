@@ -13,9 +13,8 @@ export default function Header() {
   const navLinks = [
     { name: "Home", path: "/" },
     { name: "Create Quiz", path: "/create" },
-    { name: "Send Letter", path: "/letter/create" },
+    
     { name: "Blog", path: "/blog" },
-    { name: "About", path: "/about" },
   ];
 
   return (
@@ -27,7 +26,7 @@ export default function Header() {
           href="/" 
           className="text-2xl font-black bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-200 bg-clip-text text-transparent hover:scale-105 transition-transform duration-300 flex items-center gap-2"
         >
-          Findmeway ✨
+          Getknowify ✨
         </Link>
 
         {/* DESKTOP NAVIGATION */}
@@ -54,7 +53,7 @@ export default function Header() {
             href="/create"
             className="bg-emerald-500 hover:bg-emerald-400 text-emerald-950 px-6 py-2.5 rounded-xl font-black text-sm transition-all shadow-[0_0_15px_rgba(16,185,129,0.2)] hover:shadow-[0_0_25px_rgba(16,185,129,0.4)] active:scale-95"
           >
-            Start Now 🚀
+            Start Now 
           </Link>
         </div>
 
@@ -106,7 +105,7 @@ export default function Header() {
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="block text-center bg-emerald-500 text-emerald-950 w-full py-3 rounded-xl font-black text-lg shadow-lg active:scale-95 transition-transform"
                 >
-                  Start Now 🚀
+                  Start Now 
                 </Link>
               </div>
             </div>
