@@ -3,10 +3,14 @@ import Result from "@/models/Result";
 
 export async function GET(req, { params }) {
   try {
+    // ✅ NEXT.JS 15 FIX: Await the params object before reading properties
+    const resolvedParams = await params;
+    const { quizId } = resolvedParams;
+
     await connectDB();
 
     const results = await Result
-      .find({ quizId: params.quizId })
+      .find({ quizId: quizId }) // Use the awaited quizId here
       .sort({ score: -1 })
       .lean();
 

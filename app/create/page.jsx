@@ -177,6 +177,8 @@ const generateQuestionBank = (name = "my", language = "English") => {
 export default function CreateQuiz() {
   // --- STATE ---
   const [isLoading, setIsLoading] = useState(true); // Prevents flash on load
+  const [isGenerating, setIsGenerating] = useState(false); // For translation loading spinner
+  const [isDeleting, setIsDeleting] = useState(false); // For delete button loading state
   const [step, setStep] = useState(0); 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [createdQuizId, setCreatedQuizId] = useState(null);
@@ -193,18 +195,15 @@ export default function CreateQuiz() {
 
   // --- LOCAL STORAGE CHECK ON MOUNT ---
   useEffect(() => {
-    // Check if user already made a quiz in this browser using localStorage
     const existingQuizId = localStorage.getItem('spicy_quiz_id');
     
     if (existingQuizId) {
       setCreatedQuizId(existingQuizId);
-      setStep(11); // Skip straight to the dashboard/results screen
+      setStep(11); 
     }
     
-    // Done checking, safe to show UI
     setIsLoading(false);
   }, []);
-
 
   // --- HANDLERS ---
   const handleCountryChange = (e) => {
@@ -221,6 +220,7 @@ export default function CreateQuiz() {
 
   const handleStartQuizSetup = async () => {
     try {
+      setIsGenerating(true);
       const baseBank = generateQuestionBank(userInfo.name);
 
       // 🔥 Translate all questions
@@ -257,6 +257,9 @@ export default function CreateQuiz() {
 
     } catch (error) {
       console.error("Error generating quiz:", error);
+      alert("Failed to generate questions. Please try again.");
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -306,32 +309,45 @@ export default function CreateQuiz() {
       const data = await res.json();
       
       setCreatedQuizId(data.quizId);
-
-      // 🔥 Save the quiz ID to local storage so they are recognized later
       localStorage.setItem('spicy_quiz_id', data.quizId);
       
       setStep(11); 
     } catch (error) {
       console.error("Failed to create quiz", error);
+      alert("Something went wrong creating the quiz.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // --- DELETE QUIZ HANDLER ---
+  // --- DELETE QUIZ HANDLER (FRONTEND + BACKEND) ---
   const handleDeleteQuiz = async () => {
-    if(!confirm("Are you sure you want to delete this quiz and start over?")) return;
+    if(!confirm("Are you sure you want to delete this quiz and start over? This cannot be undone.")) return;
     
-    // Optional: If you have a backend delete route, you can call it here:
-    // await fetch(`/api/quiz/${createdQuizId}`, { method: "DELETE" });
-
-    // 1. Remove from local storage
-    localStorage.removeItem('spicy_quiz_id');
+    setIsDeleting(true);
     
-    // 2. Reset states back to default
-    setCreatedQuizId(null);
-    setUserInfo({ country: "", language: "", name: "" });
-    setStep(0);
+    try {
+      // If we have an ID, tell the backend to delete it
+      if (createdQuizId) {
+        const res = await fetch(`/api/quiz/${createdQuizId}`, { 
+          method: "DELETE" 
+        });
+        
+        if (!res.ok) {
+          console.error("Failed to delete quiz from server.");
+        }
+      }
+    } catch (error) {
+      console.error("Error deleting quiz:", error);
+    } finally {
+      // Regardless of server success (e.g. if already deleted), clear local state so they can make a new one
+      localStorage.removeItem('spicy_quiz_id');
+      setCreatedQuizId(null);
+      setUserInfo({ country: "", language: "", name: "" });
+      setStep(0);
+      setIsDeleting(false);
+      alert("Quiz successfully deleted. You can now create a new one!");
+    }
   };
 
   const copyToClipboard = (text, type) => {
@@ -441,10 +457,14 @@ export default function CreateQuiz() {
               <div className="mt-12 relative z-10">
                 <button
                   onClick={handleStartQuizSetup}
-                  disabled={!userInfo.name || !userInfo.country || !userInfo.language}
-                  className="w-full bg-gradient-to-r from-emerald-500 to-teal-400 text-emerald-950 font-black text-xl py-5 px-6 rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:pointer-events-none shadow-[0_10px_30px_rgba(16,185,129,0.4)] flex justify-center items-center gap-2"
+                  disabled={!userInfo.name || !userInfo.country || !userInfo.language || isGenerating}
+                  className="w-full bg-gradient-to-r from-emerald-500 to-teal-400 text-emerald-950 font-black text-xl py-5 px-6 rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:pointer-events-none shadow-[0_10px_30px_rgba(16,185,129,0.4)] flex justify-center items-center gap-2 h-[72px]"
                 >
-                  Generate Spicy Questions 🔥
+                  {isGenerating ? (
+                    <div className="w-8 h-8 border-4 border-emerald-950 border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    "Generate Spicy Questions 🔥"
+                  )}
                 </button>
               </div>
             </motion.div>
@@ -550,9 +570,13 @@ export default function CreateQuiz() {
                   <button
                     onClick={handleSaveAndShare}
                     disabled={isSubmitting}
-                    className="bg-emerald-400 text-emerald-950 font-black text-lg py-4 px-8 rounded-2xl hover:bg-emerald-300 hover:scale-[1.02] transition-all shadow-[0_0_30px_rgba(52,211,153,0.5)] disabled:opacity-50 disabled:scale-100 flex items-center gap-2"
+                    className="bg-emerald-400 text-emerald-950 font-black text-lg py-4 px-8 rounded-2xl hover:bg-emerald-300 hover:scale-[1.02] transition-all shadow-[0_0_30px_rgba(52,211,153,0.5)] disabled:opacity-50 disabled:scale-100 flex items-center gap-2 h-16 min-w-[200px] justify-center"
                   >
-                    {isSubmitting ? "Creating Magic..." : "Finish & Share 🚀"}
+                    {isSubmitting ? (
+                      <div className="w-6 h-6 border-4 border-emerald-950 border-t-transparent rounded-full animate-spin"></div>
+                    ) : (
+                      "Finish & Share 🚀"
+                    )}
                   </button>
                 )}
               </div>
@@ -576,9 +600,11 @@ export default function CreateQuiz() {
               <p className="text-slate-400 font-medium text-lg mb-10 relative z-10">Time to expose which of your friends <br className="hidden sm:block" /> actually knows you.</p>
 
               <div className="space-y-6 relative z-10 text-left w-full">
+                
+                {/* 1. Public Share Link */}
                 <div className="bg-black/40 p-6 rounded-3xl border border-white/10 shadow-inner">
                   <p className="text-sm font-bold text-emerald-400 mb-3 uppercase tracking-wide flex items-center gap-2">
-                    <span>1. Send to friends</span>
+                    <span>Send to friends</span>
                     <span className="bg-emerald-500/20 px-2 py-0.5 rounded-md text-xs text-emerald-300">Public Link</span>
                   </p>
                   <div className="flex flex-col sm:flex-row gap-3">
@@ -596,45 +622,37 @@ export default function CreateQuiz() {
                   </div>
                 </div>
 
-                <div className="bg-emerald-900/20 p-6 rounded-3xl border border-emerald-500/30 shadow-inner">
-                  <p className="text-sm font-bold text-amber-400 mb-2 uppercase tracking-wide flex items-center gap-2">
-                    <span>2. Your Dashboard Link</span>
+                {/* 2. Simplified Dashboard Button */}
+                <div className="bg-emerald-900/20 p-6 rounded-3xl border border-emerald-500/30 shadow-inner text-center">
+                  <p className="text-sm font-bold text-amber-400 mb-2 uppercase tracking-wide flex items-center justify-center gap-2">
+                    <span>Track Your Results</span>
                     <span className="bg-amber-500/20 px-2 py-0.5 rounded-md text-xs text-amber-300">Secret</span>
                   </p>
-                  <p className="text-xs font-medium text-slate-400 mb-4">Save this link! This is where you go to check the live leaderboard.</p>
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <input 
-                      readOnly 
-                      value={`${baseUrl}/quiz/${createdQuizId}/results`} 
-                      className="w-full bg-black/40 border border-emerald-500/30 text-emerald-100 px-5 py-4 rounded-xl outline-none text-sm font-mono text-ellipsis focus:border-amber-500/50 transition-colors"
-                    />
-                    <button 
-                      onClick={() => copyToClipboard(`${baseUrl}/quiz/${createdQuizId}/results`, 'results')}
-                      className="bg-amber-500 text-amber-950 px-6 py-4 rounded-xl font-black hover:bg-amber-400 transition-colors whitespace-nowrap active:scale-95 shadow-lg"
-                    >
-                      {copiedLink === 'results' ? 'Copied! ✔' : 'Copy Link'}
-                    </button>
-                  </div>
+                  <p className="text-xs font-medium text-slate-400 mb-6">This is your personal dashboard to see who scored the highest on your quiz.</p>
+                  
+                  <button
+                    onClick={() => window.location.href = `/quiz/${createdQuizId}/results`}
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-amber-500 text-amber-950 font-black px-8 py-4 rounded-xl hover:bg-amber-400 transition-all active:scale-95 shadow-[0_0_20px_rgba(245,158,11,0.3)] text-lg"
+                  >
+                    Go to my Dashboard now →
+                  </button>
                 </div>
+
               </div>
 
-              <div className="mt-10 mb-6 relative z-10">
-                <button
-                  onClick={() => window.location.href = `/quiz/${createdQuizId}/results`}
-                  className="inline-flex items-center gap-2 text-slate-300 hover:text-white font-bold transition-colors group text-lg"
-                >
-                  Go to my Dashboard now 
-                  <span className="group-hover:translate-x-1 transition-transform">→</span>
-                </button>
-              </div>
-
-              {/* NEW: DELETE QUIZ BUTTON */}
-              <div className="mt-6 pt-6 border-t border-white/10 w-full relative z-10">
+              {/* DELETE QUIZ BUTTON */}
+              <div className="mt-10 pt-6 border-t border-white/10 w-full relative z-10">
                 <button
                   onClick={handleDeleteQuiz}
-                  className="text-xs font-bold text-rose-400/70 hover:text-rose-400 transition-colors uppercase tracking-widest flex items-center justify-center gap-2 mx-auto"
+                  disabled={isDeleting}
+                  className="text-xs font-bold text-rose-400/70 hover:text-rose-400 transition-colors uppercase tracking-widest flex items-center justify-center gap-2 mx-auto disabled:opacity-50"
                 >
-                  <span className="text-lg">🗑️</span> Delete current quiz & start over
+                  {isDeleting ? (
+                    <div className="w-4 h-4 border-2 border-rose-400 border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <span className="text-lg">🗑️</span>
+                  )}
+                  {isDeleting ? "Deleting..." : "Delete current quiz & start over"}
                 </button>
               </div>
 
