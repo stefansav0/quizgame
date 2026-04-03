@@ -13,14 +13,17 @@ export async function POST(request, { params }) {
 
     const body = await request.json();
     
-    // 🔥 ADDED: Extract selectedAnswers from the incoming request
+    // 🐛 DEBUG LOG: This will print in your VS Code terminal!
+    console.log("Data received from frontend:", body);
+
+    // Extract selectedAnswers from the incoming request
     const { playerName, score, totalQuestions, selectedAnswers } = body;
 
     if (!playerName) {
       return NextResponse.json({ error: "Player name is required" }, { status: 400 });
     }
 
-    await Score.create({
+    const newScore = await Score.create({
       quizId: id, // Associates this score with the specific quiz
       playerName,
       score,
@@ -28,6 +31,9 @@ export async function POST(request, { params }) {
       // 🚨 CRITICAL: Save the array to the database!
       selectedAnswers: selectedAnswers || [], 
     });
+
+    // 🐛 DEBUG LOG: Check if MongoDB actually saved the array
+    console.log("Data saved to MongoDB:", newScore);
 
     return NextResponse.json({ success: true }, { status: 201 });
   } catch (error) {
