@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Header from "@/components/Header"; 
 import Footer from "@/components/Footer";
-import Script from "next/script"; // <-- IMPORT SCRIPT COMPONENT
+import Script from "next/script";
+// @ts-ignore
 import "./globals.css";
 
 const geistSans = Geist({
@@ -18,7 +19,6 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Getknowify | How Well Do You Know Me?",
   description: "Create custom quizzes and secret letters for your besties and partners. Find out who really knows you best!",
-  // ✅ CACHE BUSTING: Added ?v=2 to force the browser to update the icon
   icons: {
     icon: "/favicon.ico?v=2",
     shortcut: "/favicon.ico?v=2",
@@ -28,12 +28,13 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
       <head>
+
         {/* ✅ GOOGLE ANALYTICS (GA4) */}
         <Script
           strategy="afterInteractive"
@@ -51,19 +52,29 @@ export default function RootLayout({
             `,
           }}
         />
+
+        {/* ✅ GOOGLE ADSENSE (IMPORTANT) */}
+        <Script
+          id="adsense-script"
+          strategy="afterInteractive"
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9348579900264611"
+          crossOrigin="anonymous"
+        />
+
       </head>
       
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#0f111a] text-white flex flex-col min-h-screen`}>
         
-        {/* Global Header (Sticky) */}
+        {/* Header */}
         <Header />
 
-        {/* Main Content Area - Added pt-20 to account for the fixed 80px high Header */}
+        {/* Main Content */}
         <main className="flex-grow w-full pt-20">
           {children}
         </main>
 
-        {/* Global Footer */}
+        {/* Footer */}
         <Footer />
         
       </body>
