@@ -12,7 +12,9 @@ export async function POST(request, { params }) {
     const id = resolvedParams.id;
 
     const body = await request.json();
-    const { playerName, score, totalQuestions } = body;
+    
+    // 🔥 ADDED: Extract selectedAnswers from the incoming request
+    const { playerName, score, totalQuestions, selectedAnswers } = body;
 
     if (!playerName) {
       return NextResponse.json({ error: "Player name is required" }, { status: 400 });
@@ -22,7 +24,9 @@ export async function POST(request, { params }) {
       quizId: id, // Associates this score with the specific quiz
       playerName,
       score,
-      totalQuestions
+      totalQuestions,
+      // 🚨 CRITICAL: Save the array to the database!
+      selectedAnswers: selectedAnswers || [], 
     });
 
     return NextResponse.json({ success: true }, { status: 201 });

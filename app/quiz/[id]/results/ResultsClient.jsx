@@ -1,4 +1,3 @@
-// app/quiz/[id]/results/ResultsClient.jsx
 "use client";
 
 import { useState } from "react";
@@ -212,7 +211,7 @@ export default function ResultsClient({ quizId, creatorName, totalQuestions, res
                       </div>
                     </div>
 
-                    {/* Expandable Answers */}
+                    {/* ✅ EXPANDABLE ANSWERS (UPDATED VIEW) */}
                     <AnimatePresence>
                       {expandedIndex === i && (
                         <motion.div 
@@ -221,21 +220,40 @@ export default function ResultsClient({ quizId, creatorName, totalQuestions, res
                           exit={{ height: 0, opacity: 0 }}
                           className="overflow-hidden"
                         >
-                          <div className="mt-4 space-y-2 border-t border-white/10 pt-4">
+                          <div className="mt-4 space-y-3 border-t border-white/10 pt-4">
                             {r.answers?.length > 0 ? (
                               r.answers.map((ans, idx) => (
-                                <div key={idx} className="p-3 rounded-xl bg-black/40 border border-white/5 text-sm">
-                                  <p className="font-semibold text-white/90 mb-2 leading-snug">{idx + 1}. {ans.question}</p>
-                                  <div className="flex gap-2 items-start">
-                                    <span className="mt-0.5">{ans.isCorrect ? '✅' : '❌'}</span>
-                                    <span className={`font-medium ${ans.isCorrect ? "text-emerald-400" : "text-rose-400"}`}>
-                                      {ans.selected || "Skipped"}
-                                    </span>
+                                <div key={idx} className="p-4 rounded-xl bg-black/40 border border-white/5 text-sm">
+                                  <p className="font-semibold text-white/90 mb-3 leading-snug">
+                                    {idx + 1}. {ans.question}
+                                  </p>
+                                  
+                                  <div className="flex flex-col gap-2">
+                                    {/* What the user picked */}
+                                    <div className="flex items-start gap-2">
+                                      <span className="mt-0.5">{ans.isCorrect ? '✅' : '❌'}</span>
+                                      <span className={`font-bold ${ans.isCorrect ? "text-emerald-400" : "text-rose-400"}`}>
+                                        <span className="text-slate-500 font-normal mr-1">They picked:</span>
+                                        {ans.selected || ans.selectedText || "Skipped"}
+                                      </span>
+                                    </div>
+                                    
+                                    {/* Show the correct answer ONLY if they got it wrong */}
+                                    {!ans.isCorrect && (ans.correct || ans.correctText) && (
+                                      <div className="flex items-start gap-2 ml-6">
+                                        <span className="text-emerald-400 font-bold">
+                                          <span className="text-slate-500 font-normal mr-1">Correct answer:</span>
+                                          {ans.correct || ans.correctText}
+                                        </span>
+                                      </div>
+                                    )}
                                   </div>
                                 </div>
                               ))
                             ) : (
-                              <p className="text-gray-500 text-xs italic text-center py-2">No detailed answers available.</p>
+                              <p className="text-gray-500 text-xs italic text-center py-2">
+                                No detailed answers available for this attempt.
+                              </p>
                             )}
                           </div>
                         </motion.div>
