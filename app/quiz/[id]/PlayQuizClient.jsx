@@ -21,7 +21,6 @@ const getResultMessage = (percentage) => {
 };
 
 // --- SAFE PARSER FOR API RESPONSES ---
-// This ensures it works whether your API returns data directly or wraps it in an object.
 const extractScores = (data) => {
   if (Array.isArray(data)) return data;
   if (data && Array.isArray(data.scores)) return data.scores;
@@ -55,9 +54,10 @@ export default function PlayQuizClient({ quiz }) {
         setIsFinished(true);
 
         try {
-          const res = await fetch(`/api/leaderboard/${quiz._id}`);
+          // 🚨 FIX: Updated to fetch from the correct score route!
+          const res = await fetch(`/api/quiz/${quiz._id}/score`);
           const data = await res.json();
-          setLeaderboard(extractScores(data)); // Use the safe parser
+          setLeaderboard(extractScores(data)); 
         } catch (error) {
           console.error("Failed to fetch leaderboard", error);
         }
@@ -96,7 +96,8 @@ export default function PlayQuizClient({ quiz }) {
       await new Promise((resolve) => setTimeout(resolve, 500));
 
       // 2. Fetch the updated leaderboard
-      const res = await fetch(`/api/leaderboard/${quiz._id}`);
+      // 🚨 FIX: Updated to fetch from the correct score route!
+      const res = await fetch(`/api/quiz/${quiz._id}/score`);
       const data = await res.json();
       
       let fetchedLeaderboard = extractScores(data);
