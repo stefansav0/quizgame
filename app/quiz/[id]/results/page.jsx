@@ -1,6 +1,6 @@
 import { connectDB } from "@/lib/mongodb";
 import Quiz from "@/models/Quiz";
-import Score from "@/models/Score";
+import Score from "@/models/Score"; // Make sure this matches your schema name (Score or Result)
 import Link from "next/link";
 import DashboardList from "./DashboardList";
 
@@ -23,20 +23,32 @@ export default async function ResultsPage({ params }) {
     .sort({ score: -1, createdAt: 1 })
     .lean();
 
-  // FORMAT THE DATA FOR THE DROPDOWN
+  // 🔥 BULLETPROOF DATA FORMATTING
   const formattedScores = scores.map((entry) => {
     let detailedAnswers = [];
 
     // Map the selected index numbers to the actual text from the quiz
     if (entry.selectedAnswers && entry.selectedAnswers.length > 0 && quiz.questions) {
       detailedAnswers = quiz.questions.map((q, idx) => {
-        const selectedIdx = entry.selectedAnswers[idx];
-        const isCorrect = selectedIdx === q.correctAnswer;
         
+        // 1. Safely grab what the user picked and force it to be a Number
+        const rawSelected = entry.selectedAnswers[idx];
+        const selectedIdx = rawSelected !== null && rawSelected !== undefined ? Number(rawSelected) : -1;
+
+        // 2. Safely grab the correct answer and force it to be a Number
+        const correctIdx = q.correctAnswer !== undefined && q.correctAnswer !== null ? Number(q.correctAnswer) : 0;
+
+        // 3. Math comparison (No more string/number mismatch bugs!)
+        const isCorrect = selectedIdx === correctIdx;
+        
+        // 4. Safely grab the text from the options array so it is never blank
+        const selectedText = selectedIdx >= 0 && q.options[selectedIdx] ? q.options[selectedIdx] : "Skipped";
+        const correctText = q.options[correctIdx] || q.options[0]; 
+
         return {
           question: q.question,
-          selectedText: selectedIdx !== undefined ? q.options[selectedIdx] : "Skipped",
-          correctText: q.options[q.correctAnswer],
+          selectedText: selectedText,
+          correctText: correctText,
           isCorrect: isCorrect,
         };
       });
@@ -46,8 +58,9 @@ export default async function ResultsPage({ params }) {
       _id: entry._id.toString(),
       playerName: entry.playerName,
       score: entry.score,
-      createdAt: entry.createdAt ? entry.createdAt.toISOString() : new Date().toISOString(),
-      answers: detailedAnswers, // Pass the formatted answers down!
+      // Safely parse the date just in case lean() returns a string instead of a Date object
+      createdAt: entry.createdAt ? new Date(entry.createdAt).toISOString() : new Date().toISOString(),
+      answers: detailedAnswers, // Pass the perfectly formatted answers down!
     };
   });
 
