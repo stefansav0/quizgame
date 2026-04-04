@@ -4,17 +4,40 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 
+// --- THE THEMES ---
+const THEMES = [
+  { id: "purple", name: "Midnight", emoji: "🌌", glow: "bg-purple-600/20", border: "focus:border-purple-500/50", button: "from-purple-500 to-indigo-500", text: "from-purple-300 via-indigo-200 to-purple-300", label: "text-purple-300" },
+  { id: "rose", name: "Valentine", emoji: "🌹", glow: "bg-rose-600/20", border: "focus:border-rose-500/50", button: "from-rose-500 to-pink-500", text: "from-rose-300 via-pink-200 to-rose-300", label: "text-rose-300" },
+  { id: "emerald", name: "Envy", emoji: "✨", glow: "bg-emerald-600/20", border: "focus:border-emerald-500/50", button: "from-emerald-500 to-teal-500", text: "from-emerald-300 via-teal-200 to-emerald-300", label: "text-emerald-300" },
+  { id: "amber", name: "Warmth", emoji: "🌅", glow: "bg-amber-600/20", border: "focus:border-amber-500/50", button: "from-amber-500 to-orange-500", text: "from-amber-300 via-orange-200 to-amber-300", label: "text-amber-300" },
+  { id: "cyan", name: "Ocean", emoji: "🌊", glow: "bg-cyan-600/20", border: "focus:border-cyan-500/50", button: "from-cyan-500 to-blue-500", text: "from-cyan-300 via-blue-200 to-cyan-300", label: "text-cyan-300" },
+];
+
 // --- THE LETTER TEMPLATES ---
-const getTemplate = (type, recipient, sender) => {
+const TEMPLATES = [
+  { id: "romantic", icon: "💖", label: "Loved One" },
+  { id: "bestie", icon: "👯‍♀️", label: "Bestie" },
+  { id: "crush", icon: "🙈", label: "Secret Crush" },
+  { id: "appreciation", icon: "🌟", label: "Appreciation" },
+  { id: "missyou", icon: "🌙", label: "Miss You" },
+  { id: "apology", icon: "🥺", label: "Apology" },
+  { id: "birthday", icon: "🎂", label: "Birthday" },
+  { id: "proud", icon: "💪", label: "Proud of You" },
+];
+
+const getTemplateText = (type, recipient, sender) => {
   const rName = recipient || "[Name]";
   const sName = sender || "[Your Name]";
 
   const templates = {
-    romantic: `My dearest ${rName},\n\nI wanted to take a moment to put into words just how much you mean to me. In a world that constantly moves so fast, you are my quiet place, my greatest adventure, and my absolute favorite part of every single day. \n\nBefore I met you, I didn't truly understand what it meant to have someone who completely sees me, understands my flaws, and loves me anyway. You have this incredible ability to light up any room you walk into, but more importantly, you light up my life in ways I never thought possible. Every laugh we share, every quiet moment we spend together, and every dream we talk about for the future feels like a piece of a puzzle falling perfectly into place.\n\nI love your smile, I love your kindness, and I love the way you constantly inspire me to be a better person. You are the first thing I think about when I wake up and my last thought before I fall asleep. No matter where life takes us, or what challenges we face, I want you to know that my heart is entirely yours. \n\nThank you for choosing me, for loving me so deeply, and for being the most beautiful part of my story. I promise to cherish you today, tomorrow, and for all the days to come.\n\nForever and always yours,\n\n${sName}`,
-    
-    bestie: `Hey ${rName},\n\nI was just sitting here thinking about everything, and I realized I don't tell you enough how incredibly grateful I am to have you in my life. Seriously, what would I even do without you?\n\nFrom our late-night talks that turn into early mornings, to the moments we literally cannot stop laughing over the dumbest things, you have given me some of the best memories of my entire life. You are the person I want to text first when something amazing happens, and the exact person I need to talk to when everything goes wrong. You just get it. You get me.\n\nThank you for never judging me, for always having my back, and for being the most fiercely loyal friend anyone could ever ask for. People search their whole lives for a soulmate, and I am so unbelievably lucky that I found mine in my best friend. We have so many more crazy memories to make, so many more inside jokes to create, and so much more life to live together.\n\nNever forget how amazing, beautiful, and capable you are. I will always be your biggest cheerleader. I love you endlessly!\n\nYours always,\n\n${sName}`,
-    
-    appreciation: `Dear ${rName},\n\nI am writing this letter just to say a massive, heartfelt thank you. We don't always take the time to appreciate the people who make our lives better, but today, I wanted to make sure you know your impact.\n\nYour kindness, your energy, and the way you support the people around you is truly rare. Whenever I am around you, I feel uplifted. You have this unique gift of making people feel seen, heard, and valued, and I want you to know that I see it, and I appreciate it more than words can say.\n\nThank you for being exactly who you are. Don't ever let the world change your wonderful spirit. I am so glad that our paths crossed, and I am sending so much love and positivity your way.\n\nWarmly,\n\n${sName}`
+    romantic: `My dearest ${rName},\n\nI wanted to take a moment to put into words just how much you mean to me. In a world that constantly moves so fast, you are my quiet place, my greatest adventure, and my absolute favorite part of every single day.\n\nThank you for choosing me, for loving me so deeply, and for being the most beautiful part of my story. I promise to cherish you today, tomorrow, and for all the days to come.\n\nForever and always yours,\n\n${sName}`,
+    bestie: `Hey ${rName},\n\nI was just sitting here thinking about everything, and I realized I don't tell you enough how incredibly grateful I am to have you in my life.\n\nThank you for never judging me, for always having my back, and for being the most fiercely loyal friend anyone could ever ask for. I will always be your biggest cheerleader. I love you endlessly!\n\nYours always,\n\n${sName}`,
+    crush: `Dear ${rName},\n\nI’ve been wanting to tell you this for a while now, but I could never quite find the right words or the right moment. The truth is, I really like you.\n\nEvery time you're around, my day gets a little bit brighter. I love your laugh, the way you talk about things you care about, and just the energy you bring into a room. I didn't want to keep it a secret anymore.\n\nHope this makes you smile,\n\n${sName}`,
+    appreciation: `Dear ${rName},\n\nI am writing this letter just to say a massive, heartfelt thank you.\n\nYour kindness, your energy, and the way you support the people around you is truly rare. Thank you for being exactly who you are. I am so glad that our paths crossed.\n\nWarmly,\n\n${sName}`,
+    missyou: `Hey ${rName},\n\nIt’s been way too long, and I just wanted to reach out and let you know how much I miss you. Life gets so crazy and busy, but you’ve been on my mind lately.\n\nI miss our laughs, our deep talks, and just simply hanging out. Let’s please catch up soon. Sending you a big hug!\n\nMiss you tons,\n\n${sName}`,
+    apology: `Dear ${rName},\n\nI'm writing this because I owe you a sincere apology. I know that I messed up, and I feel terrible about how my actions affected you.\n\nYou mean so much to me, and the last thing I ever want to do is hurt you. I hope you can find it in your heart to forgive me and give me a chance to make things right.\n\nTruly sorry,\n\n${sName}`,
+    birthday: `Happy Birthday, ${rName}! 🎉\n\nI hope your day is filled with as much joy, laughter, and love as you bring to everyone around you. You deserve the absolute best today and always.\n\nHere’s to another year of making amazing memories together. Let’s celebrate soon!\n\nCheers,\n\n${sName}`,
+    proud: `Hey ${rName},\n\nI just wanted to drop a quick note to remind you how incredibly proud I am of you. I see how hard you’ve been working and everything you’ve overcome lately.\n\nKeep pushing forward, keep believing in yourself, and know that I am always cheering you on from the sidelines. You've got this!\n\nWith so much pride,\n\n${sName}`
   };
 
   return templates[type];
@@ -22,11 +45,13 @@ const getTemplate = (type, recipient, sender) => {
 
 export default function CreateLetter() {
   // --- STATE ---
-  const [step, setStep] = useState(0); // 0 = Write, 1 = Success
+  const [step, setStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [createdLetterId, setCreatedLetterId] = useState(null);
   const [copied, setCopied] = useState(false);
+  
   const [activeTemplate, setActiveTemplate] = useState("");
+  const [activeTheme, setActiveTheme] = useState(THEMES[0]); // Default to purple
 
   const [letterData, setLetterData] = useState({
     recipientName: "",
@@ -41,7 +66,7 @@ export default function CreateLetter() {
 
   const applyTemplate = (type) => {
     setActiveTemplate(type);
-    const generatedText = getTemplate(type, letterData.recipientName, letterData.senderName);
+    const generatedText = getTemplateText(type, letterData.recipientName, letterData.senderName);
     setLetterData({ ...letterData, message: generatedText });
   };
 
@@ -51,7 +76,8 @@ export default function CreateLetter() {
       const res = await fetch("/api/letter/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(letterData),
+        // 🔥 NOTE: Make sure your backend API saves the 'theme' field!
+        body: JSON.stringify({ ...letterData, theme: activeTheme.id }), 
       });
       const data = await res.json();
       setCreatedLetterId(data.letterId);
@@ -85,19 +111,18 @@ export default function CreateLetter() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f111a] flex items-center justify-center p-4 font-sans text-white overflow-hidden py-10 selection:bg-purple-500/30">
+    <div className="min-h-screen bg-[#0f111a] flex items-center justify-center p-4 font-sans text-white overflow-hidden py-10">
       
-      {/* --- BACKGROUND GLOW --- */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-2xl h-96 bg-purple-600/10 blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-pink-600/10 blur-[120px] rounded-full pointer-events-none" />
+      {/* --- DYNAMIC BACKGROUND GLOW --- */}
+      <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-[500px] blur-[150px] rounded-full pointer-events-none transition-colors duration-1000 ${activeTheme.glow}`} />
 
       {/* Floating Elements */}
-      <motion.div variants={floatingVariants} animate="animate" className="absolute top-20 left-[10%] lg:left-[20%] text-3xl opacity-40 select-none">💌</motion.div>
-      <motion.div variants={floatingVariants} animate="animate" transition={{ delay: 1 }} className="absolute bottom-32 right-[10%] lg:right-[20%] text-3xl opacity-40 select-none">✨</motion.div>
+      <motion.div variants={floatingVariants} animate="animate" className="absolute top-20 left-[5%] lg:left-[15%] text-4xl opacity-30 select-none">💌</motion.div>
+      <motion.div variants={floatingVariants} animate="animate" transition={{ delay: 1 }} className="absolute bottom-32 right-[5%] lg:right-[15%] text-4xl opacity-30 select-none">✨</motion.div>
+      <motion.div variants={floatingVariants} animate="animate" transition={{ delay: 2 }} className="absolute top-[40%] right-[10%] text-2xl opacity-20 select-none hidden md:block">🕊️</motion.div>
 
-      <div className="w-full max-w-2xl relative z-10">
+      <div className="w-full max-w-3xl relative z-10">
         
-        {/* Navigation Back */}
         {step === 0 && (
           <Link href="/" className="inline-flex items-center text-slate-400 hover:text-white mb-6 font-medium transition-colors">
             ← Back Home
@@ -115,10 +140,10 @@ export default function CreateLetter() {
               animate="center"
               exit="exit"
               transition={{ duration: 0.4, ease: "easeOut" }}
-              className="bg-[#1a1c29]/80 backdrop-blur-xl rounded-[2.5rem] p-6 md:p-10 shadow-2xl border border-white/10 relative overflow-hidden"
+              className="bg-[#13151f]/80 backdrop-blur-2xl rounded-[2.5rem] p-6 md:p-10 shadow-2xl border border-white/10 relative overflow-hidden"
             >
-              <div className="text-center mb-8 relative z-10">
-                <h1 className="text-3xl md:text-4xl font-black mb-3 bg-gradient-to-r from-purple-300 via-pink-200 to-rose-300 bg-clip-text text-transparent">
+              <div className="text-center mb-10 relative z-10">
+                <h1 className={`text-3xl md:text-5xl font-black mb-4 bg-gradient-to-r ${activeTheme.text} bg-clip-text text-transparent transition-all duration-700 tracking-tight`}>
                   Write a Secret Letter
                 </h1>
                 <p className="text-slate-400 font-medium">
@@ -126,88 +151,95 @@ export default function CreateLetter() {
                 </p>
               </div>
 
-              <div className="space-y-6 relative z-10">
+              <div className="space-y-8 relative z-10">
                 {/* To / From Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div className="space-y-2">
-                    <label className="text-sm font-bold text-purple-300 ml-2 uppercase tracking-wide">To (Recipient)</label>
+                    <label className={`text-xs font-bold ${activeTheme.label} ml-2 uppercase tracking-widest transition-colors duration-500`}>To (Recipient)</label>
                     <input
                       type="text"
                       name="recipientName"
                       placeholder="E.g. Sarah 💖"
                       value={letterData.recipientName}
                       onChange={handleChange}
-                      className="w-full bg-black/40 border border-white/10 text-white px-5 py-4 rounded-2xl outline-none focus:border-purple-500/50 focus:bg-black/60 transition-all font-medium placeholder:text-slate-600"
+                      className={`w-full bg-black/40 border border-white/10 text-white px-5 py-4 rounded-2xl outline-none ${activeTheme.border} focus:bg-black/60 transition-all font-medium placeholder:text-slate-600 shadow-inner`}
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-bold text-purple-300 ml-2 uppercase tracking-wide">From (You)</label>
+                    <label className={`text-xs font-bold ${activeTheme.label} ml-2 uppercase tracking-widest transition-colors duration-500`}>From (You)</label>
                     <input
                       type="text"
                       name="senderName"
                       placeholder="E.g. Alex ✨"
                       value={letterData.senderName}
                       onChange={handleChange}
-                      className="w-full bg-black/40 border border-white/10 text-white px-5 py-4 rounded-2xl outline-none focus:border-purple-500/50 focus:bg-black/60 transition-all font-medium placeholder:text-slate-600"
+                      className={`w-full bg-black/40 border border-white/10 text-white px-5 py-4 rounded-2xl outline-none ${activeTheme.border} focus:bg-black/60 transition-all font-medium placeholder:text-slate-600 shadow-inner`}
                     />
                   </div>
                 </div>
 
-                {/* --- THE TEMPLATE SELECTOR --- */}
-                <div className="pt-4 border-t border-white/5">
-                  <label className="text-sm font-bold text-slate-400 ml-2 uppercase tracking-wide flex items-center gap-2 mb-3">
-                    <span>✨ Need Inspiration? Choose a template</span>
+                {/* --- THE THEME SELECTOR --- */}
+                <div className="pt-2 border-t border-white/5">
+                  <label className="text-xs font-bold text-slate-400 ml-2 uppercase tracking-widest flex items-center gap-2 mb-3">
+                    <span>🎨 Choose a Vibe</span>
                   </label>
-                  <div className="flex flex-wrap gap-3">
-                    <button 
-                      onClick={() => applyTemplate("romantic")}
-                      className={`flex-1 min-w-[120px] py-3 px-4 rounded-xl font-bold transition-all border ${
-                        activeTemplate === "romantic" 
-                          ? "bg-rose-500/20 border-rose-500 text-rose-300 shadow-[0_0_15px_rgba(244,63,94,0.3)] scale-[1.02]" 
-                          : "bg-black/40 border-white/10 text-slate-400 hover:bg-white/5 hover:text-white"
-                      }`}
-                    >
-                      💖 Loved One
-                    </button>
-                    <button 
-                      onClick={() => applyTemplate("bestie")}
-                      className={`flex-1 min-w-[120px] py-3 px-4 rounded-xl font-bold transition-all border ${
-                        activeTemplate === "bestie" 
-                          ? "bg-purple-500/20 border-purple-500 text-purple-300 shadow-[0_0_15px_rgba(168,85,247,0.3)] scale-[1.02]" 
-                          : "bg-black/40 border-white/10 text-slate-400 hover:bg-white/5 hover:text-white"
-                      }`}
-                    >
-                      👯‍♀️ Bestie
-                    </button>
-                    <button 
-                      onClick={() => applyTemplate("appreciation")}
-                      className={`flex-1 min-w-[120px] py-3 px-4 rounded-xl font-bold transition-all border ${
-                        activeTemplate === "appreciation" 
-                          ? "bg-emerald-500/20 border-emerald-500 text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.3)] scale-[1.02]" 
-                          : "bg-black/40 border-white/10 text-slate-400 hover:bg-white/5 hover:text-white"
-                      }`}
-                    >
-                      🌟 Appreciation
-                    </button>
+                  <div className="flex gap-3 overflow-x-auto pb-4 custom-scrollbar snap-x">
+                    {THEMES.map((theme) => (
+                      <button
+                        key={theme.id}
+                        onClick={() => setActiveTheme(theme)}
+                        className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold transition-all border snap-center ${
+                          activeTheme.id === theme.id 
+                            ? `bg-white/10 border-white/30 text-white scale-[1.05] shadow-lg` 
+                            : `bg-black/40 border-white/5 text-slate-500 hover:bg-white/5 hover:text-slate-300`
+                        }`}
+                      >
+                        <span className="text-xl">{theme.emoji}</span>
+                        <span className="text-sm">{theme.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* --- THE TEMPLATE SELECTOR --- */}
+                <div className="pt-2 border-t border-white/5">
+                  <label className="text-xs font-bold text-slate-400 ml-2 uppercase tracking-widest flex items-center gap-2 mb-3">
+                    <span>✨ Writer's Block? Pick a Template</span>
+                  </label>
+                  <div className="flex gap-3 overflow-x-auto pb-4 custom-scrollbar snap-x">
+                    {TEMPLATES.map((template) => (
+                      <button 
+                        key={template.id}
+                        onClick={() => applyTemplate(template.id)}
+                        className={`flex-shrink-0 flex flex-col items-center justify-center min-w-[100px] h-[90px] rounded-2xl font-bold transition-all border snap-center ${
+                          activeTemplate === template.id 
+                            ? `bg-white/10 border-white/30 text-white scale-[1.02] shadow-lg` 
+                            : `bg-black/40 border-white/5 text-slate-400 hover:bg-white/5 hover:text-white`
+                        }`}
+                      >
+                        <span className="text-2xl mb-1">{template.icon}</span>
+                        <span className="text-xs">{template.label}</span>
+                      </button>
+                    ))}
                   </div>
                 </div>
 
                 {/* The Message Area */}
                 <div className="space-y-2">
                   <div className="flex justify-between items-end">
-                    <label className="text-sm font-bold text-purple-300 ml-2 uppercase tracking-wide">Your Message</label>
+                    <label className={`text-xs font-bold ${activeTheme.label} ml-2 uppercase tracking-widest transition-colors duration-500`}>Your Message</label>
                     <span className="text-xs font-medium text-slate-500 mr-2">{letterData.message.split(' ').filter(w => w.length > 0).length} words</span>
                   </div>
                   
                   <div className="relative group">
-                    <div className="absolute -inset-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-3xl blur opacity-20 group-focus-within:opacity-40 transition duration-500"></div>
+                    <div className={`absolute -inset-1 bg-gradient-to-r ${activeTheme.button} rounded-3xl blur opacity-10 group-focus-within:opacity-30 transition duration-500`}></div>
                     <textarea
                       name="message"
-                      rows={10}
+                      rows={8}
                       placeholder="I just wanted to tell you..."
                       value={letterData.message}
                       onChange={handleChange}
-                      className="relative w-full bg-[#13151f] border border-white/10 text-white px-6 py-5 rounded-[1.5rem] outline-none focus:border-purple-500/50 transition-all text-lg leading-relaxed placeholder:text-slate-600 resize-none shadow-inner custom-scrollbar"
+                      className={`relative w-full bg-black/40 border border-white/10 text-white px-6 py-5 rounded-[1.5rem] outline-none ${activeTheme.border} transition-all text-lg leading-relaxed placeholder:text-slate-600 resize-none shadow-inner custom-scrollbar font-medium`}
                     />
                   </div>
                 </div>
@@ -217,9 +249,13 @@ export default function CreateLetter() {
                 <button
                   onClick={handleSealEnvelope}
                   disabled={!letterData.recipientName || !letterData.senderName || !letterData.message || isSubmitting}
-                  className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-black text-lg py-4 px-6 rounded-2xl hover:opacity-90 hover:scale-[1.02] transition-all disabled:opacity-50 disabled:scale-100 shadow-[0_0_30px_rgba(168,85,247,0.4)] flex items-center justify-center gap-2"
+                  className={`w-full bg-gradient-to-r ${activeTheme.button} text-white font-black text-xl py-5 px-6 rounded-2xl hover:opacity-90 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:scale-100 shadow-xl flex items-center justify-center gap-2`}
                 >
-                  {isSubmitting ? "Waxing the seal..." : "Seal Envelope 💌"}
+                  {isSubmitting ? (
+                    <div className="w-6 h-6 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  ) : (
+                    "Seal Envelope 💌"
+                  )}
                 </button>
               </div>
             </motion.div>
@@ -233,27 +269,29 @@ export default function CreateLetter() {
               initial="enter"
               animate="center"
               exit="exit"
-              className="bg-[#1a1c29]/80 backdrop-blur-xl rounded-[2.5rem] p-8 md:p-10 shadow-2xl border border-purple-500/30 text-center relative overflow-hidden"
+              className={`bg-[#13151f]/80 backdrop-blur-2xl rounded-[2.5rem] p-8 md:p-12 shadow-2xl border border-white/10 text-center relative overflow-hidden`}
             >
-              <div className="text-6xl mb-6 relative z-10 animate-bounce">💌</div>
-              <h2 className="text-3xl font-black mb-2 text-white relative z-10">Envelope Sealed!</h2>
-              <p className="text-slate-400 mb-8 relative z-10">
-                Your letter is locked and ready for <strong>{letterData.recipientName}</strong>.
+              <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-[200%] h-40 ${activeTheme.glow} blur-[100px] pointer-events-none`} />
+              
+              <div className="text-7xl mb-6 relative z-10 animate-bounce drop-shadow-xl">💌</div>
+              <h2 className="text-4xl font-black mb-3 text-white relative z-10">Envelope Sealed!</h2>
+              <p className="text-slate-400 mb-10 relative z-10 font-medium text-lg">
+                Your letter is locked and ready for <strong className="text-white">{letterData.recipientName}</strong>.
               </p>
 
-              <div className="bg-black/40 p-5 rounded-2xl border border-white/10 mb-8 relative z-10 text-left">
-                <p className="text-sm font-bold text-purple-400 mb-3 uppercase tracking-wide">
+              <div className="bg-black/40 p-6 rounded-3xl border border-white/10 mb-10 relative z-10 text-left shadow-inner">
+                <p className={`text-xs font-bold ${activeTheme.label} mb-3 uppercase tracking-widest`}>
                   Share this link with them:
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <input 
                     readOnly 
                     value={typeof window !== "undefined" ? `${window.location.origin}/letter/${createdLetterId}` : ""} 
-                    className="w-full bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl outline-none text-sm font-mono text-ellipsis"
+                    className={`w-full bg-white/5 border border-white/10 text-white px-5 py-4 rounded-xl outline-none text-sm font-mono text-ellipsis ${activeTheme.border} transition-colors`}
                   />
                   <button 
                     onClick={copyToClipboard}
-                    className="bg-purple-500 text-white px-6 py-3 rounded-xl font-bold hover:bg-purple-400 transition-colors whitespace-nowrap shadow-lg active:scale-95"
+                    className={`bg-gradient-to-r ${activeTheme.button} text-white px-8 py-4 rounded-xl font-black transition-all whitespace-nowrap shadow-lg active:scale-95 hover:scale-[1.02]`}
                   >
                     {copied ? "Copied! ✔" : "Copy Link"}
                   </button>
@@ -268,7 +306,7 @@ export default function CreateLetter() {
                   setStep(0);
                   setActiveTemplate("");
                   setLetterData({recipientName: "", senderName: "", message: ""});
-                }} className="flex-1 bg-white text-black font-bold py-4 rounded-xl hover:bg-slate-200 transition-colors shadow-lg">
+                }} className="flex-1 bg-white text-black font-black py-4 rounded-xl hover:bg-slate-200 transition-colors shadow-xl">
                   Write Another
                 </button>
               </div>
