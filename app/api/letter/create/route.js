@@ -9,7 +9,9 @@ export async function POST(request) {
 
     // 2. Parse the data sent from the "Send a Letter" form
     const body = await request.json();
-    const { recipientName, senderName, message } = body;
+    
+    // 🔥 ADDED: Extract the 'theme' from the incoming data
+    const { recipientName, senderName, message, theme } = body;
 
     // 3. Basic Validation
     if (!recipientName || !senderName || !message) {
@@ -24,6 +26,8 @@ export async function POST(request) {
       recipientName,
       senderName,
       message,
+      // 🔥 ADDED: Save the chosen theme (fallback to "purple" just in case)
+      theme: theme || "purple", 
     });
 
     // 5. Send the real database ID back to the frontend

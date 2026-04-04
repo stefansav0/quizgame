@@ -4,6 +4,10 @@ const LetterSchema = new mongoose.Schema({
   recipientName: { type: String, required: true },
   senderName: { type: String, required: true },
   message: { type: String, required: true },
+  
+  // 🚨 ADDED: This ensures MongoDB actually saves the dynamic theme!
+  theme: { type: String, default: "purple" },
+  
   createdAt: { type: Date, default: Date.now },
 });
 

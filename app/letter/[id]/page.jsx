@@ -1,7 +1,12 @@
 import { connectDB } from "@/lib/mongodb";
 import Letter from "@/models/Letter";
 import LetterClient from "./LetterClient";
-import Link from "next/link"; // Required for the beautiful 404 page
+import Link from "next/link"; 
+
+// 🚨 CRITICAL FIX FOR VERCEL DEPLOYMENTS 🚨
+// This line completely disables caching for this page. 
+// If a letter is deleted, the link will INSTANTLY break and show the 404 page.
+export const dynamic = "force-dynamic";
 
 // --- ROMANTIC LINK PREVIEWS ---
 export async function generateMetadata({ params }) {

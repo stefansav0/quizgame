@@ -21,7 +21,7 @@ export default function LetterClient({ letter }) {
   // Safely grab the theme (Fallback to purple for older letters that don't have a theme saved)
   const activeTheme = THEMES[letter.theme] || THEMES.purple;
 
-  // Split the message into paragraphs for the beautiful staggered reveal
+  // Split the message into paragraphs
   const paragraphs = letter.message.split('\n').filter(p => p.trim() !== '');
 
   // --- ANIMATIONS ---
@@ -36,16 +36,14 @@ export default function LetterClient({ letter }) {
     exit: { opacity: 0, scale: 0.9, filter: "blur(10px)", transition: { duration: 0.3 } }
   };
 
-  // The staggered container for the paragraphs
   const textContainerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { staggerChildren: 0.3, delayChildren: 0.5 } // 0.3s delay between each paragraph
+      transition: { staggerChildren: 0.3, delayChildren: 0.5 } 
     }
   };
 
-  // Individual paragraph animation
   const paragraphVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
@@ -147,22 +145,23 @@ export default function LetterClient({ letter }) {
                   Dear <span className={`bg-gradient-to-r ${activeTheme.text} bg-clip-text text-transparent`}>{letter.recipientName}</span>,
                 </motion.h2>
                 
-                {/* The Staggered Paragraphs */}
+                {/* The Staggered Paragraphs & Smart Signature */}
                 <div className="space-y-6 text-lg md:text-xl text-slate-300 leading-loose font-medium mb-12">
-                  {paragraphs.map((para, index) => (
-                    <motion.p key={index} variants={paragraphVariants}>
-                      {para}
-                    </motion.p>
-                  ))}
+                  {paragraphs.map((para, index) => {
+                    // We detect the very last paragraph and turn it into a glowing signature!
+                    const isLastLine = index === paragraphs.length - 1;
+                    
+                    return (
+                      <motion.p 
+                        key={index} 
+                        variants={paragraphVariants}
+                        className={isLastLine ? `text-right text-3xl md:text-5xl font-black bg-gradient-to-r ${activeTheme.text} bg-clip-text text-transparent drop-shadow-lg mt-12 pt-8 border-t border-white/10` : ""}
+                      >
+                        {para}
+                      </motion.p>
+                    );
+                  })}
                 </div>
-                
-                {/* Signature */}
-                <motion.div variants={paragraphVariants} className="text-right border-t border-white/10 pt-8 mt-12">
-                  <p className="text-slate-400 text-lg italic mb-2">With all my love,</p>
-                  <p className={`text-3xl md:text-5xl font-black bg-gradient-to-r ${activeTheme.text} bg-clip-text text-transparent inline-block drop-shadow-lg`}>
-                    {letter.senderName}
-                  </p>
-                </motion.div>
               </motion.div>
 
               {/* CTA to Create Their Own */}

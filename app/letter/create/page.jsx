@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 
-// --- 🎨 DYNAMIC THEMES (VIBES) ---
+// --- 🎨 DYNAMIC THEMES (VIBES) MATCHING THE CREATOR ---
 const THEMES = {
   purple: { id: "purple", glow: "bg-purple-600/30", bg: "from-purple-950/40 to-[#0f111a]", border: "focus:border-purple-500/50", button: "from-purple-500 to-indigo-500", text: "from-purple-300 via-indigo-200 to-purple-300", label: "text-purple-300" },
   rose: { id: "rose", glow: "bg-rose-600/30", bg: "from-rose-950/40 to-[#0f111a]", border: "focus:border-rose-500/50", button: "from-rose-500 to-pink-500", text: "from-rose-300 via-pink-200 to-rose-300", label: "text-rose-300" },
@@ -101,7 +101,6 @@ export default function CreateLetter() {
     setIsCheckingDevice(false);
   }, []);
 
-
   // --- HANDLERS ---
   const handleChange = (e) => {
     setLetterData({ ...letterData, [e.target.name]: e.target.value });
@@ -147,8 +146,11 @@ export default function CreateLetter() {
       await fetch(`/api/letter/${createdLetterId}`, {
         method: "DELETE",
       });
-
-      // Free up the device
+    } catch (error) {
+      console.error("Server delete failed, unlocking device anyway...", error);
+    } finally {
+      // 🚨 CRITICAL BUGFIX: Always free up the device, even if the API fetch fails!
+      // This prevents users from getting permanently locked out of creating new letters.
       localStorage.removeItem("active_letter_id");
       localStorage.removeItem("active_letter_recipient");
       
@@ -158,10 +160,6 @@ export default function CreateLetter() {
       setActiveTemplate("");
       setActiveTheme(THEMES["purple"]);
       setStep(0);
-    } catch (error) {
-      console.error("Failed to delete letter", error);
-      alert("Failed to delete letter. Please try again.");
-    } finally {
       setIsDeleting(false);
     }
   };
