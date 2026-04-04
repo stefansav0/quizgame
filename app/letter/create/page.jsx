@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 
-// --- 🎨 DYNAMIC THEMES (VIBES) MATCHING THE CREATOR ---
+// --- 🎨 DYNAMIC THEMES (VIBES) ---
 const THEMES = {
   purple: { id: "purple", glow: "bg-purple-600/30", bg: "from-purple-950/40 to-[#0f111a]", border: "focus:border-purple-500/50", button: "from-purple-500 to-indigo-500", text: "from-purple-300 via-indigo-200 to-purple-300", label: "text-purple-300" },
   rose: { id: "rose", glow: "bg-rose-600/30", bg: "from-rose-950/40 to-[#0f111a]", border: "focus:border-rose-500/50", button: "from-rose-500 to-pink-500", text: "from-rose-300 via-pink-200 to-rose-300", label: "text-rose-300" },
@@ -137,29 +137,36 @@ export default function CreateLetter() {
     }
   };
 
+  // 🚨 CRITICAL BUGFIX: Strict Delete Handler
   const handleDeleteLetter = async () => {
     if (!confirm("Are you sure? This will delete the letter permanently and the link will stop working.")) return;
     
     setIsDeleting(true);
     try {
-      // Tell the backend to delete the letter
-      await fetch(`/api/letter/${createdLetterId}`, {
+      // 1. Tell the backend to delete the letter
+      const res = await fetch(`/api/letter/${createdLetterId}`, {
         method: "DELETE",
       });
-    } catch (error) {
-      console.error("Server delete failed, unlocking device anyway...", error);
-    } finally {
-      // 🚨 CRITICAL BUGFIX: Always free up the device, even if the API fetch fails!
-      // This prevents users from getting permanently locked out of creating new letters.
+
+      // 2. CHECK IF IT ACTUALLY WORKED ON THE SERVER
+      if (!res.ok) {
+        throw new Error("Failed to delete from database");
+      }
+
+      // 3. ONLY free up the device if the server confirmed the deletion
       localStorage.removeItem("active_letter_id");
       localStorage.removeItem("active_letter_recipient");
       
-      // Reset form and go back to step 0
+      // 4. Reset form and go back to step 0
       setCreatedLetterId(null);
       setLetterData({ recipientName: "", senderName: "", message: "" });
       setActiveTemplate("");
       setActiveTheme(THEMES["purple"]);
       setStep(0);
+    } catch (error) {
+      console.error("Server delete failed:", error);
+      alert("⚠️ Failed to delete the letter from the server. Please try again. (Make sure your API route is deployed to Vercel!)");
+    } finally {
       setIsDeleting(false);
     }
   };
