@@ -1,21 +1,51 @@
 import { blogs } from "@/lib/blogData"; // Adjust this import if needed
 import Link from "next/link";
 
-// ✅ ADD METADATA FOR SEO
+// ✅ UPGRADED METADATA FOR SEO & ADSENSE
 export const metadata = {
-  title: "The Friendship Quiz Blog | Tips, Ideas & Viral Trends",
+  title: "The Friendship Quiz Blog | Tips, Ideas & Viral Trends | GetKnowify",
   description: "Discover the best friendship quiz questions, viral trends, and guides to testing your best friends. Read the latest tips on our blog.",
+  keywords: [
+    "friendship quiz ideas", 
+    "how to make a viral quiz", 
+    "best friend questions", 
+    "quiz trends 2026",
+    "social gaming guides"
+  ],
+  alternates: {
+    canonical: "https://www.getknowify.com/blog", // Prevents duplicate content penalties
+  },
   openGraph: {
-    title: "The Friendship Quiz Blog",
+    title: "The Friendship Quiz Blog | GetKnowify",
     description: "Discover the best friendship quiz questions, viral trends, and guides to testing your best friends.",
+    url: "https://www.getknowify.com/blog",
+    siteName: "GetKnowify",
     type: "website",
   },
 };
 
 export default function BlogList() {
+  // 🚀 JSON-LD SCHEMA FOR GOOGLE CRAWLERS
+  // This helps Google understand that this page is a directory of your articles
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "itemListElement": blogs.map((blog, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "url": `https://www.getknowify.com/blog/${blog.slug}`
+    }))
+  };
+
   return (
     <div className="min-h-screen bg-[#0a0c10] text-white font-sans selection:bg-emerald-500/30 pb-20">
       
+      {/* INJECT SEO SCHEMA */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* Background Glow Effect */}
       <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[150%] h-80 bg-emerald-500/10 blur-[120px] pointer-events-none z-0" />
 
@@ -48,10 +78,13 @@ export default function BlogList() {
                 {/* Subtle top border gradient on hover */}
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 to-teal-300 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
-                {/* Badge */}
-                <div className="mb-5">
+                {/* Dynamic Category Badge & Date */}
+                <div className="mb-5 flex justify-between items-center">
                   <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-500/20">
-                    Guide
+                    {blog.category || "Guide"}
+                  </span>
+                  <span className="text-xs text-slate-500 font-medium">
+                    {blog.date || "2026"}
                   </span>
                 </div>
 
@@ -63,9 +96,12 @@ export default function BlogList() {
                   {blog.description}
                 </p>
 
-                {/* Read More Link (Pushed to bottom) */}
-                <div className="mt-auto flex items-center gap-2 text-sm font-bold text-emerald-500 group-hover:text-emerald-400 transition-colors">
-                  Read Article <span className="group-hover:translate-x-1 transition-transform">→</span>
+                {/* Author & Read More Link */}
+                <div className="mt-auto flex items-center justify-between border-t border-white/5 pt-4">
+                  <span className="text-xs text-slate-500 font-medium">By {blog.author || "Ravi K."}</span>
+                  <div className="flex items-center gap-2 text-sm font-bold text-emerald-500 group-hover:text-emerald-400 transition-colors">
+                    Read <span className="group-hover:translate-x-1 transition-transform">→</span>
+                  </div>
                 </div>
                 
               </article>

@@ -1,8 +1,8 @@
-import { blogs } from "@/lib/blogData"; // Adjust this import if needed
+import { blogs } from "@/lib/blogData"; 
 import Link from "next/link";
-import RelatedPosts from "@/components/RelatedPosts"; // Make sure you created this component from the previous step!
+import RelatedPosts from "@/components/RelatedPosts";
 
-// ✅ GENERATE METADATA FOR SEO
+// ✅ DYNAMIC METADATA FOR SEO
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   const blog = blogs.find((b) => b.slug === slug);
@@ -10,52 +10,76 @@ export async function generateMetadata({ params }) {
   if (!blog) return { title: "Blog Not Found" };
 
   return {
-    title: `${blog.title} | Friendship Quizzes`,
+    title: `${blog.title} | GetKnowify`,
     description: blog.description,
     openGraph: {
       title: blog.title,
       description: blog.description,
       type: "article",
+      authors: [blog.author || "GetKnowify Team"],
     },
   };
 }
 
-// ✅ TINY PARSER TO CONVERT RAW TEXT INTO REAL SEO HTML TAGS
+// ✅ UPGRADED PARSER: Now handles **bold** text and [Bracketed CTAs]
 const renderContent = (content) => {
   return content.split('\n').map((line, index) => {
+    // Skip empty lines cleanly
+    if (line.trim() === '') {
+      return <div key={index} className="h-3"></div>;
+    }
+
+    // Process inline bolding (**text**) and pseudo-links ([text])
+    let formattedLine = line
+      .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white font-black">$1</strong>')
+      .replace(/\[(.*?)\]/g, '<span class="text-emerald-400 font-bold cursor-pointer hover:underline">$1</span>');
+
     // Render H2 tags
     if (line.startsWith('## ')) {
       return (
-        <h2 key={index} className="text-2xl md:text-3xl font-black mt-10 mb-4 text-emerald-400 tracking-tight">
-          {line.replace('## ', '')}
-        </h2>
+        <h2 key={index} 
+            className="text-2xl md:text-3xl font-black mt-12 mb-4 text-emerald-400 tracking-tight"
+            dangerouslySetInnerHTML={{ __html: formattedLine.replace('## ', '') }} 
+        />
       );
     }
+    
     // Render H3 tags
     if (line.startsWith('### ')) {
       return (
-        <h3 key={index} className="text-xl font-bold mt-8 mb-3 text-white">
-          {line.replace('### ', '')}
-        </h3>
+        <h3 key={index} 
+            className="text-xl font-bold mt-8 mb-3 text-white"
+            dangerouslySetInnerHTML={{ __html: formattedLine.replace('### ', '') }} 
+        />
       );
     }
+    
     // Render Bullet Points
     if (line.startsWith('* ') || line.startsWith('- ')) {
       return (
-        <li key={index} className="ml-6 list-disc mb-2 text-slate-300 text-lg">
-          {line.replace(/^(\* |- )/, '')}
-        </li>
+        <li key={index} 
+            className="ml-6 list-disc mb-2 text-slate-300 text-lg"
+            dangerouslySetInnerHTML={{ __html: formattedLine.replace(/^(\* |- )/, '') }} 
+        />
       );
     }
-    // Empty lines
-    if (line.trim() === '') {
-      return <div key={index} className="h-2"></div>;
+    
+    // Render Numbered Lists (e.g., "1. ", "2. ")
+    if (/^\d+\.\s/.test(line)) {
+      return (
+        <li key={index} 
+            className="ml-6 list-decimal mb-3 text-slate-300 text-lg"
+            dangerouslySetInnerHTML={{ __html: formattedLine.replace(/^\d+\.\s/, '') }} 
+        />
+      );
     }
+
     // Standard Paragraphs
     return (
-      <p key={index} className="mb-4 text-slate-300 leading-relaxed text-lg">
-        {line}
-      </p>
+      <p key={index} 
+         className="mb-5 text-slate-300 leading-relaxed text-lg"
+         dangerouslySetInnerHTML={{ __html: formattedLine }} 
+      />
     );
   });
 };
@@ -68,29 +92,38 @@ export default async function BlogPage({ params }) {
   if (!blog) {
     return (
       <div className="min-h-screen bg-[#0a0c10] text-white flex items-center justify-center flex-col gap-4">
-        <h1 className="text-3xl font-bold">Blog not found 😢</h1>
-        <Link href="/" className="text-emerald-400 hover:underline">Go back home</Link>
+        <h1 className="text-3xl font-bold">Article not found 😢</h1>
+        <Link href="/blog" className="text-emerald-400 hover:underline">Return to Blog</Link>
       </div>
     );
   }
 
-  // Generate structured data for Google Search (Huge for SEO & AdSense)
+  // 🚀 DYNAMIC JSON-LD (Crucial for AdSense E-E-A-T)
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Article",
     "headline": blog.title,
     "description": blog.description,
     "author": {
-      "@type": "Organization",
-      "name": "Quiz Master"
+      "@type": "Person",
+      "name": blog.author || "Ravi K." // Uses the real author name we added
     },
-    "datePublished": "2026-03-26", // You can make this dynamic later
+    "publisher": {
+      "@type": "Organization",
+      "name": "GetKnowify",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://getknowify.com/logo.png" // Update with your actual logo URL
+      }
+    },
+    // Fallback to today if you haven't added a date to the object yet
+    "datePublished": blog.date ? new Date(blog.date).toISOString() : new Date().toISOString(), 
   };
 
   return (
     <div className="min-h-screen bg-[#0a0c10] text-white font-sans selection:bg-emerald-500/30">
       
-      {/* 🚀 INJECT SEO SCHEMA */}
+      {/* INJECT SEO SCHEMA */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -118,8 +151,11 @@ export default async function BlogPage({ params }) {
               ✍️
             </div>
             <div className="text-left">
-              <p className="text-sm font-bold text-white">Quiz Master</p>
-              <p className="text-xs text-slate-500">Published in Friendship Quizzes</p>
+              {/* Dynamically pulling the author and category */}
+              <p className="text-sm font-bold text-white">{blog.author || "Ravi K."}</p>
+              <p className="text-xs text-slate-500">
+                {blog.date || "2026"} • {blog.category || "Social Games"}
+              </p>
             </div>
           </div>
         </header>
@@ -130,7 +166,7 @@ export default async function BlogPage({ params }) {
         </article>
 
         {/* HIGH CONVERTING CALL TO ACTION */}
-        <div className="bg-[#13151f] border border-emerald-500/30 rounded-3xl p-8 md:p-10 text-center shadow-[0_0_40px_rgba(16,185,129,0.1)] mb-16 relative overflow-hidden group">
+        <div className="bg-[#13151f] border border-emerald-500/30 rounded-3xl p-8 md:p-10 text-center shadow-[0_0_40px_rgba(16,185,129,0.1)] mb-16 relative overflow-hidden group cursor-pointer hover:border-emerald-400 transition-colors">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 to-teal-300"></div>
           <h2 className="text-2xl md:text-3xl font-black text-white mb-4">
             Are your friends actually paying attention? 👀
@@ -146,7 +182,7 @@ export default async function BlogPage({ params }) {
           </Link>
         </div>
 
-        {/* 🔗 AUTOMATED RELATED POSTS */}
+        {/* AUTOMATED RELATED POSTS */}
         <RelatedPosts currentSlug={blog.slug} />
 
       </main>

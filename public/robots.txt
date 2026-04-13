@@ -1,9 +1,12 @@
 # *
 User-agent: *
 Allow: /
+Disallow: /api
+Disallow: /dashboard
+Disallow: /admin
 
 # Host
-Host: https://getknowify.com
+Host: https://www.getknowify.com
 
 # Sitemaps
-Sitemap: https://getknowify.com/sitemap.xml
+Sitemap: https://www.getknowify.com/sitemap.xml
