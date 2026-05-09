@@ -2,45 +2,100 @@ import { connectDB } from "@/lib/mongodb";
 import Letter from "@/models/Letter";
 import { NextResponse } from "next/server";
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods":
+    "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers":
+    "Content-Type, Authorization",
+};
+
+// OPTIONS handler for CORS
+export async function OPTIONS() {
+  return NextResponse.json(
+    {},
+    {
+      headers: corsHeaders,
+    }
+  );
+}
+
 export async function POST(request) {
+
   try {
-    // 1. Connect to your MongoDB database
+
+    // Connect MongoDB
     await connectDB();
 
-    // 2. Parse the data sent from the "Send a Letter" form
+    // Parse request body
     const body = await request.json();
-    
-    // 🔥 ADDED: Extract the 'theme' from the incoming data
-    const { recipientName, senderName, message, theme } = body;
 
-    // 3. Basic Validation
-    if (!recipientName || !senderName || !message) {
+    const {
+      recipientName,
+      senderName,
+      message,
+      theme,
+    } = body;
+
+    // Validation
+    if (
+      !recipientName ||
+      !senderName ||
+      !message
+    ) {
+
       return NextResponse.json(
-        { error: "All fields are required to seal the envelope!" }, 
-        { status: 400 }
+        {
+          success: false,
+          error:
+            "All fields are required to seal the envelope!",
+        },
+        {
+          status: 400,
+          headers: corsHeaders,
+        }
       );
     }
 
-    // 4. Save the letter to MongoDB
+    // Create Letter
     const newLetter = await Letter.create({
       recipientName,
       senderName,
       message,
-      // 🔥 ADDED: Save the chosen theme (fallback to "purple" just in case)
-      theme: theme || "purple", 
+      theme: theme || "purple",
     });
 
-    // 5. Send the real database ID back to the frontend
-    return NextResponse.json({ 
-      success: true, 
-      letterId: newLetter._id 
-    }, { status: 201 });
+    // Success response
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Letter created successfully",
+        letterId: newLetter._id,
+        letter: newLetter,
+      },
+      {
+        status: 201,
+        headers: corsHeaders,
+      }
+    );
 
   } catch (error) {
-    console.error("Letter Save Error:", error);
+
+    console.error(
+      "Letter Save Error:",
+      error
+    );
+
     return NextResponse.json(
-      { error: "Failed to seal the letter. Please try again." }, 
-      { status: 500 }
+      {
+        success: false,
+        error:
+          "Failed to seal the letter. Please try again.",
+      },
+      {
+        status: 500,
+        headers: corsHeaders,
+      }
     );
   }
 }
