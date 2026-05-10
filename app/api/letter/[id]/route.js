@@ -2,28 +2,92 @@ import { connectDB } from "@/lib/mongodb";
 import Letter from "@/models/Letter";
 import { NextResponse } from "next/server";
 
-export async function DELETE(request, { params }) {
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods":
+    "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers":
+    "Content-Type, Authorization",
+};
+
+// OPTIONS handler for CORS
+export async function OPTIONS() {
+
+  return NextResponse.json(
+    {},
+    {
+      headers: corsHeaders,
+    }
+  );
+}
+
+export async function DELETE(
+  request,
+  { params }
+) {
+
   try {
-    // 1. Connect to database
+
+    // Connect DB
     await connectDB();
-    
-    // 2. Await the params to get the letter ID from the URL
-    const resolvedParams = await params; 
-    const id = resolvedParams.id;
-    
-    // 3. Find the letter by its ID and delete it from MongoDB
-    const deletedLetter = await Letter.findByIdAndDelete(id);
-    
-    // 4. If the letter was already deleted or doesn't exist
+
+    // Next.js 15+
+    const resolvedParams =
+      await params;
+
+    const id =
+      resolvedParams.id;
+
+    // Delete letter
+    const deletedLetter =
+      await Letter.findByIdAndDelete(id);
+
+    // Not found
     if (!deletedLetter) {
-      return NextResponse.json({ error: "Letter not found" }, { status: 404 });
+
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "Letter not found",
+        },
+        {
+          status: 404,
+          headers: corsHeaders,
+        }
+      );
     }
 
-    // 5. Success!
-    return NextResponse.json({ success: true }, { status: 200 });
-    
+    // Success
+    return NextResponse.json(
+      {
+        success: true,
+        message:
+          "Letter deleted successfully",
+      },
+      {
+        status: 200,
+        headers: corsHeaders,
+      }
+    );
+
   } catch (error) {
-    console.error("Delete Error:", error);
-    return NextResponse.json({ error: "Failed to delete" }, { status: 500 });
+
+    console.error(
+      "Delete Error:",
+      error
+    );
+
+    return NextResponse.json(
+      {
+        success: false,
+        error:
+          "Failed to delete",
+      },
+      {
+        status: 500,
+        headers: corsHeaders,
+      }
+    );
   }
 }
