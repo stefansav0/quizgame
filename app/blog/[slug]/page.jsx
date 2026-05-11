@@ -1,20 +1,44 @@
-import { blogs } from "@/lib/blogData"; 
 import Link from "next/link";
-import RelatedPosts from "@/components/RelatedPosts";
+
+// 🚀 SERVER-SIDE FETCH FUNCTION
+// This fetches the specific blog by slug from your MongoDB database
+async function getBlog(slug) {
+  try {
+    // Revalidates the cache every 60 seconds for insane speed + fresh data
+    const res = await fetch(`/api/blogs/${slug}`, {
+      next: { revalidate: 60 },
+    });
+    
+    if (!res.ok) return null;
+    
+    const data = await res.json();
+    return data.success ? data.blog : null;
+  } catch (error) {
+    console.error("Failed to fetch blog:", error);
+    return null;
+  }
+}
 
 // ✅ DYNAMIC METADATA FOR SEO
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const blog = blogs.find((b) => b.slug === slug);
+  
+  // Fetch the data dynamically from DB
+  const blog = await getBlog(slug);
 
-  if (!blog) return { title: "Blog Not Found" };
+  if (!blog) return { title: "Blog Not Found | GetKnowify" };
+
+  // Create a clean description snippet (strips HTML/Markdown if any)
+  const cleanDescription = blog.content
+    ? blog.content.replace(/<[^>]+>/g, '').substring(0, 150) + "..."
+    : "Read the latest tips on our blog.";
 
   return {
     title: `${blog.title} | GetKnowify`,
-    description: blog.description,
+    description: cleanDescription,
     openGraph: {
       title: blog.title,
-      description: blog.description,
+      description: cleanDescription,
       type: "article",
       authors: [blog.author || "GetKnowify Team"],
     },
@@ -23,6 +47,8 @@ export async function generateMetadata({ params }) {
 
 // ✅ UPGRADED PARSER: Now handles **bold** text and [Bracketed CTAs]
 const renderContent = (content) => {
+  if (!content) return null;
+
   return content.split('\n').map((line, index) => {
     // Skip empty lines cleanly
     if (line.trim() === '') {
@@ -87,37 +113,44 @@ const renderContent = (content) => {
 // ✅ MAIN PAGE COMPONENT
 export default async function BlogPage({ params }) {
   const { slug } = await params;
-  const blog = blogs.find((b) => b.slug === slug);
+  
+  // Fetch data dynamically!
+  const blog = await getBlog(slug);
 
   if (!blog) {
     return (
       <div className="min-h-screen bg-[#0a0c10] text-white flex items-center justify-center flex-col gap-4">
         <h1 className="text-3xl font-bold">Article not found 😢</h1>
-        <Link href="/blog" className="text-emerald-400 hover:underline">Return to Blog</Link>
+        <Link href="/blogs" className="text-emerald-400 hover:underline">Return to Blog</Link>
       </div>
     );
   }
+
+  // Create a clean description snippet for schema
+  const cleanDescription = blog.content
+    ? blog.content.replace(/<[^>]+>/g, '').substring(0, 160)
+    : "Read the latest tips on our blog.";
 
   // 🚀 DYNAMIC JSON-LD (Crucial for AdSense E-E-A-T)
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Article",
     "headline": blog.title,
-    "description": blog.description,
+    "description": cleanDescription,
     "author": {
       "@type": "Person",
-      "name": blog.author || "Ravi K." // Uses the real author name we added
+      "name": blog.author || "GetKnowify Team" 
     },
     "publisher": {
       "@type": "Organization",
       "name": "GetKnowify",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://getknowify.com/logo.png" // Update with your actual logo URL
+        "url": "https://getknowify.com/logo.png" 
       }
     },
-    // Fallback to today if you haven't added a date to the object yet
-    "datePublished": blog.date ? new Date(blog.date).toISOString() : new Date().toISOString(), 
+    // Use the actual MongoDB creation date
+    "datePublished": blog.createdAt ? new Date(blog.createdAt).toISOString() : new Date().toISOString(), 
   };
 
   return (
@@ -136,14 +169,14 @@ export default async function BlogPage({ params }) {
         
         {/* HEADER AREA */}
         <header className="mb-12 border-b border-white/10 pb-8 text-center md:text-left">
-          <Link href="/blog" className="text-emerald-400 text-sm font-bold uppercase tracking-widest hover:text-emerald-300 mb-6 inline-block">
+          <Link href="/blogs" className="text-emerald-400 text-sm font-bold uppercase tracking-widest hover:text-emerald-300 mb-6 inline-block">
             ← Back to Articles
           </Link>
           <h1 className="text-4xl md:text-5xl font-black mb-6 leading-tight bg-gradient-to-r from-white to-emerald-200 bg-clip-text text-transparent">
             {blog.title}
           </h1>
-          <p className="text-xl text-slate-400 font-medium">
-            {blog.description}
+          <p className="text-xl text-slate-400 font-medium line-clamp-3">
+            {cleanDescription}...
           </p>
           
           <div className="flex items-center justify-center md:justify-start gap-4 mt-8">
@@ -151,18 +184,35 @@ export default async function BlogPage({ params }) {
               ✍️
             </div>
             <div className="text-left">
-              {/* Dynamically pulling the author and category */}
-              <p className="text-sm font-bold text-white">{blog.author || "Ravi K."}</p>
+              <p className="text-sm font-bold text-white">{blog.author || "GetKnowify Team"}</p>
               <p className="text-xs text-slate-500">
-                {blog.date || "2026"} • {blog.category || "Social Games"}
+                {blog.createdAt 
+                  ? new Date(blog.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) 
+                  : "2026"} 
+                {" "}• {blog.category || "Guide"}
               </p>
             </div>
           </div>
         </header>
 
+        {/* COVER IMAGE (Optional, renders if provided in DB) */}
+        {blog.coverImage && (
+          <div className="mb-12">
+            <img 
+              src={blog.coverImage} 
+              alt={blog.title} 
+              className="w-full h-auto max-h-[500px] object-cover rounded-3xl border border-white/5 shadow-2xl"
+            />
+          </div>
+        )}
+
         {/* ARTICLE CONTENT */}
         <article className="mb-16">
-          {renderContent(blog.content)}
+          {/* Note: If your DB saves raw HTML instead of Markdown, swap this for dangerouslySetInnerHTML */}
+          {blog.content.includes("<h1>") || blog.content.includes("<p>") 
+            ? <div className="prose prose-invert prose-lg max-w-none prose-emerald" dangerouslySetInnerHTML={{ __html: blog.content }} />
+            : renderContent(blog.content)
+          }
         </article>
 
         {/* HIGH CONVERTING CALL TO ACTION */}
@@ -181,9 +231,6 @@ export default async function BlogPage({ params }) {
             Create Your Quiz 🚀
           </Link>
         </div>
-
-        {/* AUTOMATED RELATED POSTS */}
-        <RelatedPosts currentSlug={blog.slug} />
 
       </main>
     </div>

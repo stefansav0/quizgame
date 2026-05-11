@@ -1,4 +1,3 @@
-import { blogs } from "@/lib/blogData"; // Adjust this import if needed
 import Link from "next/link";
 
 // ✅ UPGRADED METADATA FOR SEO & ADSENSE
@@ -24,9 +23,34 @@ export const metadata = {
   },
 };
 
-export default function BlogList() {
+// 🚀 SERVER-SIDE FETCH FUNCTION
+async function getPublishedBlogs() {
+  try {
+    // Adding { next: { revalidate: 60 } } tells Next.js to cache the page 
+    // but check for new blogs every 60 seconds. Extremely fast & SEO friendly!
+    const res = await fetch("/api/blogs", {
+      next: { revalidate: 60 },
+    });
+    
+    if (!res.ok) return [];
+    
+    const data = await res.json();
+    if (data.success) {
+      // Return ONLY published blogs
+      return data.blogs.filter((blog) => blog.status === "published");
+    }
+    return [];
+  } catch (error) {
+    console.error("Failed to fetch blogs:", error);
+    return []; // Return empty array on error so page doesn't crash
+  }
+}
+
+export default async function BlogList() {
+  // Fetch blogs directly on the server
+  const blogs = await getPublishedBlogs();
+
   // 🚀 JSON-LD SCHEMA FOR GOOGLE CRAWLERS
-  // This helps Google understand that this page is a directory of your articles
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
@@ -65,6 +89,14 @@ export default function BlogList() {
           </p>
         </header>
 
+        {/* EMPTY STATE */}
+        {blogs.length === 0 && (
+          <div className="text-center py-20 border border-white/5 rounded-3xl bg-[#13151f]">
+            <h3 className="text-2xl font-bold text-white">No articles yet</h3>
+            <p className="text-slate-400 mt-2">Check back later for new content!</p>
+          </div>
+        )}
+
         {/* BLOG GRID */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {blogs.map((blog) => (
@@ -81,24 +113,31 @@ export default function BlogList() {
                 {/* Dynamic Category Badge & Date */}
                 <div className="mb-5 flex justify-between items-center">
                   <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-500/20">
-                    {blog.category || "Guide"}
+                    Guide
                   </span>
                   <span className="text-xs text-slate-500 font-medium">
-                    {blog.date || "2026"}
+                    {new Date(blog.createdAt).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric"
+                    })}
                   </span>
                 </div>
 
-                <h2 className="text-2xl font-bold text-white mb-3 leading-snug group-hover:text-emerald-300 transition-colors">
+                <h2 className="text-2xl font-bold text-white mb-3 leading-snug group-hover:text-emerald-300 transition-colors line-clamp-2">
                   {blog.title}
                 </h2>
                 
-                <p className="text-slate-400 text-sm leading-relaxed mb-8 flex-grow">
-                  {blog.description}
+                {/* Automatically strip HTML tags and create a clean description preview */}
+                <p className="text-slate-400 text-sm leading-relaxed mb-8 flex-grow line-clamp-3">
+                  {blog.content?.replace(/<[^>]+>/g, '') || "Read more about this topic..."}
                 </p>
 
                 {/* Author & Read More Link */}
                 <div className="mt-auto flex items-center justify-between border-t border-white/5 pt-4">
-                  <span className="text-xs text-slate-500 font-medium">By {blog.author || "Ravi K."}</span>
+                  <span className="text-xs text-slate-500 font-medium">
+                    By {blog.author || "GetKnowify"}
+                  </span>
                   <div className="flex items-center gap-2 text-sm font-bold text-emerald-500 group-hover:text-emerald-400 transition-colors">
                     Read <span className="group-hover:translate-x-1 transition-transform">→</span>
                   </div>
