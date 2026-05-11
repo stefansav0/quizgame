@@ -12,7 +12,7 @@ export const metadata = {
     "social gaming guides"
   ],
   alternates: {
-    canonical: "https://www.getknowify.com/blog", // Prevents duplicate content penalties
+    canonical: "https://www.getknowify.com/blog", 
   },
   openGraph: {
     title: "The Friendship Quiz Blog | GetKnowify",
@@ -23,31 +23,35 @@ export const metadata = {
   },
 };
 
-// 🚀 SERVER-SIDE FETCH FUNCTION
+// 🚀 SERVER-SIDE FETCH FUNCTION (Fixed for Server-Side execution)
 async function getPublishedBlogs() {
   try {
-    // Adding { next: { revalidate: 60 } } tells Next.js to cache the page 
-    // but check for new blogs every 60 seconds. Extremely fast & SEO friendly!
-    const res = await fetch("/api/blogs", {
-      next: { revalidate: 60 },
+    // 1. Determine the Base URL (Absolute URL is required for server-side fetch)
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.getknowify.com";
+    
+    const res = await fetch(`${baseUrl}/api/blogs`, {
+      next: { revalidate: 60 }, // Cache but refresh every 60s
     });
     
-    if (!res.ok) return [];
+    if (!res.ok) {
+        console.error("Fetch failed with status:", res.status);
+        return [];
+    }
     
     const data = await res.json();
-    if (data.success) {
+    
+    if (data.success && Array.isArray(data.blogs)) {
       // Return ONLY published blogs
       return data.blogs.filter((blog) => blog.status === "published");
     }
     return [];
   } catch (error) {
     console.error("Failed to fetch blogs:", error);
-    return []; // Return empty array on error so page doesn't crash
+    return []; 
   }
 }
 
 export default async function BlogList() {
-  // Fetch blogs directly on the server
   const blogs = await getPublishedBlogs();
 
   // 🚀 JSON-LD SCHEMA FOR GOOGLE CRAWLERS
@@ -64,13 +68,12 @@ export default async function BlogList() {
   return (
     <div className="min-h-screen bg-[#0a0c10] text-white font-sans selection:bg-emerald-500/30 pb-20">
       
-      {/* INJECT SEO SCHEMA */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      {/* Background Glow Effect */}
+      {/* Background Glow */}
       <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[150%] h-80 bg-emerald-500/10 blur-[120px] pointer-events-none z-0" />
 
       <main className="max-w-5xl mx-auto px-6 pt-24 relative z-10">
@@ -89,64 +92,59 @@ export default async function BlogList() {
           </p>
         </header>
 
-        {/* EMPTY STATE */}
-        {blogs.length === 0 && (
+        {/* BLOG GRID / EMPTY STATE */}
+        {blogs.length === 0 ? (
           <div className="text-center py-20 border border-white/5 rounded-3xl bg-[#13151f]">
             <h3 className="text-2xl font-bold text-white">No articles yet</h3>
             <p className="text-slate-400 mt-2">Check back later for new content!</p>
           </div>
-        )}
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {blogs.map((blog) => (
+              <Link
+                key={blog._id} // Using _id from your MongoDB data
+                href={`/blog/${blog.slug}`}
+                className="group block h-full"
+              >
+                <article className="bg-[#13151f] border border-white/5 hover:border-emerald-500/40 rounded-3xl p-6 md:p-8 h-full flex flex-col transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_15px_40px_rgba(16,185,129,0.15)] relative overflow-hidden">
+                  
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 to-teal-300 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
-        {/* BLOG GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {blogs.map((blog) => (
-            <Link
-              key={blog.slug}
-              href={`/blog/${blog.slug}`}
-              className="group block h-full"
-            >
-              <article className="bg-[#13151f] border border-white/5 hover:border-emerald-500/40 rounded-3xl p-6 md:p-8 h-full flex flex-col transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_15px_40px_rgba(16,185,129,0.15)] relative overflow-hidden">
-                
-                {/* Subtle top border gradient on hover */}
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 to-teal-300 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-
-                {/* Dynamic Category Badge & Date */}
-                <div className="mb-5 flex justify-between items-center">
-                  <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-500/20">
-                    Guide
-                  </span>
-                  <span className="text-xs text-slate-500 font-medium">
-                    {new Date(blog.createdAt).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric"
-                    })}
-                  </span>
-                </div>
-
-                <h2 className="text-2xl font-bold text-white mb-3 leading-snug group-hover:text-emerald-300 transition-colors line-clamp-2">
-                  {blog.title}
-                </h2>
-                
-                {/* Automatically strip HTML tags and create a clean description preview */}
-                <p className="text-slate-400 text-sm leading-relaxed mb-8 flex-grow line-clamp-3">
-                  {blog.content?.replace(/<[^>]+>/g, '') || "Read more about this topic..."}
-                </p>
-
-                {/* Author & Read More Link */}
-                <div className="mt-auto flex items-center justify-between border-t border-white/5 pt-4">
-                  <span className="text-xs text-slate-500 font-medium">
-                    By {blog.author || "GetKnowify"}
-                  </span>
-                  <div className="flex items-center gap-2 text-sm font-bold text-emerald-500 group-hover:text-emerald-400 transition-colors">
-                    Read <span className="group-hover:translate-x-1 transition-transform">→</span>
+                  <div className="mb-5 flex justify-between items-center">
+                    <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-500/20">
+                      Guide
+                    </span>
+                    <span className="text-xs text-slate-500 font-medium">
+                      {new Date().toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric"
+                      })}
+                    </span>
                   </div>
-                </div>
-                
-              </article>
-            </Link>
-          ))}
-        </div>
+
+                  <h2 className="text-2xl font-bold text-white mb-3 leading-snug group-hover:text-emerald-300 transition-colors line-clamp-2">
+                    {blog.title}
+                  </h2>
+                  
+                  <p className="text-slate-400 text-sm leading-relaxed mb-8 flex-grow line-clamp-3">
+                    {/* Strips HTML from your content for the preview */}
+                    {blog.content?.replace(/<[^>]+>/g, '').substring(0, 150) || "Discover the latest viral quiz trends and how to boost your engagement..."}
+                  </p>
+
+                  <div className="mt-auto flex items-center justify-between border-t border-white/5 pt-4">
+                    <span className="text-xs text-slate-500 font-medium">
+                      By {blog.author || "Ravi Kumar"}
+                    </span>
+                    <div className="flex items-center gap-2 text-sm font-bold text-emerald-500 group-hover:text-emerald-400 transition-colors">
+                      Read <span className="group-hover:translate-x-1 transition-transform">→</span>
+                    </div>
+                  </div>
+                </article>
+              </Link>
+            ))}
+          </div>
+        )}
 
         {/* BOTTOM CTA */}
         <div className="mt-20 text-center border-t border-white/10 pt-16">
