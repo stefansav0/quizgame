@@ -7,10 +7,8 @@ import { NextResponse } from "next/server";
 // ==========================================
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods":
-    "GET, POST, PUT, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers":
-    "Content-Type, Authorization",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
   "Access-Control-Allow-Credentials": "true",
 };
 
@@ -31,7 +29,11 @@ export async function GET(request, { params }) {
   try {
     await connectDB();
 
-    const slug = params.slug;
+    // ✅ FIX: Await params before destructuring (Required for Next.js)
+    const { slug } = await params;
+
+    // Optional: Log it to your terminal to ensure it's reading correctly
+    console.log("Looking for blog with slug:", slug); 
 
     const blog = await Blog.findOne({ slug });
 
@@ -82,7 +84,8 @@ export async function PUT(request, { params }) {
   try {
     await connectDB();
 
-    const slug = params.slug;
+    // ✅ FIX: Await params
+    const { slug } = await params;
 
     const body = await request.json();
 
@@ -140,7 +143,8 @@ export async function DELETE(request, { params }) {
   try {
     await connectDB();
 
-    const slug = params.slug;
+    // ✅ FIX: Await params
+    const { slug } = await params;
 
     const deletedBlog = await Blog.findOneAndDelete({
       slug,
