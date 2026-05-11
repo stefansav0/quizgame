@@ -1,15 +1,21 @@
 import Link from "next/link";
 
 // 🚀 SERVER-SIDE FETCH FUNCTION
-// This fetches the specific blog by slug from your MongoDB database
+// This fetches the specific blog by slug from your MongoDB database using an Absolute URL
 async function getBlog(slug) {
   try {
+    // 1. Determine the Base URL (Absolute URL is required for server-side fetch)
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://getknowify.com";
+    
     // Revalidates the cache every 60 seconds for insane speed + fresh data
-    const res = await fetch(`/api/blogs/${slug}`, {
+    const res = await fetch(`${baseUrl}/api/blogs/${slug}`, {
       next: { revalidate: 60 },
     });
     
-    if (!res.ok) return null;
+    if (!res.ok) {
+      console.error(`Failed to fetch blog ${slug}. Status:`, res.status);
+      return null;
+    }
     
     const data = await res.json();
     return data.success ? data.blog : null;
@@ -121,7 +127,7 @@ export default async function BlogPage({ params }) {
     return (
       <div className="min-h-screen bg-[#0a0c10] text-white flex items-center justify-center flex-col gap-4">
         <h1 className="text-3xl font-bold">Article not found 😢</h1>
-        <Link href="/blogs" className="text-emerald-400 hover:underline">Return to Blog</Link>
+        <Link href="/blog" className="text-emerald-400 hover:underline">Return to Blog</Link>
       </div>
     );
   }
@@ -169,7 +175,7 @@ export default async function BlogPage({ params }) {
         
         {/* HEADER AREA */}
         <header className="mb-12 border-b border-white/10 pb-8 text-center md:text-left">
-          <Link href="/blogs" className="text-emerald-400 text-sm font-bold uppercase tracking-widest hover:text-emerald-300 mb-6 inline-block">
+          <Link href="/blog" className="text-emerald-400 text-sm font-bold uppercase tracking-widest hover:text-emerald-300 mb-6 inline-block">
             ← Back to Articles
           </Link>
           <h1 className="text-4xl md:text-5xl font-black mb-6 leading-tight bg-gradient-to-r from-white to-emerald-200 bg-clip-text text-transparent">
@@ -188,7 +194,7 @@ export default async function BlogPage({ params }) {
               <p className="text-xs text-slate-500">
                 {blog.createdAt 
                   ? new Date(blog.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) 
-                  : "2026"} 
+                  : new Date().getFullYear()} 
                 {" "}• {blog.category || "Guide"}
               </p>
             </div>
@@ -208,8 +214,8 @@ export default async function BlogPage({ params }) {
 
         {/* ARTICLE CONTENT */}
         <article className="mb-16">
-          {/* Note: If your DB saves raw HTML instead of Markdown, swap this for dangerouslySetInnerHTML */}
-          {blog.content.includes("<h1>") || blog.content.includes("<p>") 
+          {/* Automatically checks if content is HTML from your rich text editor, or plain text to parse */}
+          {blog.content?.includes("<h1>") || blog.content?.includes("<p>") || blog.content?.includes("<") 
             ? <div className="prose prose-invert prose-lg max-w-none prose-emerald" dangerouslySetInnerHTML={{ __html: blog.content }} />
             : renderContent(blog.content)
           }
