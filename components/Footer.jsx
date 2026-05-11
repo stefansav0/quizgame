@@ -38,6 +38,9 @@ export default function Footer() {
               <Link href="/letter/create" className="text-sm font-medium text-slate-400 hover:text-pink-400 transition-colors">
                 Send a Letter
               </Link>
+              <Link href="/feedback" className="text-sm font-medium text-slate-400 hover:text-pink-400 transition-colors">
+                Share your experience
+              </Link>
              
             </div>
 
