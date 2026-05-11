@@ -5,7 +5,7 @@ import Link from "next/link";
 async function getBlog(slug) {
   try {
     // 1. Determine the Base URL (Absolute URL is required for server-side fetch)
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://getknowify.com";
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.getknowify.com";
     
     // Revalidates the cache every 60 seconds for insane speed + fresh data
     const res = await fetch(`${baseUrl}/api/blogs/${slug}`, {
