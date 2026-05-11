@@ -11,11 +11,10 @@ const corsHeaders = {
     "GET, POST, PUT, DELETE, OPTIONS",
   "Access-Control-Allow-Headers":
     "Content-Type, Authorization",
-  "Access-Control-Allow-Credentials": "true",
 };
 
 // ==========================================
-// OPTIONS (PREFLIGHT)
+// OPTIONS
 // ==========================================
 export async function OPTIONS() {
   return new Response(null, {
@@ -31,9 +30,9 @@ export async function GET() {
   try {
     await connectDB();
 
-    const blogs = await Blog.find().sort({
-      createdAt: -1,
-    });
+    const blogs = await Blog.find()
+      .sort({ createdAt: -1 })
+      .lean();
 
     return NextResponse.json(
       {
@@ -53,7 +52,6 @@ export async function GET() {
       {
         success: false,
         error: error.message,
-        fullError: String(error),
       },
       {
         status: 500,
@@ -107,7 +105,6 @@ export async function POST(request) {
       .replace(/[\s_-]+/g, "-")
       .replace(/^-+|-+$/g, "");
 
-    // Random suffix
     const randomSuffix = Math.random()
       .toString(36)
       .substring(2, 6);
@@ -121,7 +118,7 @@ export async function POST(request) {
       title,
       slug,
       author,
-      status: status || "draft",
+      status: status || "published",
       coverImage: coverImage || "",
       content,
     });
@@ -140,26 +137,10 @@ export async function POST(request) {
   } catch (error) {
     console.error("❌ Create Blog Error:", error);
 
-    // Duplicate slug
-    if (error.code === 11000) {
-      return NextResponse.json(
-        {
-          success: false,
-          error:
-            "Duplicate slug detected. Try again.",
-        },
-        {
-          status: 409,
-          headers: corsHeaders,
-        }
-      );
-    }
-
     return NextResponse.json(
       {
         success: false,
         error: error.message,
-        fullError: String(error),
       },
       {
         status: 500,
