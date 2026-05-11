@@ -2,67 +2,169 @@ import { connectDB } from "@/lib/mongodb";
 import Blog from "@/models/Blog";
 import { NextResponse } from "next/server";
 
+// ==========================================
+// CORS HEADERS
+// ==========================================
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, PUT, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  "Access-Control-Allow-Methods":
+    "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers":
+    "Content-Type, Authorization",
+  "Access-Control-Allow-Credentials": "true",
 };
 
+// ==========================================
+// OPTIONS (PREFLIGHT)
+// ==========================================
 export async function OPTIONS() {
-  return NextResponse.json({}, { headers: corsHeaders });
+  return new Response(null, {
+    status: 200,
+    headers: corsHeaders,
+  });
 }
 
 // ==========================================
-// GET SINGLE BLOG BY SLUG
+// GET ALL BLOGS
 // ==========================================
-export async function GET(request, { params }) {
+export async function GET() {
   try {
     await connectDB();
-    const { slug } = await params;
-    const blog = await Blog.findOne({ slug: slug });
 
-    if (!blog) return NextResponse.json({ success: false, error: "Blog not found" }, { status: 404, headers: corsHeaders });
-    return NextResponse.json({ success: true, blog }, { status: 200, headers: corsHeaders });
+    const blogs = await Blog.find().sort({
+      createdAt: -1,
+    });
+
+    return NextResponse.json(
+      {
+        success: true,
+        count: blogs.length,
+        blogs,
+      },
+      {
+        status: 200,
+        headers: corsHeaders,
+      }
+    );
   } catch (error) {
-    return NextResponse.json({ success: false, error: "Failed to fetch blog" }, { status: 500, headers: corsHeaders });
+    console.error("❌ Fetch Blogs Error:", error);
+
+    return NextResponse.json(
+      {
+        success: false,
+        error: error.message,
+        fullError: String(error),
+      },
+      {
+        status: 500,
+        headers: corsHeaders,
+      }
+    );
   }
 }
 
 // ==========================================
-// UPDATE BLOG BY SLUG
+// CREATE BLOG
 // ==========================================
-export async function PUT(request, { params }) {
+export async function POST(request) {
   try {
     await connectDB();
-    const { slug } = await params;
+
     const body = await request.json();
 
-    const updatedBlog = await Blog.findOneAndUpdate(
-      { slug: slug },
-      { $set: body },
-      { new: true } 
+    const {
+      title,
+      author,
+      status,
+      coverImage,
+      content,
+    } = body;
+
+    // ==========================================
+    // VALIDATION
+    // ==========================================
+    if (!title || !author || !content) {
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "Title, author, and content are required",
+        },
+        {
+          status: 400,
+          headers: corsHeaders,
+        }
+      );
+    }
+
+    // ==========================================
+    // GENERATE SLUG
+    // ==========================================
+    const baseSlug = title
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, "")
+      .replace(/[\s_-]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
+    // Random suffix
+    const randomSuffix = Math.random()
+      .toString(36)
+      .substring(2, 6);
+
+    const slug = `${baseSlug}-${randomSuffix}`;
+
+    // ==========================================
+    // CREATE BLOG
+    // ==========================================
+    const newBlog = await Blog.create({
+      title,
+      slug,
+      author,
+      status: status || "draft",
+      coverImage: coverImage || "",
+      content,
+    });
+
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Blog created successfully",
+        blog: newBlog,
+      },
+      {
+        status: 201,
+        headers: corsHeaders,
+      }
     );
-
-    if (!updatedBlog) return NextResponse.json({ success: false, error: "Blog not found" }, { status: 404, headers: corsHeaders });
-    return NextResponse.json({ success: true, blog: updatedBlog }, { status: 200, headers: corsHeaders });
   } catch (error) {
-    return NextResponse.json({ success: false, error: "Failed to update blog" }, { status: 500, headers: corsHeaders });
-  }
-}
+    console.error("❌ Create Blog Error:", error);
 
-// ==========================================
-// DELETE BLOG BY SLUG
-// ==========================================
-export async function DELETE(request, { params }) {
-  try {
-    await connectDB();
-    const { slug } = await params;
+    // Duplicate slug
+    if (error.code === 11000) {
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "Duplicate slug detected. Try again.",
+        },
+        {
+          status: 409,
+          headers: corsHeaders,
+        }
+      );
+    }
 
-    const deletedBlog = await Blog.findOneAndDelete({ slug: slug });
-
-    if (!deletedBlog) return NextResponse.json({ success: false, error: "Blog not found" }, { status: 404, headers: corsHeaders });
-    return NextResponse.json({ success: true, message: "Blog deleted successfully" }, { status: 200, headers: corsHeaders });
-  } catch (error) {
-    return NextResponse.json({ success: false, error: "Failed to delete blog" }, { status: 500, headers: corsHeaders });
+    return NextResponse.json(
+      {
+        success: false,
+        error: error.message,
+        fullError: String(error),
+      },
+      {
+        status: 500,
+        headers: corsHeaders,
+      }
+    );
   }
 }
