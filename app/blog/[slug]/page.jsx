@@ -7,7 +7,7 @@ async function getBlog(slug) {
     // 1. Determine the Base URL (Absolute URL is required for server-side fetch)
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.getknowify.com";
     
-    // Revalidates the cache every 60 seconds for insane speed + fresh data
+    // Revalidates the cache every 60 seconds for high performance + fresh data
     const res = await fetch(`${baseUrl}/api/blogs/${slug}`, {
       next: { revalidate: 60 },
     });
@@ -29,15 +29,13 @@ async function getBlog(slug) {
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   
-  // Fetch the data dynamically from DB
   const blog = await getBlog(slug);
 
   if (!blog) return { title: "Blog Not Found | GetKnowify" };
 
-  // Create a clean description snippet (strips HTML/Markdown if any)
   const cleanDescription = blog.content
     ? blog.content.replace(/<[^>]+>/g, '').substring(0, 150) + "..."
-    : "Read the latest tips on our blog.";
+    : "Read the latest tips and trends on our blog.";
 
   return {
     title: `${blog.title} | GetKnowify`,
@@ -51,26 +49,25 @@ export async function generateMetadata({ params }) {
   };
 }
 
-// ✅ UPGRADED PARSER: Now handles **bold** text and [Bracketed CTAs]
+// ✅ UPGRADED PARSER: Light-Theme Optimized
 const renderContent = (content) => {
   if (!content) return null;
 
   return content.split('\n').map((line, index) => {
-    // Skip empty lines cleanly
     if (line.trim() === '') {
-      return <div key={index} className="h-3"></div>;
+      return <div key={index} className="h-4"></div>;
     }
 
-    // Process inline bolding (**text**) and pseudo-links ([text])
+    // Process inline bolding and pseudo-links (Light Theme Colors)
     let formattedLine = line
-      .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white font-black">$1</strong>')
-      .replace(/\[(.*?)\]/g, '<span class="text-emerald-400 font-bold cursor-pointer hover:underline">$1</span>');
+      .replace(/\*\*(.*?)\*\*/g, '<strong class="text-slate-900 font-bold">$1</strong>')
+      .replace(/\[(.*?)\]/g, '<span class="text-emerald-600 font-semibold cursor-pointer hover:underline">$1</span>');
 
-    // Render H2 tags
+    // Render H2 tags (Clear hierarchy for SEO)
     if (line.startsWith('## ')) {
       return (
         <h2 key={index} 
-            className="text-2xl md:text-3xl font-black mt-12 mb-4 text-emerald-400 tracking-tight"
+            className="text-2xl md:text-3xl font-extrabold mt-12 mb-6 text-slate-900 tracking-tight border-b border-slate-100 pb-3"
             dangerouslySetInnerHTML={{ __html: formattedLine.replace('## ', '') }} 
         />
       );
@@ -80,7 +77,7 @@ const renderContent = (content) => {
     if (line.startsWith('### ')) {
       return (
         <h3 key={index} 
-            className="text-xl font-bold mt-8 mb-3 text-white"
+            className="text-xl font-bold mt-8 mb-4 text-slate-800"
             dangerouslySetInnerHTML={{ __html: formattedLine.replace('### ', '') }} 
         />
       );
@@ -90,26 +87,26 @@ const renderContent = (content) => {
     if (line.startsWith('* ') || line.startsWith('- ')) {
       return (
         <li key={index} 
-            className="ml-6 list-disc mb-2 text-slate-300 text-lg"
+            className="ml-6 list-disc mb-2 text-slate-700 text-lg leading-relaxed"
             dangerouslySetInnerHTML={{ __html: formattedLine.replace(/^(\* |- )/, '') }} 
         />
       );
     }
     
-    // Render Numbered Lists (e.g., "1. ", "2. ")
+    // Render Numbered Lists
     if (/^\d+\.\s/.test(line)) {
       return (
         <li key={index} 
-            className="ml-6 list-decimal mb-3 text-slate-300 text-lg"
+            className="ml-6 list-decimal mb-3 text-slate-700 text-lg leading-relaxed"
             dangerouslySetInnerHTML={{ __html: formattedLine.replace(/^\d+\.\s/, '') }} 
         />
       );
     }
 
-    // Standard Paragraphs
+    // Standard Paragraphs (High contrast for readability)
     return (
       <p key={index} 
-         className="mb-5 text-slate-300 leading-relaxed text-lg"
+         className="mb-6 text-slate-700 leading-relaxed text-lg"
          dangerouslySetInnerHTML={{ __html: formattedLine }} 
       />
     );
@@ -120,19 +117,19 @@ const renderContent = (content) => {
 export default async function BlogPage({ params }) {
   const { slug } = await params;
   
-  // Fetch data dynamically!
   const blog = await getBlog(slug);
 
   if (!blog) {
     return (
-      <div className="min-h-screen bg-[#0a0c10] text-white flex items-center justify-center flex-col gap-4">
-        <h1 className="text-3xl font-bold">Article not found 😢</h1>
-        <Link href="/blog" className="text-emerald-400 hover:underline">Return to Blog</Link>
+      <div className="min-h-screen bg-slate-50 text-slate-900 flex items-center justify-center flex-col gap-4">
+        <h1 className="text-3xl font-bold text-slate-800">Article not found 😢</h1>
+        <Link href="/blog" className="text-emerald-600 font-medium hover:underline">
+          Return to Blog
+        </Link>
       </div>
     );
   }
 
-  // Create a clean description snippet for schema
   const cleanDescription = blog.content
     ? blog.content.replace(/<[^>]+>/g, '').substring(0, 160)
     : "Read the latest tips on our blog.";
@@ -155,12 +152,11 @@ export default async function BlogPage({ params }) {
         "url": "https://getknowify.com/logo.png" 
       }
     },
-    // Use the actual MongoDB creation date
     "datePublished": blog.createdAt ? new Date(blog.createdAt).toISOString() : new Date().toISOString(), 
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0c10] text-white font-sans selection:bg-emerald-500/30">
+    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-emerald-200 selection:text-emerald-900">
       
       {/* INJECT SEO SCHEMA */}
       <script
@@ -168,55 +164,68 @@ export default async function BlogPage({ params }) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      {/* BACKGROUND GLOW */}
-      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[150%] h-80 bg-emerald-500/10 blur-[120px] pointer-events-none z-0" />
+      {/* CLEAN BACKGROUND HEADER */}
+      <div className="absolute top-0 left-0 right-0 h-96 bg-white border-b border-slate-200/50 pointer-events-none z-0" />
 
-      <main className="max-w-3xl mx-auto px-6 py-20 relative z-10">
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 py-12 relative z-10">
         
-        {/* HEADER AREA */}
-        <header className="mb-12 border-b border-white/10 pb-8 text-center md:text-left">
-          <Link href="/blog" className="text-emerald-400 text-sm font-bold uppercase tracking-widest hover:text-emerald-300 mb-6 inline-block">
-            ← Back to Articles
+        {/* Navigation Breadcrumb */}
+        <nav className="mb-8">
+          <Link href="/blog" className="text-emerald-600 text-sm font-bold uppercase tracking-wider hover:text-emerald-700 transition-colors flex items-center gap-2">
+            <span aria-hidden="true">&larr;</span> Back to Articles
           </Link>
-          <h1 className="text-4xl md:text-5xl font-black mb-6 leading-tight bg-gradient-to-r from-white to-emerald-200 bg-clip-text text-transparent">
-            {blog.title}
-          </h1>
-          <p className="text-xl text-slate-400 font-medium line-clamp-3">
-            {cleanDescription}...
-          </p>
+        </nav>
+
+        {/* MAIN ARTICLE CARD (AdSense loves well-contained reading areas) */}
+        <article className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
           
-          <div className="flex items-center justify-center md:justify-start gap-4 mt-8">
-            
-            <div className="text-left">
-              <p className="text-sm font-bold text-white">{blog.author || "GetKnowify Team"}</p>
-              <p className="text-xs text-slate-500">
-                {blog.createdAt 
-                  ? new Date(blog.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) 
-                  : new Date().getFullYear()} 
-                
+          <div className="p-8 md:p-12 lg:p-16">
+            {/* HEADER AREA */}
+            <header className="mb-12 text-center md:text-left">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight text-slate-900 tracking-tight">
+                {blog.title}
+              </h1>
+              
+              <p className="text-xl text-slate-600 font-medium leading-relaxed mb-8 max-w-3xl">
+                {cleanDescription}...
               </p>
+              
+              {/* AUTHOR & META */}
+              <div className="flex items-center justify-center md:justify-start gap-4 pt-6 border-t border-slate-100">
+                <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold text-lg border border-slate-200">
+                   {(blog.author?.charAt(0) || "G")}
+                </div>
+                <div className="text-left">
+                  <p className="text-base font-bold text-slate-900">{blog.author || "GetKnowify Team"}</p>
+                  <time className="text-sm text-slate-500 font-medium">
+                    {blog.createdAt 
+                      ? new Date(blog.createdAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }) 
+                      : new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })} 
+                  </time>
+                </div>
+              </div>
+            </header>
+
+            {/* COVER IMAGE */}
+            {blog.coverImage && (
+              <figure className="mb-14">
+                <img 
+                  src={blog.coverImage} 
+                  alt={blog.title} 
+                  className="w-full h-auto max-h-[500px] object-cover rounded-2xl shadow-md border border-slate-100"
+                />
+              </figure>
+            )}
+
+            {/* ARTICLE CONTENT */}
+            <div className="max-w-3xl mx-auto">
+              {/* Checks if content is HTML from a rich text editor, or plain text to parse */}
+              {blog.content?.includes("<h1>") || blog.content?.includes("<p>") || blog.content?.includes("<") 
+                ? <div className="prose prose-lg prose-slate max-w-none prose-a:text-emerald-600 hover:prose-a:text-emerald-700 prose-img:rounded-xl" dangerouslySetInnerHTML={{ __html: blog.content }} />
+                : <div className="content-wrapper">{renderContent(blog.content)}</div>
+              }
             </div>
           </div>
-        </header>
-
-        {/* COVER IMAGE (Optional, renders if provided in DB) */}
-        {blog.coverImage && (
-          <div className="mb-12">
-            <img 
-              src={blog.coverImage} 
-              alt={blog.title} 
-              className="w-full h-auto max-h-[500px] object-cover rounded-3xl border border-white/5 shadow-2xl"
-            />
-          </div>
-        )}
-
-        {/* ARTICLE CONTENT */}
-        <article className="mb-16">
-          {/* Automatically checks if content is HTML from your rich text editor, or plain text to parse */}
-          {blog.content?.includes("<h1>") || blog.content?.includes("<p>") || blog.content?.includes("<") 
-            ? <div className="prose prose-invert prose-lg max-w-none prose-emerald" dangerouslySetInnerHTML={{ __html: blog.content }} />
-            : renderContent(blog.content)
-          }
         </article>
 
       </main>

@@ -48,7 +48,7 @@ export const metadata = {
 async function getPublishedBlogs() {
   try {
     const res = await fetch(`${SITE_URL}/api/blogs`, {
-      next: { revalidate: 3600 }, // Increased to 1 hour for better performance, use On-Demand Revalidation if possible
+      next: { revalidate: 3600 }, // 1 hour caching
     });
     
     if (!res.ok) return [];
@@ -99,74 +99,88 @@ export default async function BlogList() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white selection:bg-emerald-500/40">
+    <div className="min-h-screen bg-slate-50 text-slate-900 selection:bg-emerald-200 selection:text-emerald-900">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      {/* Modern Ambient Background */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-emerald-600/10 blur-[120px] rounded-full" />
-        <div className="absolute top-[20%] -right-[10%] w-[30%] h-[30%] bg-blue-600/5 blur-[120px] rounded-full" />
-      </div>
+      {/* Clean, minimal header background pattern for a professional look */}
+      <div className="absolute top-0 left-0 right-0 h-96 bg-gradient-to-b from-white to-slate-50 border-b border-slate-200/50 pointer-events-none" />
 
-      <main className="max-w-7xl mx-auto px-6 py-24 relative z-10">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 relative z-10">
         
-        {/* BREADCRUMBS (SEO Boost) */}
-        <nav className="flex mb-8 text-sm font-medium text-slate-500 uppercase tracking-widest">
-          <Link href="/" className="hover:text-emerald-400 transition-colors">Home</Link>
-          <span className="mx-2">/</span>
-          <span className="text-slate-300">Blog</span>
+        {/* BREADCRUMBS (SEO Boost & Navigation clarity) */}
+        <nav className="flex mb-8 text-sm font-medium text-slate-500 uppercase tracking-wider">
+          <Link href="/" className="hover:text-emerald-600 transition-colors">Home</Link>
+          <span className="mx-3 text-slate-300">/</span>
+          <span className="text-slate-800 font-semibold">Blog</span>
         </nav>
 
-        
+        {/* PAGE HEADER (Crucial for AdSense & SEO structure) */}
+        <header className="mb-16 max-w-3xl">
+  <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">
+    The GetKnowify <span className="text-emerald-600">Blog</span>
+  </h1>
 
-        {/* FEATURED POST (Optional - First Blog) */}
-        {blogs.length > 0 && (
-            <div className="mb-16">
-                 {/* Logic for a large featured card can go here */}
-            </div>
-        )}
+  <p className="text-lg text-slate-600 leading-relaxed">
+    Discover friendship quiz ideas, social trends, digital relationship topics, and fun guides for creating meaningful conversations with friends and family.
+  </p>
+</header>
 
         {/* BLOG GRID */}
         {blogs.length === 0 ? (
-          <div className="text-center py-32 rounded-[2rem] border border-white/5 bg-white/[0.02] backdrop-blur-sm">
-            <p className="text-slate-500 text-xl font-light">The lab is currently brewing new trends. Check back soon.</p>
+          <div className="text-center py-24 rounded-2xl border border-dashed border-slate-300 bg-white shadow-sm">
+            <h3 className="text-xl font-semibold text-slate-800 mb-2">No articles found</h3>
+            <p className="text-slate-500 font-medium">Our writers are currently brewing new trends. Check back soon!</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {blogs.map((blog) => (
-              <Link key={blog._id} href={`/blog/${blog.slug}`} className="group">
-                <article className="flex flex-col h-full bg-[#0d0d0d] border border-white/[0.05] rounded-[2rem] overflow-hidden transition-all duration-500 hover:border-emerald-500/30 hover:shadow-[0_0_40px_-10px_rgba(16,185,129,0.2)]">
+              <Link key={blog._id} href={`/blog/${blog.slug}`} className="group flex h-full">
+                <article className="flex flex-col w-full bg-white border border-slate-200 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/5 hover:-translate-y-1">
                   
-                  {/* Visual Element (Even if no image, use a gradient placeholder) */}
-                  <div className="h-48 w-full bg-gradient-to-br from-emerald-900/20 to-slate-900 group-hover:scale-105 transition-transform duration-700" />
+                  {/* Visual Element Placeholder (Light Mode Optimized) */}
+                  <div className="h-52 w-full bg-slate-100 relative overflow-hidden">
+                     {/* Replace with actual <img /> if your blog objects have featured images */}
+                     <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 to-slate-200 group-hover:scale-105 transition-transform duration-700 ease-in-out" />
+                  </div>
 
-                  <div className="p-8 flex flex-col flex-grow">
-                    <div className="flex items-center gap-3 mb-6">
-                      <span className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold uppercase tracking-widest border border-emerald-500/20">
+                  <div className="p-6 sm:p-8 flex flex-col flex-grow">
+                    
+                    {/* Meta Info */}
+                    <div className="flex items-center gap-3 mb-4">
+                      <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold uppercase tracking-wider">
                         {blog.category || "Trend Report"}
                       </span>
-                      <time className="text-[11px] text-slate-500 font-bold uppercase tracking-tighter">
-                        {new Date(blog.createdAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+                      <time className="text-xs text-slate-500 font-medium uppercase tracking-wide">
+                        {new Date(blog.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                       </time>
                     </div>
 
-                    <h2 className="text-2xl font-bold text-white mb-4 group-hover:text-emerald-300 transition-colors duration-300 line-clamp-2">
+                    {/* Title */}
+                    <h2 className="text-2xl font-bold text-slate-900 mb-3 group-hover:text-emerald-600 transition-colors duration-300 line-clamp-2 leading-snug">
                       {blog.title}
                     </h2>
 
-                    <p className="text-slate-400 text-sm leading-relaxed mb-8 line-clamp-3 font-light">
-                      {blog.content?.replace(/<[^>]+>/g, '').substring(0, 140)}...
+                    {/* Excerpt */}
+                    <p className="text-slate-600 text-base leading-relaxed mb-6 line-clamp-3">
+                      {blog.content?.replace(/<[^>]+>/g, '').substring(0, 150) || "Read more about this exciting update..."}...
                     </p>
 
-                    <div className="mt-auto pt-6 border-t border-white/[0.05] flex justify-between items-center">
-                      <span className="text-xs font-semibold text-slate-500">By {blog.author || "GetKnowify Team"}</span>
-                      <div className="flex items-center gap-2 text-emerald-400 text-xs font-black uppercase tracking-widest group-hover:gap-4 transition-all">
-                        Deep Read <span>→</span>
+                    {/* Footer / Author */}
+                    <div className="mt-auto pt-5 border-t border-slate-100 flex justify-between items-center">
+                      <div className="flex items-center gap-2">
+                         <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 text-xs font-bold">
+                           {(blog.author?.charAt(0) || "G")}
+                         </div>
+                         <span className="text-sm font-medium text-slate-700">{blog.author || "GetKnowify Team"}</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-emerald-600 text-sm font-bold group-hover:gap-2 transition-all">
+                        Read <span aria-hidden="true">&rarr;</span>
                       </div>
                     </div>
+
                   </div>
                 </article>
               </Link>
