@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, Variants } from "framer-motion";
+import { motion } from "framer-motion";
 import Link from "next/link";
 
 export default function HomeClient() {
@@ -9,35 +9,34 @@ export default function HomeClient() {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
-      transition: { staggerChildren: 0.15, delayChildren: 0.2 },
+      transition: { staggerChildren: 0.15, delayChildren: 0.1 },
     },
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 80 } },
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 90 } },
   };
 
   const floatingVariants = {
     animate: {
-      y: [0, -15, 0],
-      transition: { duration: 4, repeat: Infinity, ease: "easeInOut" },
+      y: [0, -10, 0],
+      transition: { duration: 5, repeat: Infinity, ease: "easeInOut" },
     },
   };
 
   return (
-    <main className="min-h-screen bg-[#0f111a] flex justify-center w-full mx-auto px-4 py-10 relative overflow-hidden font-sans text-white">
+    <main className="min-h-screen bg-slate-50 flex justify-center w-full mx-auto px-4 py-12 relative overflow-hidden font-sans text-slate-900">
       
-      {/* --- BACKGROUND GLOW EFFECTS --- */}
-      <div className="fixed top-[-10%] left-[-10%] w-96 h-96 bg-rose-500/20 blur-[120px] rounded-full pointer-events-none z-0" aria-hidden="true" />
-      <div className="fixed bottom-[-10%] right-[-10%] w-96 h-96 bg-purple-500/20 blur-[120px] rounded-full pointer-events-none z-0" aria-hidden="true" />
-      <div className="fixed top-[40%] left-[50%] -translate-x-1/2 w-full max-w-2xl h-64 bg-fuchsia-500/10 blur-[100px] rounded-full pointer-events-none z-0" aria-hidden="true" />
+      {/* --- CLEAN AMBIENT BACKGROUND EFFECTS --- */}
+      <div className="fixed top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-300/20 blur-[120px] rounded-full pointer-events-none z-0" aria-hidden="true" />
+      <div className="fixed bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-violet-300/20 blur-[120px] rounded-full pointer-events-none z-0" aria-hidden="true" />
 
-      {/* --- FLOATING EMOJIS --- */}
-      <motion.div variants={floatingVariants} animate="animate" className="fixed top-[15%] left-[15%] text-4xl opacity-50 hidden md:block select-none pointer-events-none z-0" aria-hidden="true">💖</motion.div>
-      <motion.div variants={floatingVariants} animate="animate" transition={{ delay: 1 }} className="fixed top-[20%] right-[15%] text-4xl opacity-50 hidden md:block select-none pointer-events-none z-0" aria-hidden="true">✨</motion.div>
-      <motion.div variants={floatingVariants} animate="animate" transition={{ delay: 2 }} className="fixed bottom-[20%] left-[20%] text-4xl opacity-50 hidden md:block select-none pointer-events-none z-0" aria-hidden="true">🥺</motion.div>
-      <motion.div variants={floatingVariants} animate="animate" transition={{ delay: 1.5 }} className="fixed bottom-[25%] right-[20%] text-4xl opacity-50 hidden md:block select-none pointer-events-none z-0" aria-hidden="true">🔥</motion.div>
+      {/* --- FLOATING EMOJIS (Subtle) --- */}
+      <motion.div variants={floatingVariants} animate="animate" className="fixed top-[15%] left-[10%] text-4xl opacity-20 hidden md:block select-none pointer-events-none z-0" aria-hidden="true">💖</motion.div>
+      <motion.div variants={floatingVariants} animate="animate" transition={{ delay: 1 }} className="fixed top-[20%] right-[10%] text-4xl opacity-20 hidden md:block select-none pointer-events-none z-0" aria-hidden="true">✨</motion.div>
+      <motion.div variants={floatingVariants} animate="animate" transition={{ delay: 2 }} className="fixed bottom-[20%] left-[15%] text-4xl opacity-20 hidden md:block select-none pointer-events-none z-0" aria-hidden="true">🤔</motion.div>
+      <motion.div variants={floatingVariants} animate="animate" transition={{ delay: 1.5 }} className="fixed bottom-[25%] right-[15%] text-4xl opacity-20 hidden md:block select-none pointer-events-none z-0" aria-hidden="true">🔥</motion.div>
 
       {/* Main Container */}
       <div className="w-full max-w-5xl relative z-10 flex flex-col items-center">
@@ -46,63 +45,64 @@ export default function HomeClient() {
           variants={containerVariants}
           initial="hidden"
           animate="show"
-          className="w-full flex flex-col items-center py-10"
+          className="w-full flex flex-col items-center"
         >
           {/* --- HERO SECTION --- */}
-          <section className="text-center mb-16 max-w-3xl">
-            <motion.div variants={itemVariants} className="inline-flex items-center justify-center gap-2 bg-white/5 border border-white/10 px-5 py-2 rounded-full text-sm font-semibold text-rose-300 mb-6 backdrop-blur-sm shadow-lg">
-              <span>For Besties, Couples & Partners</span>
-              <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+          <header className="text-center mb-20 max-w-3xl pt-10">
+            <motion.div variants={itemVariants} className="inline-flex items-center justify-center gap-2 bg-indigo-50 border border-indigo-100 px-5 py-2 rounded-full text-sm font-bold text-indigo-600 mb-8 shadow-sm">
+              <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
+              <span>The #1 Social Testing Platform of 2026</span>
             </motion.div>
             
-            <motion.h1 variants={itemVariants} className="text-5xl md:text-7xl font-black text-center mb-6 tracking-tight bg-gradient-to-br from-white via-rose-100 to-rose-400 bg-clip-text text-transparent drop-shadow-sm">
-              How Well Do You <br className="hidden md:block" /> Know Me?
+            <motion.h1 variants={itemVariants} className="text-5xl md:text-7xl font-black text-center mb-6 tracking-tight text-slate-900 drop-shadow-sm leading-tight">
+              How Well Do You <br className="hidden md:block" /> 
+              <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">Really Know Me?</span>
             </motion.h1>
             
-            <motion.h2 variants={itemVariants} className="text-center text-slate-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
-              Create your custom friendship quiz in seconds. Dare your best friends, crush, or partner to take the ultimate friendship test and prove their loyalty on the live leaderboard.
-            </motion.h2>
-          </section>
+            <motion.p variants={itemVariants} className="text-center text-slate-600 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed font-medium">
+              Create your custom friendship quiz in seconds. Dare your best friends, crush, or partner to take the ultimate test and prove their loyalty on our live, interactive leaderboards.
+            </motion.p>
+          </header>
 
           {/* --- CTA BUTTONS --- */}
-          <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-5 mb-20 w-full max-w-md sm:max-w-none sm:justify-center">
+          <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4 mb-24 w-full max-w-md sm:max-w-none sm:justify-center">
             <Link href="/create" className="group relative w-full sm:w-auto" aria-label="Create a Friendship Quiz">
-              <div className="absolute -inset-1 bg-gradient-to-r from-rose-500 to-pink-500 rounded-2xl blur opacity-30 group-hover:opacity-70 transition duration-500"></div>
-              <div className="relative bg-rose-500 hover:bg-rose-400 text-white font-black text-lg px-8 py-4 rounded-2xl text-center shadow-xl transition-all flex items-center justify-center gap-3 active:scale-95">
+              <div className="absolute -inset-1 bg-indigo-600 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
+              <div className="relative bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-lg px-8 py-4 rounded-2xl text-center shadow-xl shadow-indigo-200 transition-all flex items-center justify-center gap-3 active:scale-95">
                 <span>🎯 Create Your Quiz</span>
               </div>
             </Link>
 
             <Link href="/letter/create" className="group relative w-full sm:w-auto" aria-label="Send a Secret Letter">
-              <div className="absolute -inset-1 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-2xl blur opacity-30 group-hover:opacity-70 transition duration-500"></div>
-              <div className="relative bg-[#1a1c29] border border-white/10 hover:border-purple-500/50 text-white font-black text-lg px-8 py-4 rounded-2xl text-center shadow-xl transition-all flex items-center justify-center gap-3 active:scale-95 backdrop-blur-sm">
+              <div className="relative bg-white border-2 border-slate-200 hover:border-indigo-200 hover:bg-indigo-50 text-slate-700 font-bold text-lg px-8 py-4 rounded-2xl text-center shadow-sm transition-all flex items-center justify-center gap-3 active:scale-95">
                 <span>💌 Send a Letter</span>
               </div>
             </Link>
           </motion.div>
 
-          {/* --- FEATURES GRID (SEO Optimized) --- */}
-          <section className="w-full max-w-4xl mb-24">
-            <motion.div variants={itemVariants} className="text-center mb-10">
-              <h2 className="text-3xl font-black text-white">How The Best Friend Quiz Works</h2>
+          {/* --- FEATURES GRID --- */}
+          <section className="w-full max-w-5xl mb-24">
+            <motion.div variants={itemVariants} className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-black text-slate-900">How The Best Friend Quiz Works</h2>
+              <p className="text-slate-600 mt-4 max-w-2xl mx-auto text-lg">Building stronger connections doesn't have to be complicated. Our platform makes it incredibly simple to challenge your social circle in three easy steps.</p>
             </motion.div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {[
-                { icon: "📝", title: "1. Create Instantly", desc: "Our smart AI quiz maker generates fun, highly personal questions about your life in just seconds." },
-                { icon: "🚀", title: "2. Share Anywhere", desc: "Copy your unique quiz link and paste it on your Instagram Story, Snapchat, or WhatsApp group chat." },
-                { icon: "🏆", title: "3. Check the Leaderboard", desc: "Watch live as your friends take the test. Find out who your real best friend is based on their score." }
+                { icon: "📝", title: "1. Create Instantly", desc: "Our smart quiz maker allows you to select hand-picked questions about your personality, likes, and dislikes. Customize it to reflect your unique life." },
+                { icon: "🚀", title: "2. Share Anywhere", desc: "Once generated, copy your secure, unique link. Paste it directly onto your Instagram Story, Snapchat, TikTok bio, or a private WhatsApp group." },
+                { icon: "🏆", title: "3. Track Results Live", desc: "Access your private dashboard to watch scores update in real-time. Find out exactly who your real best friends are based on their accuracy." }
               ].map((feature, idx) => (
                 <motion.div 
                   key={idx}
                   variants={itemVariants}
                   whileHover={{ y: -5 }}
-                  className="bg-white/5 border border-white/10 p-8 rounded-3xl backdrop-blur-md shadow-2xl hover:bg-white/10 transition-colors"
+                  className="bg-white border border-slate-200 p-8 rounded-[2rem] shadow-lg shadow-slate-200/50 hover:shadow-xl hover:border-indigo-200 transition-all"
                 >
-                  <div className="text-4xl mb-4 bg-white/10 w-16 h-16 flex items-center justify-center rounded-2xl shadow-inner">
+                  <div className="text-3xl mb-6 bg-indigo-50 text-indigo-600 w-16 h-16 flex items-center justify-center rounded-2xl">
                     {feature.icon}
                   </div>
-                  <h3 className="text-xl font-bold mb-3 text-white">{feature.title}</h3>
-                  <p className="text-slate-400 leading-relaxed font-medium">
+                  <h3 className="text-xl font-bold mb-3 text-slate-900">{feature.title}</h3>
+                  <p className="text-slate-600 leading-relaxed font-medium">
                     {feature.desc}
                   </p>
                 </motion.div>
@@ -110,42 +110,98 @@ export default function HomeClient() {
             </div>
           </section>
 
-          {/* --- SEO FAQ SECTION --- */}
-          <section className="w-full max-w-3xl mb-24">
-            <motion.div variants={itemVariants} className="text-center mb-10">
-              <h2 className="text-3xl font-black text-white">Frequently Asked Questions</h2>
+          {/* --- TEXT CONTENT SECTION 1: WHY IT MATTERS (AdSense Optimization) --- */}
+          <motion.article variants={itemVariants} className="w-full max-w-4xl mb-12 bg-white border border-slate-200 rounded-[2.5rem] p-8 md:p-14 shadow-sm text-left">
+            <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-6">The Psychology of Friendship Testing</h2>
+            <div className="space-y-5 text-slate-600 leading-relaxed text-lg">
+              <p>
+                In the digital age, we have hundreds of online followers, but how many people truly know the real you? The <strong className="text-indigo-600">GetKnowify Friendship Quiz</strong> is designed to cut through the noise of superficial social media interactions and test the genuine bonds you share with your peers.
+              </p>
+              <p>
+                Psychologists suggest that playful interactions, such as interactive quizzes, shared dares, and trivia games, significantly boost interpersonal relationships. By asking questions about your favorite foods, your biggest pet peeves, or your fondest memories, you are engaging in a form of active digital bonding. It is a fun, low-pressure way to see who pays attention when you speak.
+              </p>
+              <h3 className="text-2xl font-bold text-slate-900 mt-10 mb-4">Perfect for Every Relationship:</h3>
+              <ul className="list-disc pl-6 space-y-3">
+                <li><strong className="text-slate-800">Best Friends (BFFs):</strong> Settle the debate once and for all. Who holds the crown as your ultimate bestie?</li>
+                <li><strong className="text-slate-800">Couples & Partners:</strong> Use it as an icebreaker or a fun date-night activity to test relationship compatibility and shared memories.</li>
+                <li><strong className="text-slate-800">School & Coworkers:</strong> A lighthearted way to build camaraderie and learn interesting facts about the people you interact with daily.</li>
+              </ul>
+            </div>
+          </motion.article>
+
+          {/* --- TEXT CONTENT SECTION 2: TIPS GUIDE (Massive AdSense Boost) --- */}
+          <motion.article variants={itemVariants} className="w-full max-w-4xl mb-24 bg-indigo-50 border border-indigo-100 rounded-[2.5rem] p-8 md:p-14 shadow-sm text-left">
+            <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-6">How to Make Your Quiz Go Viral</h2>
+            <div className="space-y-5 text-slate-700 leading-relaxed text-lg">
+              <p>
+                Want to get maximum engagement from your followers? Creating a quiz is only half the battle; knowing how to structure it guarantees that your friends will actually take the time to complete it. Here are three expert tips for crafting the perfect social quiz:
+              </p>
+              <ul className="space-y-4 mt-6">
+                <li className="flex flex-col">
+                  <strong className="text-indigo-700 text-xl">1. Mix the Obvious with the Obscure</strong>
+                  <span className="text-slate-600">Don't make every question impossible! Start with easy questions (like your favorite color) to build confidence, then hit them with a difficult question (like your childhood phobia) to test the real friends.</span>
+                </li>
+                <li className="flex flex-col">
+                  <strong className="text-indigo-700 text-xl">2. Keep it Under 15 Questions</strong>
+                  <span className="text-slate-600">Attention spans on social media are incredibly short. Data shows that quizzes with 10 to 15 questions have the highest completion rates. Anything longer, and users will abandon the page.</span>
+                </li>
+                <li className="flex flex-col">
+                  <strong className="text-indigo-700 text-xl">3. Use a "Call Out" on your Story</strong>
+                  <span className="text-slate-600">When posting your link to Instagram or Snapchat, add a caption like, <em>"I bet none of you will get 100% on this."</em> Friendly competition is the number one driver of link clicks!</span>
+                </li>
+              </ul>
+            </div>
+          </motion.article>
+
+          {/* --- EXPANDED FAQ SECTION --- */}
+          <section className="w-full max-w-4xl mb-24">
+            <motion.div variants={itemVariants} className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-black text-slate-900">Frequently Asked Questions</h2>
+              <p className="text-slate-600 mt-4 text-lg">Everything you need to know about our platform.</p>
             </motion.div>
-            <motion.div variants={itemVariants} className="space-y-4">
-              <div className="bg-[#131722]/80 border border-white/10 p-6 rounded-2xl">
-                <h3 className="text-lg font-bold text-emerald-400 mb-2">Is the "How Well Do You Know Me" quiz free?</h3>
-                <p className="text-slate-400">Yes! Creating a quiz, sharing it, and checking your leaderboard is 100% free forever. There are no hidden fees.</p>
+            
+            <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-white border border-slate-200 p-8 rounded-[2rem] shadow-sm hover:shadow-md transition-shadow">
+                <h3 className="text-xl font-bold text-slate-900 mb-3">Is the quiz completely free?</h3>
+                <p className="text-slate-600 leading-relaxed">Yes! Generating a quiz, sharing it on your social platforms, and accessing your real-time leaderboard is 100% free. We believe fun social tools should be accessible to everyone without hidden fees.</p>
               </div>
-              <div className="bg-[#131722]/80 border border-white/10 p-6 rounded-2xl">
-                <h3 className="text-lg font-bold text-emerald-400 mb-2">Can I use this as a Couples Quiz?</h3>
-                <p className="text-slate-400">Absolutely. While it's popular as a BFF test, many users send their quiz link to their boyfriend, girlfriend, or crush to test relationship compatibility.</p>
+              
+              <div className="bg-white border border-slate-200 p-8 rounded-[2rem] shadow-sm hover:shadow-md transition-shadow">
+                <h3 className="text-xl font-bold text-slate-900 mb-3">Can I create my own questions?</h3>
+                <p className="text-slate-600 leading-relaxed">Absolutely. While we provide a bank of highly engaging, viral questions, you have the full creative freedom to type out your own custom questions and answers to make the test harder.</p>
               </div>
-              <div className="bg-[#131722]/80 border border-white/10 p-6 rounded-2xl">
-                <h3 className="text-lg font-bold text-emerald-400 mb-2">Are my quiz answers private?</h3>
-                <p className="text-slate-400">Your privacy is our priority. Your secret dashboard is only accessible to you, and you can delete your quiz and data from our servers at any time.</p>
+
+              <div className="bg-white border border-slate-200 p-8 rounded-[2rem] shadow-sm hover:shadow-md transition-shadow">
+                <h3 className="text-xl font-bold text-slate-900 mb-3">Are my answers and data private?</h3>
+                <p className="text-slate-600 leading-relaxed">Your privacy is our top priority. Your leaderboard is securely hidden behind your personal dashboard link. We do not sell your personal quiz data to third-party data brokers.</p>
+              </div>
+
+              <div className="bg-white border border-slate-200 p-8 rounded-[2rem] shadow-sm hover:shadow-md transition-shadow">
+                <h3 className="text-xl font-bold text-slate-900 mb-3">How many people can take my test?</h3>
+                <p className="text-slate-600 leading-relaxed">There is no limit! Whether you have 10 close friends in a group chat or 100,000 followers on Instagram, our robust servers are built to handle massive viral traffic instantly.</p>
               </div>
             </motion.div>
           </section>
 
           {/* --- VIRAL BOTTOM BANNER --- */}
-          <motion.div variants={itemVariants} className="w-full max-w-4xl relative group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-500 rounded-[2.5rem] blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
-            <div className="relative bg-[#131722] border border-emerald-500/20 rounded-[2rem] p-8 md:p-12 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8 backdrop-blur-xl">
-              <div className="text-center md:text-left">
-                <h2 className="text-2xl md:text-3xl font-black mb-3 text-white">
+          <motion.div variants={itemVariants} className="w-full max-w-4xl relative group mb-10">
+            <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500 rounded-[3rem] blur opacity-30 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+            <div className="relative bg-slate-900 rounded-[2.5rem] p-10 md:p-14 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8 overflow-hidden">
+              
+              {/* Background accent inside the dark banner */}
+              <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/20 rounded-full blur-[80px]"></div>
+
+              <div className="text-center md:text-left relative z-10">
+                <h2 className="text-3xl md:text-4xl font-black mb-4 text-white">
                   Ready to test your friendships? 👀
                 </h2>
-                <p className="text-emerald-100/70 font-medium text-lg">
-                  Stop guessing. Start testing. Build your online quiz today.
+                <p className="text-indigo-200 font-medium text-lg max-w-md">
+                  Stop guessing. Start testing. Build your online quiz today and let the games begin.
                 </p>
               </div>
               <Link 
                 href="/create"
-                className="bg-emerald-500 text-emerald-950 px-8 py-4 rounded-2xl font-black text-lg hover:bg-emerald-400 transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] whitespace-nowrap active:scale-95"
+                className="relative z-10 bg-indigo-500 text-white px-10 py-5 rounded-2xl font-black text-lg hover:bg-indigo-400 transition-all shadow-[0_0_20px_rgba(99,102,241,0.4)] hover:shadow-[0_0_30px_rgba(99,102,241,0.6)] whitespace-nowrap active:scale-95"
               >
                 Start Now 🚀
               </Link>

@@ -186,16 +186,14 @@ export default async function BlogPage({ params }) {
           </p>
           
           <div className="flex items-center justify-center md:justify-start gap-4 mt-8">
-            <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-lg">
-              ✍️
-            </div>
+            
             <div className="text-left">
               <p className="text-sm font-bold text-white">{blog.author || "GetKnowify Team"}</p>
               <p className="text-xs text-slate-500">
                 {blog.createdAt 
                   ? new Date(blog.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) 
                   : new Date().getFullYear()} 
-                {" "}• {blog.category || "Guide"}
+                
               </p>
             </div>
           </div>
@@ -220,23 +218,6 @@ export default async function BlogPage({ params }) {
             : renderContent(blog.content)
           }
         </article>
-
-        {/* HIGH CONVERTING CALL TO ACTION */}
-        <div className="bg-[#13151f] border border-emerald-500/30 rounded-3xl p-8 md:p-10 text-center shadow-[0_0_40px_rgba(16,185,129,0.1)] mb-16 relative overflow-hidden group cursor-pointer hover:border-emerald-400 transition-colors">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 to-teal-300"></div>
-          <h2 className="text-2xl md:text-3xl font-black text-white mb-4">
-            Are your friends actually paying attention? 👀
-          </h2>
-          <p className="text-slate-400 mb-8 max-w-lg mx-auto">
-            Stop guessing. Create your own custom viral friendship quiz in 60 seconds and see who makes it to the top of your leaderboard.
-          </p>
-          <Link
-            href="/"
-            className="inline-block bg-emerald-500 text-emerald-950 font-black px-8 py-4 rounded-2xl hover:bg-emerald-400 transition-all hover:scale-105 active:scale-95 shadow-lg"
-          >
-            Create Your Quiz 🚀
-          </Link>
-        </div>
 
       </main>
     </div>
