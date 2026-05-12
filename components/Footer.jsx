@@ -75,7 +75,7 @@ export default function Footer() {
 
         {/* Copyright & Made With Love */}
         <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500 font-medium">
-          <p>© {currentYear} Findmeway. All rights reserved.</p>
+          <p>© {currentYear} Getknowify. All rights reserved.</p>
           <p className="flex items-center gap-1.5">
             Made with <span className="text-pink-500 animate-pulse text-sm">💖</span> for besties everywhere.
           </p>
