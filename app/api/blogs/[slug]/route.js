@@ -29,11 +29,8 @@ export async function GET(request, { params }) {
   try {
     await connectDB();
 
-    // ✅ FIX: Await params before destructuring (Required for Next.js)
+    // Await params before destructuring (Required for Next.js 15+)
     const { slug } = await params;
-
-    // Optional: Log it to your terminal to ensure it's reading correctly
-    console.log("Looking for blog with slug:", slug); 
 
     const blog = await Blog.findOne({ slug });
 
@@ -84,15 +81,24 @@ export async function PUT(request, { params }) {
   try {
     await connectDB();
 
-    // ✅ FIX: Await params
     const { slug } = await params;
-
     const body = await request.json();
 
+    // If the user is trying to update the slug, we must sanitize it first
+    if (body.slug) {
+      body.slug = body.slug
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s-]/g, "")
+        .replace(/[\s_-]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+    }
+
+    // Attempt to update the document
     const updatedBlog = await Blog.findOneAndUpdate(
-      { slug },
-      { $set: body },
-      { new: true }
+      { slug }, // Find by the original slug in the URL
+      { $set: body }, // Set the new fields (including the new SEO fields)
+      { new: true, runValidators: true } // Return updated doc, enforce schema limits (like maxLength)
     );
 
     if (!updatedBlog) {
@@ -122,6 +128,36 @@ export async function PUT(request, { params }) {
   } catch (error) {
     console.error("❌ Update Blog Error:", error);
 
+    // Catch Duplicate Slug Errors on Update
+    if (error.code === 11000 && error.keyPattern?.slug) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Another blog post already uses this URL slug. Please choose a different one.",
+        },
+        {
+          status: 409,
+          headers: corsHeaders,
+        }
+      );
+    }
+
+    // Catch Validation Errors (e.g., metaDescription exceeds 250 characters)
+    if (error.name === "ValidationError") {
+      const messages = Object.values(error.errors).map(val => val.message);
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Validation failed",
+          details: messages,
+        },
+        {
+          status: 400,
+          headers: corsHeaders,
+        }
+      );
+    }
+
     return NextResponse.json(
       {
         success: false,
@@ -143,7 +179,6 @@ export async function DELETE(request, { params }) {
   try {
     await connectDB();
 
-    // ✅ FIX: Await params
     const { slug } = await params;
 
     const deletedBlog = await Blog.findOneAndDelete({

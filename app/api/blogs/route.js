@@ -7,10 +7,8 @@ import { NextResponse } from "next/server";
 // ==========================================
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods":
-    "GET, POST, PUT, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers":
-    "Content-Type, Authorization",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
 };
 
 // ==========================================
@@ -70,8 +68,13 @@ export async function POST(request) {
 
     const body = await request.json();
 
+    // Destructure all the new SEO and metadata fields
     const {
       title,
+      slug,
+      category,
+      keywords,
+      metaDescription,
       author,
       status,
       coverImage,
@@ -81,12 +84,12 @@ export async function POST(request) {
     // ==========================================
     // VALIDATION
     // ==========================================
-    if (!title || !author || !content) {
+    // Make sure our new required fields are present
+    if (!title || !slug || !category || !metaDescription || !author || !content) {
       return NextResponse.json(
         {
           success: false,
-          error:
-            "Title, author, and content are required",
+          error: "Title, slug, category, meta description, author, and content are required",
         },
         {
           status: 400,
@@ -96,29 +99,27 @@ export async function POST(request) {
     }
 
     // ==========================================
-    // GENERATE SLUG
+    // SANITIZE SLUG (Just to be safe)
     // ==========================================
-    const baseSlug = title
+    // This ensures no spaces or weird characters sneak into the DB
+    const cleanSlug = slug
       .toLowerCase()
       .trim()
       .replace(/[^\w\s-]/g, "")
       .replace(/[\s_-]+/g, "-")
       .replace(/^-+|-+$/g, "");
 
-    const randomSuffix = Math.random()
-      .toString(36)
-      .substring(2, 6);
-
-    const slug = `${baseSlug}-${randomSuffix}`;
-
     // ==========================================
     // CREATE BLOG
     // ==========================================
     const newBlog = await Blog.create({
       title,
-      slug,
+      slug: cleanSlug,
+      category,
+      keywords: keywords || "", // Keywords are optional in the DB
+      metaDescription,
       author,
-      status: status || "published",
+      status: status || "draft", 
       coverImage: coverImage || "",
       content,
     });
@@ -136,6 +137,20 @@ export async function POST(request) {
     );
   } catch (error) {
     console.error("❌ Create Blog Error:", error);
+
+    // Provide a clear error if the user tries to use a slug that already exists
+    if (error.code === 11000 && error.keyPattern?.slug) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "A blog post with this URL slug already exists. Please choose a different slug.",
+        },
+        {
+          status: 409, // Conflict status code
+          headers: corsHeaders,
+        }
+      );
+    }
 
     return NextResponse.json(
       {

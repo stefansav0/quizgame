@@ -1,13 +1,11 @@
 import Link from "next/link";
 
 // 🚀 SERVER-SIDE FETCH FUNCTION
-// This fetches the specific blog by slug from your MongoDB database using an Absolute URL
 async function getBlog(slug) {
   try {
-    // 1. Determine the Base URL (Absolute URL is required for server-side fetch)
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.getknowify.com";
     
-    // Revalidates the cache every 60 seconds for high performance + fresh data
+    // Revalidates the cache every 60 seconds
     const res = await fetch(`${baseUrl}/api/blogs/${slug}`, {
       next: { revalidate: 60 },
     });
@@ -25,24 +23,30 @@ async function getBlog(slug) {
   }
 }
 
-// ✅ DYNAMIC METADATA FOR SEO
+// ✅ DYNAMIC METADATA FOR SEO (Now using your custom Meta Description & Keywords)
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  
   const blog = await getBlog(slug);
 
   if (!blog) return { title: "Blog Not Found | GetKnowify" };
 
-  const cleanDescription = blog.content
-    ? blog.content.replace(/<[^>]+>/g, '').substring(0, 150) + "..."
-    : "Read the latest tips and trends on our blog.";
+  // Use the dedicated metaDescription from DB, fallback to content snippet if missing
+  const description = blog.metaDescription || (blog.content
+    ? blog.content.replace(/<[^>]+>/g, '').substring(0, 160) + "..."
+    : "Read the latest tips and trends on our blog.");
+
+  // Safely parse the comma-separated keywords string into an array for Next.js metadata
+  const keywordsArray = blog.keywords 
+    ? blog.keywords.split(',').map(keyword => keyword.trim()) 
+    : ["friendship quizzes", "social trends"];
 
   return {
     title: `${blog.title} | GetKnowify`,
-    description: cleanDescription,
+    description: description,
+    keywords: keywordsArray,
     openGraph: {
       title: blog.title,
-      description: cleanDescription,
+      description: description,
       type: "article",
       authors: [blog.author || "GetKnowify Team"],
     },
@@ -58,12 +62,10 @@ const renderContent = (content) => {
       return <div key={index} className="h-4"></div>;
     }
 
-    // Process inline bolding and pseudo-links (Light Theme Colors)
     let formattedLine = line
       .replace(/\*\*(.*?)\*\*/g, '<strong class="text-slate-900 font-bold">$1</strong>')
       .replace(/\[(.*?)\]/g, '<span class="text-emerald-600 font-semibold cursor-pointer hover:underline">$1</span>');
 
-    // Render H2 tags (Clear hierarchy for SEO)
     if (line.startsWith('## ')) {
       return (
         <h2 key={index} 
@@ -73,7 +75,6 @@ const renderContent = (content) => {
       );
     }
     
-    // Render H3 tags
     if (line.startsWith('### ')) {
       return (
         <h3 key={index} 
@@ -83,7 +84,6 @@ const renderContent = (content) => {
       );
     }
     
-    // Render Bullet Points
     if (line.startsWith('* ') || line.startsWith('- ')) {
       return (
         <li key={index} 
@@ -93,7 +93,6 @@ const renderContent = (content) => {
       );
     }
     
-    // Render Numbered Lists
     if (/^\d+\.\s/.test(line)) {
       return (
         <li key={index} 
@@ -103,7 +102,6 @@ const renderContent = (content) => {
       );
     }
 
-    // Standard Paragraphs (High contrast for readability)
     return (
       <p key={index} 
          className="mb-6 text-slate-700 leading-relaxed text-lg"
@@ -130,16 +128,21 @@ export default async function BlogPage({ params }) {
     );
   }
 
-  const cleanDescription = blog.content
+  // Fallback description just in case
+  const fallbackDescription = blog.content
     ? blog.content.replace(/<[^>]+>/g, '').substring(0, 160)
     : "Read the latest tips on our blog.";
+  
+  const finalDescription = blog.metaDescription || fallbackDescription;
 
-  // 🚀 DYNAMIC JSON-LD (Crucial for AdSense E-E-A-T)
+  // 🚀 DYNAMIC JSON-LD (Now incredibly robust for AdSense & Google Discover)
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Article",
     "headline": blog.title,
-    "description": cleanDescription,
+    "description": finalDescription,
+    "articleSection": blog.category || "Blog",
+    "keywords": blog.keywords || "",
     "author": {
       "@type": "Person",
       "name": blog.author || "GetKnowify Team" 
@@ -176,18 +179,29 @@ export default async function BlogPage({ params }) {
           </Link>
         </nav>
 
-        {/* MAIN ARTICLE CARD (AdSense loves well-contained reading areas) */}
+        {/* MAIN ARTICLE CARD */}
         <article className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
           
           <div className="p-8 md:p-12 lg:p-16">
             {/* HEADER AREA */}
             <header className="mb-12 text-center md:text-left">
+              
+              {/* ✨ NEW: Category Badge */}
+              {blog.category && (
+                <div className="mb-5 inline-block">
+                  <span className="px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold uppercase tracking-widest rounded-full border border-emerald-100">
+                    {blog.category}
+                  </span>
+                </div>
+              )}
+
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight text-slate-900 tracking-tight">
                 {blog.title}
               </h1>
               
+              {/* ✨ NEW: Uses exact Meta Description as the article subtitle */}
               <p className="text-xl text-slate-600 font-medium leading-relaxed mb-8 max-w-3xl">
-                {cleanDescription}...
+                {finalDescription}
               </p>
               
               {/* AUTHOR & META */}
@@ -219,7 +233,6 @@ export default async function BlogPage({ params }) {
 
             {/* ARTICLE CONTENT */}
             <div className="max-w-3xl mx-auto">
-              {/* Checks if content is HTML from a rich text editor, or plain text to parse */}
               {blog.content?.includes("<h1>") || blog.content?.includes("<p>") || blog.content?.includes("<") 
                 ? <div className="prose prose-lg prose-slate max-w-none prose-a:text-emerald-600 hover:prose-a:text-emerald-700 prose-img:rounded-xl" dangerouslySetInnerHTML={{ __html: blog.content }} />
                 : <div className="content-wrapper">{renderContent(blog.content)}</div>
