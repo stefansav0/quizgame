@@ -36,22 +36,30 @@ export default function RootLayout({
       <head>
 
         {/* ✅ GOOGLE ANALYTICS (GA4) */}
-        <Script
-          strategy="afterInteractive"
-          src="https://www.googletagmanager.com/gtag/js?id=G-9YDEEPLCYP"
-        />
-        <Script
-          id="google-analytics"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'G-9YDEEPLCYP');
-            `,
-          }}
-        />
+<Script
+  strategy="afterInteractive"
+  src="https://www.googletagmanager.com/gtag/js?id=G-9YDEEPLCYP"
+/>
+
+<Script
+  id="google-analytics"
+  strategy="afterInteractive"
+  dangerouslySetInnerHTML={{
+    __html: `
+      window.dataLayer = window.dataLayer || [];
+
+      function gtag(){
+        dataLayer.push(arguments);
+      }
+
+      gtag('js', new Date());
+
+      gtag('config', 'G-9YDEEPLCYP', {
+        page_path: window.location.pathname,
+      });
+    `,
+  }}
+/>
 
         {/* ✅ GOOGLE ADSENSE (IMPORTANT) */}
         <Script
