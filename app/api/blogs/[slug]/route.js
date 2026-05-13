@@ -32,7 +32,11 @@ export async function GET(request, { params }) {
     // Await params before destructuring (Required for Next.js 15+)
     const { slug } = await params;
 
-    const blog = await Blog.findOne({ slug });
+    const blog = await Blog.findOneAndUpdate(
+  { slug },
+  { $inc: { views: 1 } },
+  { new: true }
+);
 
     if (!blog) {
       return NextResponse.json(
