@@ -1,3 +1,7 @@
+// ==============================
+// TERMS OF SERVICE PAGE
+// ==============================
+
 import Link from "next/link";
 
 export const metadata = {
@@ -45,14 +49,26 @@ export default function TermsPage() {
           {/* Section 2 */}
           <section>
             <h2 className="text-2xl font-bold text-white mb-4">
-              2. About the Platform
+              2. Minimum Age Requirement
+            </h2>
+
+            <p>
+              By using GetKnowify, you confirm that you are at least 13 years
+              old or meet the minimum legal age requirement in your country
+              to use online services and social platforms.
+            </p>
+          </section>
+
+          {/* Section 3 */}
+          <section>
+            <h2 className="text-2xl font-bold text-white mb-4">
+              3. About the Platform
             </h2>
 
             <p>
               GetKnowify is an entertainment and social interaction platform
               where users can create quizzes, share messages, participate in
-              interactive games, and connect with friends or communities
-              online.
+              interactive games, and connect with friends or communities online.
             </p>
 
             <p className="mt-4">
@@ -61,10 +77,10 @@ export default function TermsPage() {
             </p>
           </section>
 
-          {/* Section 3 */}
+          {/* Section 4 */}
           <section>
             <h2 className="text-2xl font-bold text-white mb-4">
-              3. User Content & Conduct
+              4. User Content & Conduct
             </h2>
 
             <p>
@@ -94,6 +110,10 @@ export default function TermsPage() {
               </li>
 
               <li>
+                Upload or distribute malicious software, spam, or harmful code.
+              </li>
+
+              <li>
                 Attempt to interfere with the security, stability, or operation
                 of the platform.
               </li>
@@ -105,10 +125,10 @@ export default function TermsPage() {
             </p>
           </section>
 
-          {/* Section 4 */}
+          {/* Section 5 */}
           <section>
             <h2 className="text-2xl font-bold text-white mb-4">
-              4. Public Sharing & Links
+              5. Public Sharing & Links
             </h2>
 
             <p>
@@ -122,10 +142,10 @@ export default function TermsPage() {
             </p>
           </section>
 
-          {/* Section 5 */}
+          {/* Section 6 */}
           <section>
             <h2 className="text-2xl font-bold text-white mb-4">
-              5. Intellectual Property
+              6. Intellectual Property
             </h2>
 
             <p>
@@ -141,10 +161,10 @@ export default function TermsPage() {
             </p>
           </section>
 
-          {/* Section 6 */}
+          {/* Section 7 */}
           <section>
             <h2 className="text-2xl font-bold text-white mb-4">
-              6. Disclaimer
+              7. Disclaimer
             </h2>
 
             <p>
@@ -158,10 +178,10 @@ export default function TermsPage() {
             </p>
           </section>
 
-          {/* Section 7 */}
+          {/* Section 8 */}
           <section>
             <h2 className="text-2xl font-bold text-white mb-4">
-              7. Limitation of Liability
+              8. Limitation of Liability
             </h2>
 
             <p>
@@ -172,42 +192,44 @@ export default function TermsPage() {
             </p>
           </section>
 
-          {/* Section 8 */}
+          {/* Section 9 */}
           <section>
             <h2 className="text-2xl font-bold text-white mb-4">
-              8. Updates to These Terms
+              9. Updates to These Terms
             </h2>
 
             <p>
               These Terms of Service may be updated occasionally to reflect
               platform improvements, legal requirements, or operational
-              changes. Continued use of the platform after updates means you
-              accept the revised terms.
+              changes.
+            </p>
+
+            <p className="mt-4">
+              Continued use of the platform after updates means you accept the
+              revised terms.
             </p>
           </section>
 
-          {/* Section 9 */}
+          {/* Section 10 */}
           <section>
-  <h2 className="text-2xl font-bold text-white mb-4">
-    9. Contact
-  </h2>
+            <h2 className="text-2xl font-bold text-white mb-4">
+              10. Contact
+            </h2>
 
-  <p>
-    If you have questions regarding these Terms of Service, you may
-    contact us through our{" "}
-    <Link
-      href="/contact"
-      className="text-emerald-400 underline underline-offset-4 hover:text-emerald-300 transition-colors"
-    >
-      Contact Us
-    </Link>{" "}
-    page or email us at:
-  </p>
+            <p>
+              If you have questions regarding these Terms of Service, you may
+              contact us through our{" "}
+              <Link
+                href="/contact"
+                className="text-emerald-400 underline underline-offset-4 hover:text-emerald-300 transition-colors"
+              >
+                Contact Us
+              </Link>{" "}
+              page
+            </p>
 
-  <p className="mt-4 text-emerald-400 font-medium">
-    getknowify@gmail.com
-  </p>
-</section>
+            
+          </section>
 
         </div>
       </div>

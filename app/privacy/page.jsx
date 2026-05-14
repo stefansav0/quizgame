@@ -1,3 +1,7 @@
+// ==============================
+// PRIVACY POLICY PAGE
+// ==============================
+
 import Link from "next/link";
 
 export const metadata = {
@@ -45,14 +49,13 @@ export default function PrivacyPage() {
               <li>
                 <strong>Information you provide:</strong> This may include quiz
                 questions, quiz answers, nicknames, messages, or other content
-                you voluntarily submit while using the platform.
+                voluntarily submitted by users.
               </li>
 
               <li>
-                <strong>Automatically collected information:</strong> Basic
-                technical information such as browser type, device information,
-                pages visited, and general usage analytics may be collected
-                automatically.
+                <strong>Automatically collected information:</strong> Browser
+                type, device information, IP address, pages visited, referral
+                source, and usage analytics may be collected automatically.
               </li>
             </ul>
           </section>
@@ -64,14 +67,15 @@ export default function PrivacyPage() {
             </h2>
 
             <p>
-              Information collected through GetKnowify is primarily used to:
+              Information collected through GetKnowify may be used to:
             </p>
 
             <ul className="list-disc pl-6 mt-4 space-y-2">
-              <li>Provide quiz, leaderboard, and sharing features.</li>
-              <li>Improve platform performance and user experience.</li>
-              <li>Maintain platform safety, stability, and functionality.</li>
-              <li>Understand general usage trends and engagement.</li>
+              <li>Provide quizzes, leaderboards, and sharing features.</li>
+              <li>Improve user experience and platform performance.</li>
+              <li>Maintain platform safety and security.</li>
+              <li>Understand engagement and traffic trends.</li>
+              <li>Prevent spam, abuse, and harmful activity.</li>
             </ul>
           </section>
 
@@ -100,6 +104,12 @@ export default function PrivacyPage() {
               </li>
 
               <li>
+                Third-party vendors, including Google, may use cookies to serve
+                ads based on users’ previous visits to this website or other
+                websites.
+              </li>
+
+              <li>
                 Users can manage ad personalization preferences through Google’s{" "}
                 <a
                   href="https://myadcenter.google.com/"
@@ -116,12 +126,36 @@ export default function PrivacyPage() {
           {/* Section 4 */}
           <section>
             <h2 className="text-2xl font-bold text-white mb-4">
-              4. Content & Shared Links
+              4. Cookies & Tracking Technologies
+            </h2>
+
+            <p>
+              GetKnowify may use cookies and similar technologies to improve
+              user experience, analyze traffic, remember preferences, and
+              support advertising features.
+            </p>
+
+            <p className="mt-4">
+              Third-party services such as Google AdSense and Google Analytics
+              may also use cookies to personalize advertisements and measure
+              engagement.
+            </p>
+
+            <p className="mt-4">
+              Users can manage or disable cookies through their browser
+              settings.
+            </p>
+          </section>
+
+          {/* Section 5 */}
+          <section>
+            <h2 className="text-2xl font-bold text-white mb-4">
+              5. Content & Shared Links
             </h2>
 
             <p>
               Some quizzes, scores, leaderboards, and shared content may be
-              accessible through unique public links created by users.
+              accessible through public or shareable links created by users.
             </p>
 
             <p className="mt-4">
@@ -130,24 +164,60 @@ export default function PrivacyPage() {
             </p>
           </section>
 
-          {/* Section 5 */}
-          <section>
-            <h2 className="text-2xl font-bold text-white mb-4">
-              5. Data Management
-            </h2>
-
-            <p>
-              Users may be able to edit or remove certain quizzes or shared
-              content through available platform features. We may also retain
-              limited technical or analytics information for operational,
-              security, or legal purposes.
-            </p>
-          </section>
-
           {/* Section 6 */}
           <section>
             <h2 className="text-2xl font-bold text-white mb-4">
-              6. External Links
+              6. User Responsibility
+            </h2>
+
+            <p>
+              Users are responsible for the content they create and share on
+              GetKnowify.
+            </p>
+
+            <p className="mt-4">
+              Harmful, abusive, hateful, illegal, misleading, or adult-oriented
+              content is not permitted on the platform.
+            </p>
+          </section>
+
+          {/* Section 7 */}
+          <section>
+            <h2 className="text-2xl font-bold text-white mb-4">
+              7. Data Management
+            </h2>
+
+            <p>
+              Users may be able to edit or remove quizzes or shared content
+              through available platform features.
+            </p>
+
+            <p className="mt-4">
+              Limited technical or analytics information may be retained for
+              operational, security, moderation, or legal purposes.
+            </p>
+          </section>
+
+          {/* Section 8 */}
+          <section>
+            <h2 className="text-2xl font-bold text-white mb-4">
+              8. Children's Privacy
+            </h2>
+
+            <p>
+              GetKnowify is not intended for children under 13 years of age.
+            </p>
+
+            <p className="mt-4">
+              We do not knowingly collect personal information from children
+              under 13.
+            </p>
+          </section>
+
+          {/* Section 9 */}
+          <section>
+            <h2 className="text-2xl font-bold text-white mb-4">
+              9. External Links
             </h2>
 
             <p>
@@ -157,42 +227,44 @@ export default function PrivacyPage() {
             </p>
           </section>
 
-          {/* Section 7 */}
+          {/* Section 10 */}
           <section>
             <h2 className="text-2xl font-bold text-white mb-4">
-              7. Updates to This Policy
+              10. Updates to This Policy
             </h2>
 
             <p>
               This Privacy Policy may be updated occasionally to reflect
               platform changes, legal requirements, or service improvements.
+            </p>
+
+            <p className="mt-4">
               Continued use of the platform after updates means you accept the
               revised policy.
             </p>
           </section>
 
-          {/* Section 8 */}
+          {/* Section 11 */}
           <section>
-  <h2 className="text-2xl font-bold text-white mb-4">
-    8. Contact Us
-  </h2>
+            <h2 className="text-2xl font-bold text-white mb-4">
+              11. Contact Us
+            </h2>
 
-  <p>
-    If you have questions about this Privacy Policy or would like to
-    contact us regarding your information, you can reach us through our{" "}
-    <Link
-      href="/contact"
-      className="text-emerald-400 underline underline-offset-4 hover:text-emerald-300 transition-colors"
-    >
-      Contact Us
-    </Link>{" "}
-    page or email us at:
-  </p>
+            <p>
+              If you have questions about this Privacy Policy or would like to
+              contact us regarding your information, you can reach us through
+              our{" "}
+              <Link
+                href="/contact"
+                className="text-emerald-400 underline underline-offset-4 hover:text-emerald-300 transition-colors"
+              >
+                Contact Us
+              </Link>{" "}
+              page.
+            </p>
 
-  <p className="mt-4 text-emerald-400 font-medium">
-    getknowify@gmail.com
-  </p>
-</section>
+            
+          </section>
 
         </div>
       </div>
