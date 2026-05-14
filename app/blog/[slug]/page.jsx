@@ -296,7 +296,7 @@ export default async function BlogPage({ params }) {
                   <div className="flex flex-col gap-6">
                     {relatedBlogs.map((relatedPost) => (
                       <Link 
-                        href={`/blogs/${relatedPost.slug}`} 
+                        href={`/blog/${relatedPost.slug}`} 
                         key={relatedPost._id || relatedPost.slug}
                         className="group flex flex-col gap-3"
                       >
