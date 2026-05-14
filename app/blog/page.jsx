@@ -48,7 +48,7 @@ export const metadata = {
 async function getPublishedBlogs() {
   try {
     const res = await fetch(`${SITE_URL}/api/blogs`, {
-      next: { revalidate: 3600 }, // 1 hour caching
+      next: { revalidate: 60 }, // 1 hour caching
     });
     
     if (!res.ok) return [];
