@@ -142,19 +142,25 @@ export default async function BlogList() {
                 <article className="flex flex-col w-full bg-white border border-slate-200 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/5 hover:-translate-y-1">
                   
                   {/* Visual Element Placeholder (Light Mode Optimized) */}
-                  <div className="h-52 w-full relative overflow-hidden bg-slate-100">
+                  <div className="h-52 w-full relative overflow-hidden bg-gradient-to-br from-emerald-50 via-slate-100 to-slate-200">
+
   <Image
     src={
+      blog.coverImage ||
       blog.image ||
       blog.featuredImage ||
-      "/placeholder.jpg"
+      "/fallback-blog.jpg"
     }
     alt={blog.title}
     fill
     className="object-cover group-hover:scale-105 transition-transform duration-700 ease-in-out"
     sizes="(max-width: 768px) 100vw, 33vw"
-    priority={false}
+    unoptimized
   />
+
+  {/* Overlay */}
+  <div className="absolute inset-0 bg-black/5 group-hover:bg-black/0 transition-all duration-500" />
+
 </div>
 
                   <div className="p-6 sm:p-8 flex flex-col flex-grow">
