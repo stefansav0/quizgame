@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 // --- ADVANCED SEO CONFIGURATION ---
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.getknowify.com";
@@ -141,10 +142,20 @@ export default async function BlogList() {
                 <article className="flex flex-col w-full bg-white border border-slate-200 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/5 hover:-translate-y-1">
                   
                   {/* Visual Element Placeholder (Light Mode Optimized) */}
-                  <div className="h-52 w-full bg-slate-100 relative overflow-hidden">
-                     {/* Replace with actual <img /> if your blog objects have featured images */}
-                     <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 to-slate-200 group-hover:scale-105 transition-transform duration-700 ease-in-out" />
-                  </div>
+                  <div className="h-52 w-full relative overflow-hidden bg-slate-100">
+  <Image
+    src={
+      blog.image ||
+      blog.featuredImage ||
+      "/placeholder.jpg"
+    }
+    alt={blog.title}
+    fill
+    className="object-cover group-hover:scale-105 transition-transform duration-700 ease-in-out"
+    sizes="(max-width: 768px) 100vw, 33vw"
+    priority={false}
+  />
+</div>
 
                   <div className="p-6 sm:p-8 flex flex-col flex-grow">
                     
