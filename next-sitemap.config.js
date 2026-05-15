@@ -66,8 +66,8 @@ module.exports = {
 
     // Blog posts
     else if (path.startsWith("/blog/")) {
-      priority = 0.85;
-      changefreq = "weekly";
+      priority = 0.9;
+      changefreq = "daily";
     }
 
     // Quiz pages

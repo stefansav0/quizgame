@@ -1,5 +1,39 @@
 import Link from "next/link";
 
+// ✅ FORCE DYNAMIC REVALIDATION
+export const revalidate = 60;
+
+// ✅ AUTO GENERATE BLOG SLUGS FOR SITEMAP + SEO
+export async function generateStaticParams() {
+  try {
+    const baseUrl =
+      process.env.NEXT_PUBLIC_SITE_URL ||
+      "https://www.getknowify.com";
+
+    const res = await fetch(`${baseUrl}/api/blogs`, {
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      console.error("Failed to fetch blog slugs");
+      return [];
+    }
+
+    const data = await res.json();
+
+    const blogs = data.success ? data.blogs : [];
+
+    return blogs
+      .filter((blog) => blog.slug && blog.status !== "draft")
+      .map((blog) => ({
+        slug: blog.slug,
+      }));
+  } catch (error) {
+    console.error("generateStaticParams Error:", error);
+    return [];
+  }
+}
+
 // 🚀 SERVER-SIDE FETCH FUNCTION FOR MAIN BLOG
 async function getBlog(slug) {
   try {
@@ -54,27 +88,63 @@ async function getRelatedBlogs(currentSlug, currentCategory) {
 // ✅ DYNAMIC METADATA FOR SEO
 export async function generateMetadata({ params }) {
   const { slug } = await params;
+
   const blog = await getBlog(slug);
 
-  if (!blog) return { title: "Blog Not Found | GetKnowify" };
+  if (!blog) {
+    return {
+      title: "Blog Not Found | GetKnowify",
+      description: "The requested article could not be found.",
+    };
+  }
 
-  const description = blog.metaDescription || (blog.content
-    ? blog.content.replace(/<[^>]+>/g, '').substring(0, 160) + "..."
-    : "Read the latest tips and trends on our blog.");
+  const description =
+    blog.metaDescription ||
+    (blog.content
+      ? blog.content.replace(/<[^>]+>/g, "").substring(0, 160) + "..."
+      : "Read the latest article on GetKnowify.");
 
-  const keywordsArray = blog.keywords 
-    ? blog.keywords.split(',').map(keyword => keyword.trim()) 
-    : ["friendship quizzes", "social trends"];
+  const image =
+    blog.coverImage ||
+    "https://www.getknowify.com/og-image.jpg";
 
   return {
     title: `${blog.title} | GetKnowify`,
-    description: description,
-    keywords: keywordsArray,
+    description,
+
+    keywords: blog.keywords || "",
+
+    alternates: {
+      canonical: `https://www.getknowify.com/blog/${blog.slug}`,
+    },
+
     openGraph: {
       title: blog.title,
-      description: description,
+      description,
+      url: `https://www.getknowify.com/blog/${blog.slug}`,
+      siteName: "GetKnowify",
+      images: [
+        {
+          url: image,
+          width: 1200,
+          height: 630,
+          alt: blog.title,
+        },
+      ],
+      locale: "en_US",
       type: "article",
-      authors: [blog.author || "GetKnowify Team"],
+    },
+
+    twitter: {
+      card: "summary_large_image",
+      title: blog.title,
+      description,
+      images: [image],
+    },
+
+    robots: {
+      index: true,
+      follow: true,
     },
   };
 }
