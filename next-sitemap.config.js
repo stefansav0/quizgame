@@ -40,11 +40,6 @@ module.exports = {
         ],
       },
     ],
-
-    // Automatically include generated sitemap index
-    additionalSitemaps: [
-      "https://www.getknowify.com/sitemap.xml",
-    ],
   },
 
   // Custom SEO priority logic
