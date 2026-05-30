@@ -20,7 +20,6 @@ export async function generateStaticParams() {
     }
 
     const data = await res.json();
-
     const blogs = data.success ? data.blogs : [];
 
     return blogs
@@ -39,7 +38,6 @@ async function getBlog(slug) {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.getknowify.com";
     
-    // Revalidates the cache every 60 seconds
     const res = await fetch(`${baseUrl}/api/blogs/${slug}`, {
       next: { revalidate: 60 },
     });
@@ -62,7 +60,6 @@ async function getRelatedBlogs(currentSlug, currentCategory) {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.getknowify.com";
     
-    // Fetch all blogs
     const res = await fetch(`${baseUrl}/api/blogs`, {
       next: { revalidate: 120 }, 
     });
@@ -72,7 +69,6 @@ async function getRelatedBlogs(currentSlug, currentCategory) {
     const data = await res.json();
     const allBlogs = data.success ? data.blogs : [];
     
-    // Filter out the current article and grab 3-4 relevant ones for the sidebar
     const related = allBlogs
       .filter((b) => b.slug !== currentSlug && b.status !== "draft")
       .sort((a, b) => (a.category === currentCategory ? -1 : 1))
@@ -88,7 +84,6 @@ async function getRelatedBlogs(currentSlug, currentCategory) {
 // ✅ DYNAMIC METADATA FOR SEO
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-
   const blog = await getBlog(slug);
 
   if (!blog) {
@@ -111,13 +106,10 @@ export async function generateMetadata({ params }) {
   return {
     title: `${blog.title} | GetKnowify`,
     description,
-
     keywords: blog.keywords || "",
-
     alternates: {
       canonical: `https://www.getknowify.com/blog/${blog.slug}`,
     },
-
     openGraph: {
       title: blog.title,
       description,
@@ -134,14 +126,12 @@ export async function generateMetadata({ params }) {
       locale: "en_US",
       type: "article",
     },
-
     twitter: {
       card: "summary_large_image",
       title: blog.title,
       description,
       images: [image],
     },
-
     robots: {
       index: true,
       follow: true,
@@ -149,58 +139,61 @@ export async function generateMetadata({ params }) {
   };
 }
 
-// ✅ UPGRADED PARSER: Light-Theme Optimized
+// ✅ UPGRADED PARSER: Enforces Strict Vertical Spacing/Gaps
 const renderContent = (content) => {
   if (!content) return null;
 
-  return content.split('\n').map((line, index) => {
-    if (line.trim() === '') {
-      return <div key={index} className="h-4"></div>;
-    }
+  // Split the content by newline and FILTER OUT empty lines.
+  // This guarantees we apply a gap to valid text blocks without stacking extra margins.
+  const lines = content.split('\n').filter(line => line.trim() !== '');
 
-    let formattedLine = line
+  return lines.map((line, index) => {
+    const trimmed = line.trim();
+
+    let formattedLine = trimmed
       .replace(/\*\*(.*?)\*\*/g, '<strong class="text-slate-900 font-bold">$1</strong>')
       .replace(/\[(.*?)\]/g, '<span class="text-emerald-600 font-semibold cursor-pointer hover:underline">$1</span>');
 
-    if (line.startsWith('## ')) {
+    if (trimmed.startsWith('## ')) {
       return (
         <h2 key={index} 
-            className="text-2xl md:text-3xl font-extrabold mt-12 mb-6 text-slate-900 tracking-tight border-b border-slate-100 pb-3 text-left"
+            className="text-2xl md:text-3xl font-extrabold mt-12 mb-6 text-slate-900 tracking-tight border-b border-slate-100 pb-3 text-left block"
             dangerouslySetInnerHTML={{ __html: formattedLine.replace('## ', '') }} 
         />
       );
     }
     
-    if (line.startsWith('### ')) {
+    if (trimmed.startsWith('### ')) {
       return (
         <h3 key={index} 
-            className="text-xl font-bold mt-8 mb-4 text-slate-800 text-left"
+            className="text-xl font-bold mt-8 mb-5 text-slate-800 text-left block"
             dangerouslySetInnerHTML={{ __html: formattedLine.replace('### ', '') }} 
         />
       );
     }
     
-    if (line.startsWith('* ') || line.startsWith('- ')) {
+    if (trimmed.startsWith('* ') || trimmed.startsWith('- ')) {
       return (
         <li key={index} 
-            className="ml-6 list-disc mb-2 text-slate-700 text-lg leading-relaxed text-left"
+            className="ml-6 list-disc mb-3 text-slate-700 text-lg leading-relaxed text-left block"
             dangerouslySetInnerHTML={{ __html: formattedLine.replace(/^(\* |- )/, '') }} 
         />
       );
     }
     
-    if (/^\d+\.\s/.test(line)) {
+    if (/^\d+\.\s/.test(trimmed)) {
       return (
         <li key={index} 
-            className="ml-6 list-decimal mb-3 text-slate-700 text-lg leading-relaxed text-left"
+            className="ml-6 list-decimal mb-3 text-slate-700 text-lg leading-relaxed text-left block"
             dangerouslySetInnerHTML={{ __html: formattedLine.replace(/^\d+\.\s/, '') }} 
         />
       );
     }
 
+    // 🛠️ DEFAULT TEXT BLOCK: mb-8 added to explicitly force a gap between paragraphs!
     return (
       <p key={index} 
-         className="mb-6 text-slate-700 leading-relaxed text-lg text-left"
+         className="mb-8 text-slate-700 leading-relaxed text-lg text-left block"
          dangerouslySetInnerHTML={{ __html: formattedLine }} 
       />
     );
@@ -211,7 +204,6 @@ const renderContent = (content) => {
 export default async function BlogPage({ params }) {
   const { slug } = await params;
   
-  // Fetch main article and related articles in parallel
   const [blog, relatedBlogs] = await Promise.all([
     getBlog(slug),
     getBlog(slug).then(b => b ? getRelatedBlogs(slug, b.category) : []) 
@@ -228,9 +220,41 @@ export default async function BlogPage({ params }) {
     );
   }
 
-  const fallbackDescription = blog.content
-    ? blog.content.replace(/<[^>]+>/g, '').substring(0, 160)
-    : "Read the latest tips on our blog.";
+  // ==========================================
+  // 🛠️ DATA SANITIZATION & SPACING FIXES
+  // ==========================================
+  let safeContent = blog.content || "";
+
+  // 1. Repair AI-hallucinated JSX arrays (.map logic fix)
+  safeContent = safeContent.replace(
+    /\{\[\s*([\s\S]*?)\s*\]\.map\([\s\S]*?=>\s*\([\s\S]*?\)\)\}/g,
+    (match, arrayInner) => {
+      const strings = [];
+      const stringRegex = /"([^"]+)"|'([^']+)'/g;
+      let m;
+      
+      while ((m = stringRegex.exec(arrayInner)) !== null) {
+        strings.push(m[1] || m[2]);
+      }
+      
+      if (strings.length > 0) {
+        return `<ol class="ml-6 list-decimal mb-8">\n${strings.map(str => `<li class="mb-2 text-slate-700">${str}</li>`).join('\n')}\n</ol>`;
+      }
+      return match;
+    }
+  );
+
+  // 2. Structural HTML check (ignores safe inline tags like <strong>, <a>, <br>)
+  const hasStructuralHtml = /<\/?(p|h[1-6]|div|ul|ol|blockquote|table|section|article)[^>]*>/i.test(safeContent);
+
+  // 3. Spacing Fix: Convert all <br> tags to newlines IF we are using the custom parser
+  if (!hasStructuralHtml) {
+    safeContent = safeContent.replace(/<br\s*\/?>/gi, '\n');
+  }
+
+  const fallbackDescription = safeContent
+    .replace(/<[^>]+>/g, '')
+    .substring(0, 160) || "Read the latest tips on our blog.";
   
   const finalDescription = blog.metaDescription || fallbackDescription;
 
@@ -260,36 +284,27 @@ export default async function BlogPage({ params }) {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-emerald-200 selection:text-emerald-900 pb-20">
       
-      {/* INJECT SEO SCHEMA */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      {/* CLEAN BACKGROUND HEADER */}
       <div className="absolute top-0 left-0 right-0 h-96 bg-white border-b border-slate-200/50 pointer-events-none z-0" />
 
-      {/* NEW WIDER CONTAINER FOR TWO-COLUMN LAYOUT */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-12 relative z-10">
         
-        {/* Navigation Breadcrumb */}
         <nav className="mb-8">
           <Link href="/blog" className="text-emerald-600 text-sm font-bold uppercase tracking-wider hover:text-emerald-700 transition-colors flex items-center gap-2">
             <span aria-hidden="true">&larr;</span> Back to Articles
           </Link>
         </nav>
 
-        {/* TWO COLUMN GRID: 1 column on mobile, 12 columns on large screens */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
           
-          {/* ==============================================
-              LEFT COLUMN: MAIN ARTICLE (Spans 8 columns)
-              ============================================== */}
           <div className="lg:col-span-8">
             <article className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden mb-16">
               <div className="p-6 sm:p-8 md:p-12">
                 
-                {/* HEADER AREA - FORCED LEFT ALIGNMENT */}
                 <header className="mb-10 text-left">
                   {blog.category && (
                     <div className="mb-5 inline-block">
@@ -307,7 +322,6 @@ export default async function BlogPage({ params }) {
                     {finalDescription}
                   </p>
                   
-                  {/* AUTHOR & META - FORCED LEFT ALIGNMENT */}
                   <div className="flex items-center justify-start gap-4 pt-6 border-t border-slate-100">
                     <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold text-lg border border-slate-200 flex-shrink-0">
                        {(blog.author?.charAt(0) || "G")}
@@ -323,7 +337,6 @@ export default async function BlogPage({ params }) {
                   </div>
                 </header>
 
-                {/* COVER IMAGE */}
                 {blog.coverImage && (
                   <figure className="mb-12">
                     <img 
@@ -334,23 +347,36 @@ export default async function BlogPage({ params }) {
                   </figure>
                 )}
 
-                {/* ARTICLE CONTENT */}
+                {/* 🛠️ APPLIED RENDERER LOGIC */}
                 <div className="w-full text-left">
-                  {blog.content?.includes("<h1>") || blog.content?.includes("<p>") || blog.content?.includes("<") 
-                    ? <div className="prose prose-lg prose-slate max-w-none prose-a:text-emerald-600 hover:prose-a:text-emerald-700 prose-img:rounded-xl text-left" dangerouslySetInnerHTML={{ __html: blog.content }} />
-                    : <div className="content-wrapper text-left">{renderContent(blog.content)}</div>
-                  }
+                  {hasStructuralHtml ? (
+                    <div
+                      className="
+                        prose prose-slate prose-lg max-w-none 
+                        prose-p:mb-8 prose-p:leading-8
+                        prose-headings:text-slate-900
+                        prose-h1:text-5xl prose-h1:font-black 
+                        prose-h2:text-3xl prose-h2:font-bold prose-h2:mt-12 prose-h2:mb-6 
+                        prose-h3:text-2xl prose-h3:font-semibold 
+                        prose-ul:my-6 prose-li:my-2 prose-li:text-slate-700 
+                        prose-a:text-emerald-600 hover:prose-a:text-emerald-700 
+                        prose-img:rounded-3xl prose-img:shadow-xl 
+                        prose-blockquote:border-emerald-500 prose-blockquote:text-slate-700
+                      "
+                      dangerouslySetInnerHTML={{ __html: safeContent }}
+                    />
+                  ) : (
+                    <div className="content-wrapper">
+                      {renderContent(safeContent)}
+                    </div>
+                  )}
                 </div>
 
               </div>
             </article>
           </div>
 
-          {/* ==============================================
-              RIGHT COLUMN: SIDEBAR (Spans 4 columns)
-              ============================================== */}
           <aside className="lg:col-span-4">
-            {/* STICKY CONTAINER: Keeps it visible while scrolling */}
             <div className="sticky top-8">
               
               <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 sm:p-8">
@@ -361,7 +387,6 @@ export default async function BlogPage({ params }) {
                   </Link>
                 </div>
                 
-                {/* RELATED POSTS LIST (Vertical Stack) */}
                 {relatedBlogs && relatedBlogs.length > 0 ? (
                   <div className="flex flex-col gap-6">
                     {relatedBlogs.map((relatedPost) => (
@@ -370,7 +395,6 @@ export default async function BlogPage({ params }) {
                         key={relatedPost._id || relatedPost.slug}
                         className="group flex flex-col gap-3"
                       >
-                        {/* Sidebar Image */}
                         <div className="h-40 w-full bg-slate-100 rounded-xl overflow-hidden relative">
                           {relatedPost.coverImage ? (
                             <img 
@@ -390,7 +414,6 @@ export default async function BlogPage({ params }) {
                           )}
                         </div>
 
-                        {/* Sidebar Content */}
                         <div>
                           <h4 className="text-base font-bold text-slate-900 leading-snug mb-1 group-hover:text-emerald-600 transition-colors line-clamp-2">
                             {relatedPost.title}

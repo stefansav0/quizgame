@@ -92,6 +92,35 @@ export default function HomeClient() {
             </Link>
           </motion.div>
 
+          <motion.article
+  variants={itemVariants}
+  className="w-full max-w-4xl mb-20 bg-white border border-slate-200 rounded-[2.5rem] p-8 md:p-14 shadow-sm"
+>
+  <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-6">
+    What Is GetKnowify?
+  </h2>
+
+  <div className="space-y-5 text-slate-600 leading-relaxed text-lg">
+    <p>
+      GetKnowify is a free online friendship quiz platform that helps people
+      create personalized quizzes and discover how well their friends,
+      classmates, family members, and partners know them.
+    </p>
+
+    <p>
+      Users can create custom quiz questions, share a unique quiz link, and
+      compare scores in real time. Whether you want a best friend quiz,
+      relationship challenge, or social media game, GetKnowify makes it simple
+      and fun.
+    </p>
+
+    <p>
+      Our mission is to help people create meaningful conversations and stronger
+      relationships through interactive quizzes and social games.
+    </p>
+  </div>
+</motion.article>
+
           {/* --- FEATURES GRID --- */}
           <section className="w-full max-w-5xl mb-24">
             <motion.div
@@ -232,6 +261,84 @@ export default function HomeClient() {
     </ul>
   </div>
 </motion.article>
+
+
+<motion.article
+  variants={itemVariants}
+  className="w-full max-w-4xl mb-24 bg-white border border-slate-200 rounded-[2.5rem] p-8 md:p-14 shadow-sm"
+>
+  <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-8">
+    Popular Friendship Quiz Questions
+  </h2>
+
+  <div className="grid md:grid-cols-2 gap-6 text-slate-700">
+    <ul className="space-y-3">
+      <li>✓ What is my favorite food?</li>
+      <li>✓ What is my favorite movie?</li>
+      <li>✓ What is my dream vacation?</li>
+      <li>✓ What is my biggest fear?</li>
+      <li>✓ What is my favorite hobby?</li>
+    </ul>
+
+    <ul className="space-y-3">
+      <li>✓ What is my favorite music genre?</li>
+      <li>✓ What is my dream job?</li>
+      <li>✓ What is my favorite color?</li>
+      <li>✓ Which city do I want to visit?</li>
+      <li>✓ Who is my favorite celebrity?</li>
+    </ul>
+  </div>
+</motion.article>
+
+<section className="w-full max-w-5xl mb-24">
+  <div className="text-center mb-12">
+    <h2 className="text-3xl md:text-4xl font-black text-slate-900">
+      Latest Friendship Quiz Guides
+    </h2>
+
+    <p className="text-slate-600 mt-4 text-lg">
+      Explore expert guides, quiz ideas, friendship tips, and social game
+      inspiration.
+    </p>
+  </div>
+
+  <div className="grid md:grid-cols-3 gap-6">
+
+    <Link href="/blog">
+      <div className="bg-white p-6 rounded-3xl border border-slate-200 hover:border-indigo-300 transition">
+        <h3 className="font-bold text-lg mb-2">
+          100 Best Friendship Quiz Questions
+        </h3>
+        <p className="text-slate-600">
+          Discover creative questions to make your quiz more engaging.
+        </p>
+      </div>
+    </Link>
+
+    <Link href="/blog">
+      <div className="bg-white p-6 rounded-3xl border border-slate-200 hover:border-indigo-300 transition">
+        <h3 className="font-bold text-lg mb-2">
+          Funny Best Friend Challenge Ideas
+        </h3>
+        <p className="text-slate-600">
+          Fun challenges and quiz ideas for close friends.
+        </p>
+      </div>
+    </Link>
+
+    <Link href="/blog">
+      <div className="bg-white p-6 rounded-3xl border border-slate-200 hover:border-indigo-300 transition">
+        <h3 className="font-bold text-lg mb-2">
+          Relationship Quiz Questions
+        </h3>
+        <p className="text-slate-600">
+          Strengthen relationships through interactive quizzes.
+        </p>
+      </div>
+    </Link>
+
+  </div>
+</section>
 
           {/* --- EXPANDED FAQ SECTION --- */}
           <section className="w-full max-w-4xl mb-24">
