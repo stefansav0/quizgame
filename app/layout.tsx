@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import Script from "next/script";
 // @ts-ignore
 import "./globals.css";
+import AnalyticsTracker from "@/components/AnalyticsTracker";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -76,6 +77,7 @@ export default function RootLayout({
         
         {/* Header */}
         <Header />
+        <AnalyticsTracker />
 
         {/* Main Content */}
         <main className="flex-grow w-full pt-20">
