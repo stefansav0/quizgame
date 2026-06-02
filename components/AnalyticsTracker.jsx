@@ -1,65 +1,74 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 
 export default function AnalyticsTracker() {
   const pathname = usePathname();
+  // We use a ref so the cleanup function can instantly access the country
+  const countryRef = useRef("Unknown"); 
 
   useEffect(() => {
-    // 1. Record the exact time the user landed on the page
+    // 1. Record the exact time the user landed
     const startTime = Date.now();
     
-    // 2. Generate a simple Session ID (stays the same while tab is open)
+    // 2. Generate Session ID
     let sessionId = sessionStorage.getItem("tracker_session");
     if (!sessionId) {
       sessionId = Math.random().toString(36).substring(2, 15);
       sessionStorage.setItem("tracker_session", sessionId);
     }
 
-    // 3. Get User Country (Cached so we only look it up once per session)
-    const fetchCountry = async () => {
-      let country = sessionStorage.getItem("user_country");
-      if (!country) {
+    // 3. Fetch Country IMMEDIATELY on load (not on exit)
+    const initCountry = async () => {
+      let cachedCountry = sessionStorage.getItem("user_country");
+      if (!cachedCountry) {
         try {
           const res = await fetch("https://ipapi.co/json/");
           const data = await res.json();
-          country = data.country_name || "Unknown";
-          sessionStorage.setItem("user_country", country);
+          cachedCountry = data.country_name || "Unknown";
+          sessionStorage.setItem("user_country", cachedCountry);
         } catch (error) {
-          country = "Unknown";
+          cachedCountry = "Unknown";
         }
       }
-      return country;
+      countryRef.current = cachedCountry;
     };
+    
+    initCountry();
 
-    // 4. Function to send data to our database
-    const sendVisitData = async () => {
+    // 4. Send Data (Notice this is NO LONGER async!)
+    const sendVisitData = () => {
       const endTime = Date.now();
-      const timeSpent = Math.round((endTime - startTime) / 1000); // Convert to seconds
-      const country = await fetchCountry();
+      const timeSpent = Math.round((endTime - startTime) / 1000); 
 
       const payload = {
         pagePath: pathname,
         timeSpent,
-        country,
+        country: countryRef.current, // Grab the instantly available ref
         sessionId
       };
 
-      // Use sendBeacon so the request completes even if the user closes the tab
-      const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
-      navigator.sendBeacon("/api/visits", blob);
+      // 5. Use fetch with keepalive instead of sendBeacon
+      fetch("/api/visit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+        keepalive: true, // Tells the browser to finish this even if the tab closes
+      }).catch((err) => console.error("Tracking failed", err));
     };
 
-    // 5. Trigger send on tab close or page refresh
+    // 6. Trigger on tab close
     window.addEventListener("beforeunload", sendVisitData);
 
-    // 6. Trigger send when they navigate to a different page within the app
+    // 7. Trigger on Next.js page change
     return () => {
       window.removeEventListener("beforeunload", sendVisitData);
       sendVisitData();
     };
   }, [pathname]);
 
-  return null; // This component is invisible
+  return null; 
 }
