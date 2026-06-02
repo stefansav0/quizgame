@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import connectMongo from "@/lib/mongodb"; // Update path if needed
+import { connectDB } from "@/lib/mongodb";
 import Visit from "@/models/Visit";
 
 // ==========================================
@@ -23,7 +23,7 @@ export async function OPTIONS() {
 // ==========================================
 export async function GET() {
   try {
-    await connectMongo();
+    await connectDB();
     const visits = await Visit.find().sort({ createdAt: -1 }).lean();
 
     return NextResponse.json(
@@ -44,7 +44,7 @@ export async function GET() {
 // ==========================================
 export async function POST(req) {
   try {
-    await connectMongo();
+    await connectDB();
     const body = await req.json();
 
     const { pagePath, country, timeSpent, sessionId } = body;
