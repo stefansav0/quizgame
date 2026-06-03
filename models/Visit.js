@@ -7,6 +7,7 @@ const visitSchema = new mongoose.Schema(
       required: true,
       default: "/",
     },
+    pageTitle: { type: String, default: "Unknown Page" },
     country: {
       type: String,
       default: "Unknown",

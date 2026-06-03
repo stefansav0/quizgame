@@ -51,6 +51,7 @@ export async function POST(req) {
 
     const newVisit = await Visit.create({
       pagePath: pagePath || "/",
+      pageTitle: pageTitle || "Unknown Page", // <-- Add this!
       country: country || "Unknown",
       timeSpent: timeSpent || 0,
       visitors: 1,

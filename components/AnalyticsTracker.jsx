@@ -44,6 +44,7 @@ export default function AnalyticsTracker() {
 
       const payload = {
         pagePath: pathname,
+        pageTitle: document.title,
         timeSpent,
         country: countryRef.current, // Grab the instantly available ref
         sessionId
