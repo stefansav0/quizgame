@@ -30,7 +30,7 @@ export default function PlayNhie() {
       })
       .catch((err) => {
         console.error(err);
-        setGame({ error: true }); // This prevents the crash!
+        setGame({ error: true }); // This prevents the white-screen crash!
       });
   }, [id]);
 
@@ -59,7 +59,7 @@ export default function PlayNhie() {
     } catch (error) {
       console.error("Failed to submit", error);
       alert("Failed to submit your answers. Please try again.");
-      setStep(game.questions.length); // go back to last question
+      setStep(game.questions.length); // fallback safely
     }
   };
 
@@ -72,7 +72,7 @@ export default function PlayNhie() {
     );
   }
 
-  // 2. ERROR STATE (This stops the white screen crash!)
+  // 2. Error State (Triggers on 404 / Invalid ID)
   if (game.error) {
     return (
       <div className="min-h-screen bg-[#050510] flex flex-col items-center justify-center p-4 font-sans text-white text-center">
@@ -82,7 +82,11 @@ export default function PlayNhie() {
           This link is invalid or the creator deleted their game.
         </p>
         <button 
-          onClick={() => router.push("/never-have-i-ever/create")} 
+          onClick={() => {
+            // Wipes the cached ghost ID so your dashboard/creation steps refresh
+            localStorage.removeItem('nhie_challenge_id'); 
+            window.location.href = "/nhie/create";
+          }} 
           className="bg-fuchsia-500 text-fuchsia-950 font-black py-4 px-8 rounded-2xl text-xl hover:bg-fuchsia-400 transition-colors"
         >
           Create Your Own Game
@@ -144,7 +148,13 @@ export default function PlayNhie() {
             <p className="text-slate-400 mb-8">
               {finalScore.score > 7 ? "You know all their dark secrets! 💀" : "You have no idea what they do in their free time. 🤡"}
             </p>
-            <button onClick={() => router.push("/nhie/create")} className="bg-fuchsia-500 text-fuchsia-950 font-black py-4 px-8 rounded-2xl text-xl hover:bg-fuchsia-400 transition-all active:scale-95">
+            <button 
+              onClick={() => {
+                localStorage.removeItem('nhie_challenge_id');
+                window.location.href = "/nhie/create";
+              }} 
+              className="bg-fuchsia-500 text-fuchsia-950 font-black py-4 px-8 rounded-2xl text-xl hover:bg-fuchsia-400 transition-all active:scale-95"
+            >
               Create Your Own Game
             </button>
           </div>
