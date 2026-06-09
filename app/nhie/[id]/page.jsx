@@ -144,7 +144,7 @@ export default function PlayNhie() {
             <p className="text-slate-400 mb-8">
               {finalScore.score > 7 ? "You know all their dark secrets! 💀" : "You have no idea what they do in their free time. 🤡"}
             </p>
-            <button onClick={() => router.push("/never-have-i-ever/create")} className="bg-fuchsia-500 text-fuchsia-950 font-black py-4 px-8 rounded-2xl text-xl hover:bg-fuchsia-400 transition-all active:scale-95">
+            <button onClick={() => router.push("/nhie/create")} className="bg-fuchsia-500 text-fuchsia-950 font-black py-4 px-8 rounded-2xl text-xl hover:bg-fuchsia-400 transition-all active:scale-95">
               Create Your Own Game
             </button>
           </div>
