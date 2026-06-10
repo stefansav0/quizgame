@@ -131,7 +131,8 @@ export default function PlayNhie() {
         </p>
         <button 
           onClick={() => {
-            localStorage.removeItem('nhie_challenge_id'); // Clean active creation tokens if present
+            // REMOVED: localStorage.removeItem('nhie_challenge_id'); 
+            // Now it redirects normally so the /create page can detect the existing quiz!
             window.location.href = "/nhie/create";
           }} 
           className="bg-emerald-500 text-white font-black py-4 px-8 rounded-2xl text-xl hover:bg-emerald-600 transition-all shadow-[0_10px_20px_rgba(16,185,129,0.2)]"
@@ -229,7 +230,8 @@ export default function PlayNhie() {
 
             <button 
               onClick={() => {
-                localStorage.removeItem('nhie_challenge_id');
+                // REMOVED: localStorage.removeItem('nhie_challenge_id');
+                // Preserves the token so they can't blindly create a new one!
                 window.location.href = "/nhie/create";
               }} 
               className="w-full bg-emerald-500 text-white font-black py-4 px-8 rounded-2xl text-xl hover:bg-emerald-600 transition-all active:scale-95 shadow-[0_10px_20px_rgba(16,185,129,0.2)]"
