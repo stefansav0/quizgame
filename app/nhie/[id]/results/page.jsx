@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 
 export default function NhieDashboard() {
   const { id } = useParams();
@@ -10,7 +9,6 @@ export default function NhieDashboard() {
   const [game, setGame] = useState(null);
 
   useEffect(() => {
-    // 🔥 Guard clause to prevent fetching if ID is missing during Next.js hydration
     if (!id || id === "undefined") return;
 
     fetch(`/api/nhie/${id}`)
@@ -22,7 +20,6 @@ export default function NhieDashboard() {
         if (data.error || !data.attempts) {
           setGame({ error: true });
         } else {
-          // Safe copying and sorting
           const sortedAttempts = [...data.attempts].sort((a, b) => b.score - a.score);
           setGame({ ...data, attempts: sortedAttempts });
         }
@@ -41,18 +38,17 @@ export default function NhieDashboard() {
     );
   }
 
-  // Prevents the "sort" crash if someone accesses a dead dashboard link
+  // Prevents the dashboard crash if the quiz was deleted!
   if (game.error) {
     return (
       <div className="min-h-screen bg-[#050510] flex flex-col items-center justify-center p-4 font-sans text-white text-center">
         <div className="text-7xl mb-6">📊</div>
         <h2 className="text-3xl font-black text-rose-500 mb-4">Dashboard Not Found</h2>
         <p className="text-slate-400 mb-8 max-w-md">
-          We couldn't load the scoreboard for this game ID. It may have been deleted.
+          We couldn't load the scoreboard. The quiz may have been permanently deleted by the creator.
         </p>
         <button 
           onClick={() => {
-            // Clear local storage so they aren't trapped trying to view a deleted game
             localStorage.removeItem('nhie_challenge_id');
             router.push("/nhie/create");
           }} 
@@ -93,13 +89,12 @@ export default function NhieDashboard() {
           )}
         </div>
         
-        {/* Helper button to return to creation screen safely */}
          <div className="text-center">
             <button 
               onClick={() => router.push("/nhie/create")} 
               className="text-fuchsia-400/70 hover:text-fuchsia-400 text-sm font-bold tracking-widest uppercase transition-colors"
             >
-              ← Back to My Game
+              ← Back to My Game Menu
             </button>
         </div>
       </div>

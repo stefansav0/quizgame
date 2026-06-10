@@ -51,6 +51,33 @@ export default function PlayNhie() {
       });
   }, [id]);
 
+  // --- DYNAMIC NAME & PRONOUN REPLACEMENT ALGORITHM ---
+  const formatPersonalizedQuestion = (statement, name) => {
+    if (!statement) return "";
+    
+    // If it's a standard English "Never have I ever" statement:
+    if (statement.toLowerCase().startsWith("never have i ever")) {
+      // 1. Swap the prefix for the creator's name
+      let formatted = statement.replace(/^Never have I ever /i, `Has ${name} ever `);
+      
+      // 2. Intelligently swap pronouns to third-person
+      formatted = formatted.replace(/\bmy\b/gi, "their")
+                           .replace(/\bme\b/gi, "them")
+                           .replace(/\bmyself\b/gi, "themselves")
+                           .replace(/\bI\b/gi, "they");
+                           
+      // 3. Swap the period for a question mark
+      if (formatted.endsWith(".")) {
+        formatted = formatted.slice(0, -1) + "?";
+      }
+      
+      return formatted;
+    }
+    
+    // Fallback for translated/non-standard statements
+    return `Has ${name} done this: "${statement}"`;
+  };
+
   const handleGuess = (guess) => {
     const newAnswers = [...answers, { questionId: game.questions[step - 1].id, guess }];
     setAnswers(newAnswers);
@@ -141,9 +168,11 @@ export default function PlayNhie() {
         {/* ACTIVE RUNNING CHALLENGE STEPS */}
         {step > 0 && typeof step === "number" && game.questions && (
           <motion.div key={step} initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} className={`${game.questions[step - 1]?.bgColor || 'bg-fuchsia-950'} p-10 rounded-[2.5rem] shadow-2xl`}>
-            <p className="text-center font-bold text-white/50 mb-6 uppercase">Did they do this? ({step}/{game.questions.length})</p>
-            <h2 className="text-3xl font-black text-center mb-12 min-h-[120px] flex items-center justify-center">
-              "{game.questions[step - 1]?.statement}"
+            <p className="text-center font-bold text-white/50 mb-6 uppercase">Question {step} / {game.questions.length}</p>
+            
+            {/* 🔥 INJECTS THE SMART PERSONALIZED QUESTION HERE */}
+            <h2 className="text-3xl md:text-4xl font-black text-center leading-tight mb-12 min-h-[120px] flex items-center justify-center">
+              {formatPersonalizedQuestion(game.questions[step - 1]?.statement, game.creatorName)}
             </h2>
             
             <div className="grid grid-cols-2 gap-4">

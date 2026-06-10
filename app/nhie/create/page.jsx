@@ -32,26 +32,115 @@ const COUNTRY_LANGUAGE_MAP = {
 
 const generateNHIEBank = () => {
   return [
+    // --- 📱 SOCIAL MEDIA & TECHNOLOGY (20) ---
+    "Never have I ever stalked an ex on social media from a fake account.",
+    "Never have I ever sent a spicy text to the wrong person.",
+    "Never have I ever accidentally liked a photo from 3 years ago while stalking someone.",
+    "Never have I ever pretended my phone was dead to avoid talking to someone.",
+    "Never have I ever ignored a phone call, then immediately texted 'What's up?'.",
+    "Never have I ever used someone else's Netflix account without them knowing.",
+    "Never have I ever deleted a social media post because it didn't get enough likes.",
+    "Never have I ever read a message, left them on read, and claimed I never saw it.",
+    "Never have I ever Facetuned or heavily edited a photo of myself before posting.",
+    "Never have I ever slid into a stranger's DMs.",
+    "Never have I ever checked my current partner's ex's social media.",
+    "Never have I ever been blocked by someone I know in real life.",
+    "Never have I ever used my phone while sitting on the toilet.",
+    "Never have I ever Googled my own name to see what comes up.",
+    "Never have I ever created a fake dating profile.",
+    "Never have I ever Googled my blind date before meeting them.",
+    "Never have I ever texted my ex while drunk.",
+    "Never have I ever blocked a family member on social media.",
+    "Never have I ever scrolled on TikTok or Reels for more than 5 hours straight.",
+    "Never have I ever un-sent a message before the other person could read it.",
+
+    // --- 💔 DATING, ROMANCE & CRUSHES (20) ---
+    "Never have I ever had a crush on a friend's sibling.",
+    "Never have I ever kissed someone on the very first date.",
+    "Never have I ever ghosted someone after hanging out with them.",
+    "Never have I ever been ghosted by someone I really liked.",
+    "Never have I ever practiced kissing on my hand or a pillow.",
+    "Never have I ever dated someone just because they had money or a car.",
+    "Never have I ever gone on a date just for the free food.",
+    "Never have I ever said 'I love you' first.",
+    "Never have I ever completely forgotten my date's name while on the date.",
+    "Never have I ever used a genuinely terrible pickup line in real life.",
+    "Never have I ever lied about my relationship status to get out of an awkward situation.",
+    "Never have I ever had a crush on a teacher or a boss.",
+    "Never have I ever gotten back together with a toxic ex.",
+    "Never have I ever snooped through my partner's phone.",
+    "Never have I ever been caught completely staring at someone I found attractive.",
+    "Never have I ever faked liking a band or movie just to impress a crush.",
+    "Never have I ever flirted with someone to get out of a speeding ticket or trouble.",
+    "Never have I ever cried over someone who didn't even know I existed.",
+    "Never have I ever accidentally sent a romantic or risky text to my parents.",
+    "Never have I ever swiped right on everyone on a dating app just to see who liked me.",
+
+    // --- 🤢 SECRETS & GROSS HABITS (20) ---
+    "Never have I ever eaten food off the floor (the 5-second rule).",
+    "Never have I ever worn the exact same underwear two days in a row.",
+    "Never have I ever peed in a swimming pool.",
+    "Never have I ever farted in a crowded room and blamed it on someone else (or a dog).",
+    "Never have I ever picked my nose in public thinking no one was looking.",
+    "Never have I ever smelled my own armpits to see if I needed a shower.",
+    "Never have I ever gone more than three days without showering.",
+    "Never have I ever accidentally used someone else's toothbrush.",
+    "Never have I ever drank milk straight out of the carton.",
+    "Never have I ever eaten someone else's labeled food from the fridge and denied it.",
+    "Never have I ever dropped a piece of food, picked it up, and put it back on the serving plate.",
+    "Never have I ever bitten my toenails.",
+    "Never have I ever fallen asleep on the toilet.",
+    "Never have I ever left the house without brushing my teeth.",
+    "Never have I ever pulled dirty clothes out of the laundry hamper to wear again.",
+    "Never have I ever skipped washing my hands after using the bathroom at home.",
+    "Never have I ever tasted pet food just to see what it tasted like.",
+    "Never have I ever chewed on a pen that I borrowed from someone else.",
+    "Never have I ever lied about my weight or height.",
+    "Never have I ever eaten a spoonful of straight frosting out of the tub.",
+
+    // --- 🏢 SCHOOL, WORK & RULE-BREAKING (20) ---
     "Never have I ever faked being sick to get out of school or work.",
-    "Never have I ever fallen asleep in a public place.",
-    "Never have I ever eaten food that fell on the floor (5-second rule).",
-    "Never have I ever worn the same underwear two days in a row.",
-    "Never have I ever dropped my phone in the toilet.",
-    "Never have I ever snooped through someone else's phone.",
-    "Never have I ever practiced an argument in the mirror.",
-    "Never have I ever forgotten a close friend's birthday.",
-    "Never have I ever cut my own hair and deeply regretted it.",
-    "Never have I ever laughed so hard I peed a little.",
-    "Never have I ever worn pajamas to a grocery store.",
-    "Never have I ever burned a meal so badly it set off the smoke alarm.",
-    "Never have I ever sneaked snacks into a movie theater.",
-    "Never have I ever ghosted someone.",
-    "Never have I ever accidentally liked an old photo while stalking someone.",
-    "Never have I ever left someone on read on purpose.",
-    "Never have I ever created a fake social media account.",
-    "Never have I ever lied about having plans to avoid hanging out.",
-    "Never have I ever cheated on a test.",
-    "Never have I ever hidden in the bathroom to avoid working."
+    "Never have I ever fallen asleep during a meeting or a class.",
+    "Never have I ever cheated on a major test or exam.",
+    "Never have I ever stolen office supplies from my job.",
+    "Never have I ever blatantly lied on my resume to get a job.",
+    "Never have I ever blamed a mistake on a coworker.",
+    "Never have I ever quit a job without giving any notice.",
+    "Never have I ever cried at my workplace.",
+    "Never have I ever shown up to work or school incredibly hungover.",
+    "Never have I ever hit 'Reply All' to a company-wide email by mistake.",
+    "Never have I ever muted myself on a Zoom call just so I could scream.",
+    "Never have I ever pretended to be working while actually watching Netflix.",
+    "Never have I ever forged my parent's signature on a permission slip.",
+    "Never have I ever been sent to the principal's office.",
+    "Never have I ever completely skipped a final exam.",
+    "Never have I ever lied about traffic to excuse being late.",
+    "Never have I ever taken credit for someone else's brilliant idea.",
+    "Never have I ever lied to a teacher about reading the assigned book.",
+    "Never have I ever read a Wikipedia summary instead of the actual assignment.",
+    "Never have I ever sneakily eaten a full meal during a class where food was banned.",
+
+    // --- 🤡 WILD, FUNNY & ABSURD (20) ---
+    "Never have I ever broken a bone doing something incredibly stupid.",
+    "Never have I ever tripped in public and tried to play it off like I was jogging.",
+    "Never have I ever waved back at someone who was actually waving at the person behind me.",
+    "Never have I ever confidently walked straight into a perfectly clean glass door.",
+    "Never have I ever gotten a haircut so bad I cried.",
+    "Never have I ever uncontrollably laughed during a serious moment or a funeral.",
+    "Never have I ever snuck out of my house in the middle of the night.",
+    "Never have I ever driven a car without having a license.",
+    "Never have I ever stolen a street sign or traffic cone.",
+    "Never have I ever snuck into a movie theater without paying.",
+    "Never have I ever gotten completely lost in my own hometown.",
+    "Never have I ever given a completely fake name to a barista at a coffee shop.",
+    "Never have I ever accidentally completely ruined a surprise party.",
+    "Never have I ever gotten a tattoo that I deeply regret.",
+    "Never have I ever re-gifted a present that someone else gave me.",
+    "Never have I ever cried while watching a children's animated movie.",
+    "Never have I ever intensely stared at an object trying to move it with my mind.",
+    "Never have I ever had a full, out-loud conversation with an animal.",
+    "Never have I ever eaten an entire family-sized pizza by myself.",
+    "Never have I ever secretly believed in a ridiculous conspiracy theory."
   ];
 };
 
@@ -100,7 +189,12 @@ export default function CreateNHIEChallenge() {
 
       const translatedBank = await Promise.all(
         baseBank.map(async (q) => {
-          return await translateText(q, userInfo.language);
+          // Wrap in try-catch in case translateText fails or language is empty
+          try {
+            return userInfo.language ? await translateText(q, userInfo.language) : q;
+          } catch (e) {
+            return q; 
+          }
         })
       );
 
@@ -166,6 +260,9 @@ export default function CreateNHIEChallenge() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
+      
+      if (!res.ok) throw new Error("Failed to create quiz");
+      
       const data = await res.json();
       const finalId = data.quizId || data.challengeId;
       
@@ -174,6 +271,7 @@ export default function CreateNHIEChallenge() {
       
       setStep(11); 
     } catch (error) {
+      console.error(error);
       alert("Something went wrong creating the challenge.");
     } finally {
       setIsSubmitting(false);
@@ -182,15 +280,20 @@ export default function CreateNHIEChallenge() {
 
   // --- STRICT DELETE ACTION (Clears MongoDB + LocalStorage Loop) ---
   const handleDeleteChallenge = async () => {
-    if(!confirm("Are you sure you want to delete your current quiz? Your friends will lose access and your scoreboard will be wiped.")) return;
+    if (!confirm("Are you sure? This will PERMANENTLY delete your quiz from the database and wipe your scoreboard.")) return;
     
     setIsDeleting(true);
     
     try {
       if (createdChallengeId) {
-        await fetch(`/api/nhie/${createdChallengeId}`, { 
+        // Send actual DELETE request to backend to completely wipe the record
+        const res = await fetch(`/api/nhie/${createdChallengeId}`, { 
           method: "DELETE" 
         });
+        
+        if (!res.ok) {
+          console.error("Failed to delete from MongoDB");
+        }
       }
     } catch (error) {
       console.error("Error deleting remote record:", error);
