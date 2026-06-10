@@ -16,7 +16,16 @@ const NhieSchema = new mongoose.Schema({
       friendName: String,
       score: Number,
       totalQuestions: Number,
-      date: { type: Date, default: Date.now }
+      date: { type: Date, default: Date.now },
+      // 🔥 NEW: Stores the exact breakdown of what they got right/wrong
+      detailedResults: [
+        {
+          statement: String,
+          guess: String,
+          correctAnswer: String,
+          isCorrect: Boolean
+        }
+      ]
     }
   ],
   createdAt: { type: Date, default: Date.now }
