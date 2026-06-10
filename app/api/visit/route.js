@@ -2,15 +2,18 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Visit from "@/models/Visit";
 
+// 🌟 FIX 1: FORCE NEXT.JS TO BYPASS THE SERVER CACHE ON EVERY REQUEST
+export const dynamic = "force-dynamic";
+
 // ==========================================
 // CORS CONFIGURATION
 // ==========================================
-// In production, replace "*" with your specific frontend URLs for better security.
-// Example: const ALLOWED_ORIGINS = "https://user-frontend.com, https://admin-dashboard.com"
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*", 
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  // 🌟 BONUS FIX: Prevent browsers from caching the API response on the client side
+  "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
 };
 
 // Handle Preflight Requests
@@ -47,11 +50,12 @@ export async function POST(req) {
     await connectDB();
     const body = await req.json();
 
-    const { pagePath, country, timeSpent, sessionId } = body;
+    // 🌟 FIX 2: Added 'pageTitle' to the destructuring pull here so it doesn't crash
+    const { pagePath, pageTitle, country, timeSpent, sessionId } = body;
 
     const newVisit = await Visit.create({
       pagePath: pagePath || "/",
-      pageTitle: pageTitle || "Unknown Page", // <-- Add this!
+      pageTitle: pageTitle || "Unknown Page", 
       country: country || "Unknown",
       timeSpent: timeSpent || 0,
       visitors: 1,
@@ -65,7 +69,7 @@ export async function POST(req) {
   } catch (error) {
     console.error("Tracking Error:", error);
     return NextResponse.json(
-      { success: false },
+      { success: false, error: error.message },
       { status: 500, headers: corsHeaders }
     );
   }
