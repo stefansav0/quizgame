@@ -81,13 +81,25 @@ export default function HomeClient() {
             <Link href="/create" className="group relative w-full sm:w-auto" aria-label="Create a Friendship Quiz">
               <div className="absolute -inset-1 bg-indigo-600 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
               <div className="relative bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-lg px-8 py-4 rounded-2xl text-center shadow-xl shadow-indigo-200 transition-all flex items-center justify-center gap-3 active:scale-95">
-                <span>🎯 Create Your Quiz</span>
+                <span>Create Your Quiz</span>
               </div>
             </Link>
 
+            <Link
+  href="/nhie"
+  className="group relative w-full sm:w-auto"
+  aria-label="Create a Never Have I Ever Game"
+>
+  <div className="absolute -inset-1 bg-gradient-to-r from-amber-400 via-yellow-500 to-orange-500 rounded-2xl blur-lg opacity-40 group-hover:opacity-70 transition duration-500"></div>
+
+  <div className="relative bg-gradient-to-r from-amber-400 via-yellow-500 to-orange-500 hover:brightness-110 text-slate-900 font-black text-lg px-8 py-4 rounded-2xl shadow-2xl transition-all duration-300 flex items-center justify-center gap-3 active:scale-95 group-hover:-translate-y-1">
+    Create Never Have I Ever
+  </div>
+</Link>
+
             <Link href="/letter/create" className="group relative w-full sm:w-auto" aria-label="Send a Secret Letter">
               <div className="relative bg-white border-2 border-slate-200 hover:border-indigo-200 hover:bg-indigo-50 text-slate-700 font-bold text-lg px-8 py-4 rounded-2xl text-center shadow-sm transition-all flex items-center justify-center gap-3 active:scale-95">
-                <span>💌 Send a Letter</span>
+                <span>Send a Letter</span>
               </div>
             </Link>
           </motion.div>
