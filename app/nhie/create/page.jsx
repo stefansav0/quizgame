@@ -4,15 +4,16 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { translateText } from "@/lib/translate";
 
+// --- LIGHT THEME PASTEL BACKGROUNDS ---
 const BG_COLORS = [
-  "bg-slate-900",
-  "bg-indigo-950",
-  "bg-purple-950",
-  "bg-fuchsia-950",
-  "bg-rose-950",
-  "bg-orange-950",
-  "bg-emerald-950",
-  "bg-cyan-950",
+  "bg-rose-50",
+  "bg-blue-50",
+  "bg-emerald-50",
+  "bg-purple-50",
+  "bg-amber-50",
+  "bg-teal-50",
+  "bg-indigo-50",
+  "bg-orange-50",
 ];
 
 const COUNTRY_LANGUAGE_MAP = {
@@ -145,7 +146,6 @@ const generateNHIEBank = () => {
 };
 
 export default function CreateNHIEChallenge() {
-  // --- STATE ---
   const [isLoading, setIsLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -161,23 +161,17 @@ export default function CreateNHIEChallenge() {
   const [questionBank, setQuestionBank] = useState([]);
   const [showBankModal, setShowBankModal] = useState(false);
 
-  // --- STRICT DEVICE MEMORY CHECK ON MOUNT ---
   useEffect(() => {
     const existingId = localStorage.getItem('nhie_challenge_id');
-    
     if (existingId) {
-      // If a quiz exists on this device, lock them directly to Step 11
       setCreatedChallengeId(existingId);
       setStep(11); 
     } else {
-      // If no quiz exists, let them make one from Step 0
       setStep(0);
     }
-    
     setIsLoading(false);
   }, []);
 
-  // --- HANDLERS ---
   const handleCountryChange = (e) => setUserInfo({ ...userInfo, country: e.target.value, language: "" });
   const handleLanguageChange = (e) => setUserInfo({ ...userInfo, language: e.target.value });
   const handleNameChange = (e) => setUserInfo({ ...userInfo, name: e.target.value });
@@ -189,7 +183,6 @@ export default function CreateNHIEChallenge() {
 
       const translatedBank = await Promise.all(
         baseBank.map(async (q) => {
-          // Wrap in try-catch in case translateText fails or language is empty
           try {
             return userInfo.language ? await translateText(q, userInfo.language) : q;
           } catch (e) {
@@ -267,8 +260,7 @@ export default function CreateNHIEChallenge() {
       const finalId = data.quizId || data.challengeId;
       
       setCreatedChallengeId(finalId); 
-      localStorage.setItem('nhie_challenge_id', finalId); // Lock device record
-      
+      localStorage.setItem('nhie_challenge_id', finalId); 
       setStep(11); 
     } catch (error) {
       console.error(error);
@@ -278,32 +270,23 @@ export default function CreateNHIEChallenge() {
     }
   };
 
-  // --- STRICT DELETE ACTION (Clears MongoDB + LocalStorage Loop) ---
   const handleDeleteChallenge = async () => {
     if (!confirm("Are you sure? This will PERMANENTLY delete your quiz from the database and wipe your scoreboard.")) return;
     
     setIsDeleting(true);
-    
     try {
       if (createdChallengeId) {
-        // Send actual DELETE request to backend to completely wipe the record
-        const res = await fetch(`/api/nhie/${createdChallengeId}`, { 
-          method: "DELETE" 
-        });
-        
-        if (!res.ok) {
-          console.error("Failed to delete from MongoDB");
-        }
+        const res = await fetch(`/api/nhie/${createdChallengeId}`, { method: "DELETE" });
+        if (!res.ok) console.error("Failed to delete from MongoDB");
       }
     } catch (error) {
       console.error("Error deleting remote record:", error);
     } finally {
-      // Wipe everything locally to unlock creation step access again
       localStorage.removeItem('nhie_challenge_id');
       setCreatedChallengeId(null);
       setUserInfo({ country: "", language: "", name: "" });
       setQuestions([]);
-      setStep(0); // Safely bounce back to creation start step layout
+      setStep(0); 
       setIsDeleting(false);
       alert("Your current quiz has been deleted. You can now build a brand new one!");
     }
@@ -332,44 +315,46 @@ export default function CreateNHIEChallenge() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#0a0c10] flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0c10] flex items-center justify-center p-4 font-sans text-white overflow-hidden py-10 selection:bg-emerald-500/30">
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans text-slate-900 overflow-hidden py-10 selection:bg-emerald-200">
       <div className="w-full max-w-xl relative">
         <AnimatePresence mode="wait">
           
-          {/* STEP 0: ONLY ACCESSIBLE IF LOCALSTORAGE IS EMPTY */}
+          {/* STEP 0: CREATION START */}
           {step === 0 && (
             <motion.div
               key="step-0" variants={slideVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.4, ease: "easeOut" }}
-              className="bg-[#13151f]/90 backdrop-blur-xl rounded-[2.5rem] p-8 md:p-12 shadow-[0_0_50px_rgba(16,185,129,0.1)] border border-emerald-500/20 relative overflow-hidden"
+              className="bg-white rounded-[2.5rem] p-8 md:p-12 shadow-xl border border-slate-100 relative overflow-hidden"
             >
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[150%] h-40 bg-emerald-500/20 blur-[100px] pointer-events-none" />
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[150%] h-40 bg-emerald-50 blur-[100px] pointer-events-none" />
               <div className="text-center mb-10 relative z-10">
-                <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-4 bg-gradient-to-r from-emerald-300 to-teal-200 bg-clip-text text-transparent">Never Have I Ever</h1>
-                <p className="text-slate-400 font-medium text-lg">Confess your secrets. <br className="hidden sm:block" /> Let's see if your friends can guess them. 👀</p>
+                <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-4 bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent">
+                  Never Have I Ever
+                </h1>
+                <p className="text-slate-500 font-medium text-lg">Confess your secrets. <br className="hidden sm:block" /> Let's see if your friends can guess them. 👀</p>
               </div>
 
               <div className="space-y-6 relative z-10">
                 <div className="space-y-2 group">
-                  <label className="text-xs font-bold text-emerald-400 uppercase tracking-widest ml-2">Your Name / Nickname</label>
+                  <label className="text-xs font-bold text-emerald-600 uppercase tracking-widest ml-2">Your Name / Nickname</label>
                   <input
                     type="text" placeholder="E.g. Alex..." value={userInfo.name} onChange={handleNameChange}
-                    className="w-full bg-black/40 border border-white/10 text-white px-5 py-4 rounded-2xl outline-none focus:border-emerald-500/50 focus:bg-black/60 transition-all text-lg placeholder:text-slate-600 shadow-inner group-hover:border-white/20"
+                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 px-5 py-4 rounded-2xl outline-none focus:border-emerald-500 focus:bg-white transition-all text-lg placeholder:text-slate-400 shadow-sm group-hover:border-slate-300"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div className="space-y-2 group">
-                    <label className="text-xs font-bold text-emerald-400 uppercase tracking-widest ml-2">Country</label>
+                    <label className="text-xs font-bold text-emerald-600 uppercase tracking-widest ml-2">Country</label>
                     <select
                       value={userInfo.country} onChange={handleCountryChange}
-                      className="w-full bg-black/40 border border-white/10 text-white px-5 py-4 rounded-2xl outline-none focus:border-emerald-500/50 transition-all appearance-none cursor-pointer group-hover:border-white/20"
+                      className="w-full bg-slate-50 border border-slate-200 text-slate-900 px-5 py-4 rounded-2xl outline-none focus:border-emerald-500 focus:bg-white transition-all appearance-none cursor-pointer group-hover:border-slate-300 shadow-sm"
                     >
                       <option value="" disabled>Select...</option>
                       {Object.keys(COUNTRY_LANGUAGE_MAP).sort().map(country => (
@@ -379,10 +364,10 @@ export default function CreateNHIEChallenge() {
                   </div>
 
                   <div className="space-y-2 group">
-                    <label className="text-xs font-bold text-emerald-400 uppercase tracking-widest ml-2">Language</label>
+                    <label className="text-xs font-bold text-emerald-600 uppercase tracking-widest ml-2">Language</label>
                     <select
                       value={userInfo.language} onChange={handleLanguageChange} disabled={!userInfo.country}
-                      className="w-full bg-black/40 border border-white/10 text-white px-5 py-4 rounded-2xl outline-none focus:border-emerald-500/50 transition-all appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed group-hover:border-white/20"
+                      className="w-full bg-slate-50 border border-slate-200 text-slate-900 px-5 py-4 rounded-2xl outline-none focus:border-emerald-500 focus:bg-white transition-all appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed group-hover:border-slate-300 shadow-sm"
                     >
                       <option value="" disabled>{userInfo.country ? "Select..." : "Pick country first"}</option>
                       {availableLanguages.map(lang => (
@@ -396,9 +381,9 @@ export default function CreateNHIEChallenge() {
               <div className="mt-12 relative z-10">
                 <button
                   onClick={handleStartSetup} disabled={!userInfo.name || !userInfo.country || !userInfo.language || isGenerating}
-                  className="w-full bg-gradient-to-r from-emerald-500 to-teal-400 text-emerald-950 font-black text-xl py-5 px-6 rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:pointer-events-none shadow-[0_10px_30px_rgba(16,185,129,0.4)] flex justify-center items-center gap-2 h-[72px]"
+                  className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-black text-xl py-5 px-6 rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:pointer-events-none shadow-[0_10px_30px_rgba(16,185,129,0.2)] flex justify-center items-center gap-2 h-[72px]"
                 >
-                  {isGenerating ? <div className="w-8 h-8 border-4 border-emerald-950 border-t-transparent rounded-full animate-spin"></div> : "Generate Questions 🔥"}
+                  {isGenerating ? <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin"></div> : "Generate Questions 🔥"}
                 </button>
               </div>
             </motion.div>
@@ -408,37 +393,37 @@ export default function CreateNHIEChallenge() {
           {step > 0 && step <= 10 && (
             <motion.div
               key={`step-${step}`} variants={slideVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.3, ease: "easeInOut" }}
-              className={`${questions[step - 1].bgColor} rounded-[2.5rem] p-6 md:p-10 shadow-2xl transition-colors duration-700 border border-white/10 backdrop-blur-xl relative overflow-hidden`}
+              className={`${questions[step - 1].bgColor} rounded-[2.5rem] p-6 md:p-10 shadow-xl border border-slate-200 transition-colors duration-700 relative overflow-hidden`}
             >
-              <div className="absolute top-0 left-0 h-1.5 bg-white/20 w-full">
-                <motion.div initial={{ width: `${((step - 1) / 10) * 100}%` }} animate={{ width: `${(step / 10) * 100}%` }} className="h-full bg-white shadow-[0_0_15px_rgba(255,255,255,0.8)]" />
+              <div className="absolute top-0 left-0 h-1.5 bg-slate-200 w-full">
+                <motion.div initial={{ width: `${((step - 1) / 10) * 100}%` }} animate={{ width: `${(step / 10) * 100}%` }} className="h-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
               </div>
 
               <div className="flex justify-between items-center mb-8 mt-2">
-                <button onClick={handlePrev} className="w-12 h-12 flex items-center justify-center bg-black/20 hover:bg-black/40 rounded-full transition-colors text-white/70 text-xl font-bold">←</button>
-                <div className="bg-black/20 px-4 py-1.5 rounded-full text-sm font-bold tracking-widest uppercase text-white/80 border border-white/5">Question {step} / 10</div>
+                <button onClick={handlePrev} className="w-12 h-12 flex items-center justify-center bg-white border border-slate-200 hover:bg-slate-50 rounded-full transition-colors text-slate-700 text-xl font-bold shadow-sm">←</button>
+                <div className="bg-white border border-slate-200 px-4 py-1.5 rounded-full text-sm font-bold tracking-widest uppercase text-slate-600 shadow-sm">Question {step} / 10</div>
               </div>
 
               <div className="space-y-6 relative z-10">
                 <div className="flex justify-center mb-4">
-                  <button onClick={() => setShowBankModal(true)} className="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold py-2 px-5 rounded-full text-sm flex items-center gap-2 transition-all shadow-lg backdrop-blur-sm">🎲 Swap Question</button>
+                  <button onClick={() => setShowBankModal(true)} className="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold py-2 px-5 rounded-full text-sm flex items-center gap-2 transition-all shadow-sm">🎲 Swap Question</button>
                 </div>
 
                 <div className="relative group">
-                  <div className="absolute -inset-1 bg-white/20 rounded-3xl blur opacity-0 group-focus-within:opacity-100 transition duration-500"></div>
+                  <div className="absolute -inset-1 bg-white rounded-3xl blur opacity-0 group-focus-within:opacity-50 transition duration-500"></div>
                   <textarea
                     rows={4} value={questions[step - 1].statement} onChange={(e) => updateQuestionText(step - 1, e.target.value)}
-                    className="relative w-full bg-black/20 border border-white/10 text-white placeholder-white/30 px-6 py-5 text-2xl md:text-3xl font-black outline-none focus:border-white/50 focus:bg-black/40 transition-all rounded-3xl resize-none shadow-inner text-center leading-tight"
+                    className="relative w-full bg-white border border-slate-200 text-slate-900 placeholder-slate-400 px-6 py-5 text-2xl md:text-3xl font-black outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/10 transition-all rounded-3xl resize-none shadow-sm text-center leading-tight"
                   />
                 </div>
 
-                <p className="text-center text-xs font-bold uppercase tracking-widest text-white/50 mb-2 mt-4">Have you done this?</p>
+                <p className="text-center text-xs font-bold uppercase tracking-widest text-slate-500 mb-2 mt-4">Have you done this?</p>
 
-                <div className="flex gap-4 mt-6">
+                <div className="flex flex-col sm:flex-row gap-4 mt-6">
                   <button
                     onClick={() => setAnswer(step - 1, "I Have")}
                     className={`flex-1 py-5 rounded-2xl font-black text-xl transition-all duration-300 flex flex-col items-center gap-2 ${
-                      questions[step - 1].creatorAnswer === "I Have" ? "bg-emerald-500 text-emerald-950 shadow-[0_0_25px_rgba(16,185,129,0.5)] scale-[1.02] border border-emerald-400" : "bg-black/40 text-white/60 border border-white/10 hover:bg-black/60 hover:text-white"
+                      questions[step - 1].creatorAnswer === "I Have" ? "bg-emerald-100 text-emerald-800 shadow-md scale-[1.02] border border-emerald-300" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 hover:text-slate-900"
                     }`}
                   >
                     <span className="text-3xl">🙋‍♀️</span>I Have
@@ -446,7 +431,7 @@ export default function CreateNHIEChallenge() {
                   <button
                     onClick={() => setAnswer(step - 1, "Never")}
                     className={`flex-1 py-5 rounded-2xl font-black text-xl transition-all duration-300 flex flex-col items-center gap-2 ${
-                      questions[step - 1].creatorAnswer === "Never" ? "bg-rose-500 text-rose-950 shadow-[0_0_25px_rgba(244,63,94,0.5)] scale-[1.02] border border-rose-400" : "bg-black/40 text-white/60 border border-white/10 hover:bg-black/60 hover:text-white"
+                      questions[step - 1].creatorAnswer === "Never" ? "bg-rose-100 text-rose-800 shadow-md scale-[1.02] border border-rose-300" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 hover:text-slate-900"
                     }`}
                   >
                     <span className="text-3xl">🙅‍♂️</span>Never
@@ -458,14 +443,14 @@ export default function CreateNHIEChallenge() {
                 {step < 10 ? (
                   <button 
                     onClick={handleNext} disabled={questions[step - 1].creatorAnswer === null}
-                    className="bg-white text-slate-900 font-black text-lg py-4 px-8 rounded-2xl hover:bg-slate-200 hover:scale-[1.02] transition-all shadow-xl flex items-center gap-2 disabled:opacity-50"
+                    className="bg-slate-900 text-white font-black text-lg py-4 px-8 rounded-2xl hover:bg-slate-800 hover:scale-[1.02] transition-all shadow-lg flex items-center gap-2 disabled:opacity-50"
                   >Next Question →</button>
                 ) : (
                   <button
                     onClick={handleSaveAndShare} disabled={isSubmitting || questions[step - 1].creatorAnswer === null}
-                    className="bg-emerald-400 text-emerald-950 font-black text-lg py-4 px-8 rounded-2xl hover:bg-emerald-300 hover:scale-[1.02] transition-all shadow-[0_0_30px_rgba(52,211,153,0.5)] disabled:opacity-50 h-16 min-w-[200px] justify-center flex items-center gap-2"
+                    className="bg-emerald-500 text-white font-black text-lg py-4 px-8 rounded-2xl hover:bg-emerald-600 hover:scale-[1.02] transition-all shadow-[0_10px_20px_rgba(16,185,129,0.3)] disabled:opacity-50 h-16 min-w-[200px] justify-center flex items-center gap-2"
                   >
-                    {isSubmitting ? <div className="w-6 h-6 border-4 border-emerald-950 border-t-transparent rounded-full animate-spin"></div> : "Finish & Share 🚀"}
+                    {isSubmitting ? <div className="w-6 h-6 border-4 border-white border-t-transparent rounded-full animate-spin"></div> : "Finish & Share 🚀"}
                   </button>
                 )}
               </div>
@@ -476,53 +461,52 @@ export default function CreateNHIEChallenge() {
           {step === 11 && (
             <motion.div
               key="step-11" initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }}
-              className="bg-[#13151f]/90 backdrop-blur-xl rounded-[2.5rem] p-8 md:p-12 shadow-[0_0_50px_rgba(16,185,129,0.1)] border border-emerald-500/30 text-center relative overflow-hidden flex flex-col items-center"
+              className="bg-white rounded-[2.5rem] p-8 md:p-12 shadow-2xl border border-slate-100 text-center relative overflow-hidden flex flex-col items-center"
             >
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[200%] h-60 bg-emerald-500/10 blur-[100px] pointer-events-none" />
-              <div className="text-7xl mb-6 relative z-10 animate-bounce">🔥</div>
-              <h2 className="text-4xl font-black mb-3 text-white relative z-10">Challenge is LIVE!</h2>
-              <p className="text-slate-400 font-medium text-lg mb-10 relative z-10">You have an active quiz running on this device. <br /> Delete it below if you want to create a brand new one.</p>
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[200%] h-60 bg-emerald-500/5 blur-[100px] pointer-events-none" />
+              <div className="text-7xl mb-6 relative z-10 animate-bounce drop-shadow-md">🔥</div>
+              <h2 className="text-4xl font-black mb-3 text-slate-900 relative z-10">Challenge is LIVE!</h2>
+              <p className="text-slate-500 font-medium text-lg mb-10 relative z-10">You have an active quiz running on this device. <br /> Delete it below if you want to create a brand new one.</p>
 
               <div className="space-y-6 relative z-10 text-left w-full">
-                <div className="bg-black/40 p-6 rounded-3xl border border-white/10 shadow-inner">
-                  <p className="text-sm font-bold text-emerald-400 mb-3 uppercase tracking-wide flex items-center gap-2">
+                <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 shadow-sm">
+                  <p className="text-sm font-bold text-slate-700 mb-3 uppercase tracking-wide flex items-center gap-2">
                     <span>Send to friends</span>
-                    <span className="bg-emerald-500/20 px-2 py-0.5 rounded-md text-xs text-emerald-300">Active Link</span>
+                    <span className="bg-emerald-100 px-2 py-0.5 rounded-md text-xs text-emerald-700 border border-emerald-200">Active Link</span>
                   </p>
                   <div className="flex flex-col sm:flex-row gap-3">
-                    <input readOnly value={`${baseUrl}/nhie/${createdChallengeId}`} className="w-full bg-white/5 border border-white/10 text-white px-5 py-4 rounded-xl outline-none text-sm font-mono text-ellipsis focus:border-emerald-500/50 transition-colors" />
+                    <input readOnly value={`${baseUrl}/nhie/${createdChallengeId}`} className="w-full bg-white border border-slate-200 text-slate-800 px-5 py-4 rounded-xl outline-none text-sm font-mono text-ellipsis focus:border-emerald-500 transition-colors shadow-inner" />
                     <button 
                       onClick={() => copyToClipboard(`${baseUrl}/nhie/${createdChallengeId}`, 'share')}
-                      className="bg-emerald-500 text-emerald-950 px-6 py-4 rounded-xl font-black hover:bg-emerald-400 transition-all whitespace-nowrap active:scale-95 shadow-lg"
+                      className="bg-emerald-500 text-white px-6 py-4 rounded-xl font-black hover:bg-emerald-600 transition-all whitespace-nowrap active:scale-95 shadow-md"
                     >
                       {copiedLink === 'share' ? 'Copied! ✔' : 'Copy Link'}
                     </button>
                   </div>
                   
                   <div className="flex gap-3 mt-4">
-                    <a href={`https://wa.me/?text=${encodeURIComponent(shareText)}`} target="_blank" rel="noopener noreferrer" className="flex-1 bg-[#25D366]/20 text-[#25D366] py-3 rounded-xl font-bold border border-[#25D366]/30 hover:bg-[#25D366]/30 transition-colors flex justify-center items-center">WhatsApp</a>
-                    <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent("Can you guess my secrets? Take my Never Have I Ever quiz!")}&url=${baseUrl}/nhie/${createdChallengeId}`} target="_blank" rel="noopener noreferrer" className="flex-1 bg-white/10 text-white py-3 rounded-xl font-bold border border-white/20 hover:bg-white/20 transition-colors flex justify-center items-center">X (Twitter)</a>
+                    <a href={`https://wa.me/?text=${encodeURIComponent(shareText)}`} target="_blank" rel="noopener noreferrer" className="flex-1 bg-[#25D366]/10 text-[#25D366] py-3 rounded-xl font-bold border border-[#25D366]/20 hover:bg-[#25D366]/20 transition-colors flex justify-center items-center">WhatsApp</a>
+                    <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent("Can you guess my secrets? Take my Never Have I Ever quiz!")}&url=${baseUrl}/nhie/${createdChallengeId}`} target="_blank" rel="noopener noreferrer" className="flex-1 bg-slate-100 text-slate-700 py-3 rounded-xl font-bold border border-slate-200 hover:bg-slate-200 transition-colors flex justify-center items-center">X (Twitter)</a>
                   </div>
                 </div>
 
-                <div className="bg-emerald-900/20 p-6 rounded-3xl border border-emerald-500/30 shadow-inner text-center">
-                  <p className="text-sm font-bold text-amber-400 mb-2 uppercase tracking-wide flex items-center justify-center gap-2">
+                <div className="bg-amber-50 p-6 rounded-3xl border border-amber-200 shadow-sm text-center">
+                  <p className="text-sm font-bold text-amber-700 mb-2 uppercase tracking-wide flex items-center justify-center gap-2">
                     <span>Track Your Results</span>
-                    <span className="bg-amber-500/20 px-2 py-0.5 rounded-md text-xs text-amber-300">Secret Scoreboard</span>
+                    <span className="bg-amber-100 px-2 py-0.5 rounded-md text-xs text-amber-800 border border-amber-200">Secret Scoreboard</span>
                   </p>
-                  <button onClick={() => window.location.href = `/nhie/${createdChallengeId}/results`} className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-amber-500 text-amber-950 font-black px-8 py-4 rounded-xl hover:bg-amber-400 transition-all active:scale-95 text-lg">
+                  <button onClick={() => window.location.href = `/nhie/${createdChallengeId}/results`} className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-amber-500 text-white font-black px-8 py-4 rounded-xl hover:bg-amber-600 transition-all active:scale-95 text-lg shadow-md">
                     Go to my Dashboard now →
                   </button>
                 </div>
               </div>
 
-              {/* STAYS PERMANENTLY VISIBLE UNTIL DELETED */}
-              <div className="mt-10 pt-6 border-t border-white/10 w-full relative z-10">
+              <div className="mt-10 pt-6 border-t border-slate-100 w-full relative z-10">
                 <button
                   onClick={handleDeleteChallenge} disabled={isDeleting}
-                  className="text-xs font-bold text-rose-400/70 hover:text-rose-400 transition-colors uppercase tracking-widest flex items-center justify-center gap-2 mx-auto disabled:opacity-50"
+                  className="text-xs font-bold text-rose-500 hover:text-rose-600 transition-colors uppercase tracking-widest flex items-center justify-center gap-2 mx-auto disabled:opacity-50"
                 >
-                  {isDeleting ? <div className="w-4 h-4 border-2 border-rose-400 border-t-transparent rounded-full animate-spin"></div> : <span className="text-lg">🗑️</span>}
+                  {isDeleting ? <div className="w-4 h-4 border-2 border-rose-500 border-t-transparent rounded-full animate-spin"></div> : <span className="text-lg">🗑️</span>}
                   {isDeleting ? "Deleting..." : "Delete current quiz & start over"}
                 </button>
               </div>
@@ -534,16 +518,16 @@ export default function CreateNHIEChallenge() {
         {/* BANK MODAL */}
         <AnimatePresence>
           {showBankModal && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-              <motion.div variants={modalVariants} initial="hidden" animate="visible" exit="exit" className="bg-[#1a1c29] border border-white/10 rounded-[2rem] w-full max-w-xl max-h-[80vh] flex flex-col shadow-2xl overflow-hidden">
-                <div className="p-6 border-b border-white/10 flex justify-between items-center bg-black/20">
-                  <h3 className="text-xl font-black text-white">Question Bank 📚</h3>
-                  <button onClick={() => setShowBankModal(false)} className="w-10 h-10 bg-white/5 hover:bg-rose-500/20 text-white hover:text-rose-400 rounded-full flex items-center justify-center transition-colors">✕</button>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+              <motion.div variants={modalVariants} initial="hidden" animate="visible" exit="exit" className="bg-white border border-slate-200 rounded-[2rem] w-full max-w-xl max-h-[80vh] flex flex-col shadow-2xl overflow-hidden">
+                <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                  <h3 className="text-xl font-black text-slate-900">Question Bank 📚</h3>
+                  <button onClick={() => setShowBankModal(false)} className="w-10 h-10 bg-slate-200 hover:bg-rose-100 text-slate-600 hover:text-rose-600 rounded-full flex items-center justify-center transition-colors">✕</button>
                 </div>
                 <div className="p-4 overflow-y-auto custom-scrollbar flex-1 space-y-3">
                   {questionBank.map((bankQText, idx) => (
-                    <button key={idx} onClick={() => swapQuestion(bankQText)} className="w-full text-left p-5 bg-white/5 hover:bg-emerald-500/20 border border-white/5 hover:border-emerald-500/50 rounded-2xl transition-all group">
-                      <p className="font-bold text-white group-hover:text-emerald-300">{bankQText}</p>
+                    <button key={idx} onClick={() => swapQuestion(bankQText)} className="w-full text-left p-5 bg-white hover:bg-emerald-50 border border-slate-200 hover:border-emerald-200 rounded-2xl transition-all group shadow-sm">
+                      <p className="font-bold text-slate-700 group-hover:text-emerald-700">{bankQText}</p>
                     </button>
                   ))}
                 </div>
