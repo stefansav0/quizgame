@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import LatestBlogs from "@/components/LatestBlogs";
 
 export default function HomeClient() {
   // --- ANIMATION VARIANTS ---
@@ -148,27 +149,30 @@ export default function HomeClient() {
   </p>
 </motion.div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {[
-                { icon: "📝", title: "1. Create Instantly", desc: "Our smart quiz maker allows you to select hand-picked questions about your personality, likes, and dislikes. Customize it to reflect your unique life." },
-                { icon: "🚀", title: "2. Share Anywhere", desc: "Once generated, copy your secure, unique link. Paste it directly onto your Instagram Story, Snapchat, TikTok bio, or a private WhatsApp group." },
-                { icon: "🏆", title: "3. Track Results Live", desc: "Access your private dashboard to watch scores update in real-time. Find out exactly who your real best friends are based on their accuracy." }
-              ].map((feature, idx) => (
-                <motion.div 
-                  key={idx}
-                  variants={itemVariants}
-                  whileHover={{ y: -5 }}
-                  className="bg-white border border-slate-200 p-8 rounded-[2rem] shadow-lg shadow-slate-200/50 hover:shadow-xl hover:border-indigo-200 transition-all"
-                >
-                  <div className="text-3xl mb-6 bg-indigo-50 text-indigo-600 w-16 h-16 flex items-center justify-center rounded-2xl">
-                    {feature.icon}
-                  </div>
-                  <h3 className="text-xl font-bold mb-3 text-slate-900">{feature.title}</h3>
-                  <p className="text-slate-600 leading-relaxed font-medium">
-                    {feature.desc}
-                  </p>
-                </motion.div>
-              ))}
-            </div>
+  {[
+    { title: "1. Create Instantly", desc: "Our smart quiz maker allows you to select hand-picked questions about your personality, likes, and dislikes. Customize it to reflect your unique life." },
+    { title: "2. Share Anywhere", desc: "Once generated, copy your secure, unique link. Paste it directly onto your Instagram Story, Snapchat, TikTok bio, or a private WhatsApp group." },
+    { title: "3. Track Results Live", desc: "Access your private dashboard to watch scores update in real-time. Find out exactly who your real best friends are based on their accuracy." }
+  ].map((feature, idx) => (
+    <motion.div 
+      key={idx}
+      variants={itemVariants}
+      whileHover={{ y: -5 }}
+      className="bg-white border border-slate-200 p-8 rounded-[2rem] shadow-lg shadow-slate-200/50 hover:shadow-xl hover:border-indigo-200 transition-all"
+    >
+      {/* Removed icon div here */}
+      {/* <div className="text-3xl mb-6 bg-indigo-50 text-indigo-600 w-16 h-16 flex items-center justify-center rounded-2xl">
+        {feature.icon}
+      </div> */}
+      <h3 className="text-xl font-bold mb-3 text-slate-900">{feature.title}</h3>
+      <p className="text-slate-600 leading-relaxed font-medium">
+        {feature.desc}
+      </p>
+    </motion.div>
+  ))}
+</div>
+
+
           </section>
 
          {/* --- TEXT CONTENT SECTION 1: WHY IT MATTERS --- */}
@@ -285,72 +289,23 @@ export default function HomeClient() {
 
   <div className="grid md:grid-cols-2 gap-6 text-slate-700">
     <ul className="space-y-3">
-      <li>✓ What is my favorite food?</li>
-      <li>✓ What is my favorite movie?</li>
-      <li>✓ What is my dream vacation?</li>
-      <li>✓ What is my biggest fear?</li>
-      <li>✓ What is my favorite hobby?</li>
+      <li> What is my favorite food?</li>
+      <li> What is my favorite movie?</li>
+      <li> What is my dream vacation?</li>
+      <li> What is my biggest fear?</li>
+      <li> What is my favorite hobby?</li>
     </ul>
 
     <ul className="space-y-3">
-      <li>✓ What is my favorite music genre?</li>
-      <li>✓ What is my dream job?</li>
-      <li>✓ What is my favorite color?</li>
-      <li>✓ Which city do I want to visit?</li>
-      <li>✓ Who is my favorite celebrity?</li>
+      <li> What is my favorite music genre?</li>
+      <li> What is my dream job?</li>
+      <li> What is my favorite color?</li>
+      <li> Which city do I want to visit?</li>
+      <li> Who is my favorite celebrity?</li>
     </ul>
   </div>
 </motion.article>
-
-<section className="w-full max-w-5xl mb-24">
-  <div className="text-center mb-12">
-    <h2 className="text-3xl md:text-4xl font-black text-slate-900">
-      Latest Friendship Quiz Guides
-    </h2>
-
-    <p className="text-slate-600 mt-4 text-lg">
-      Explore expert guides, quiz ideas, friendship tips, and social game
-      inspiration.
-    </p>
-  </div>
-
-  <div className="grid md:grid-cols-3 gap-6">
-
-    <Link href="/blog">
-      <div className="bg-white p-6 rounded-3xl border border-slate-200 hover:border-indigo-300 transition">
-        <h3 className="font-bold text-lg mb-2">
-          100 Best Friendship Quiz Questions
-        </h3>
-        <p className="text-slate-600">
-          Discover creative questions to make your quiz more engaging.
-        </p>
-      </div>
-    </Link>
-
-    <Link href="/blog">
-      <div className="bg-white p-6 rounded-3xl border border-slate-200 hover:border-indigo-300 transition">
-        <h3 className="font-bold text-lg mb-2">
-          Funny Best Friend Challenge Ideas
-        </h3>
-        <p className="text-slate-600">
-          Fun challenges and quiz ideas for close friends.
-        </p>
-      </div>
-    </Link>
-
-    <Link href="/blog">
-      <div className="bg-white p-6 rounded-3xl border border-slate-200 hover:border-indigo-300 transition">
-        <h3 className="font-bold text-lg mb-2">
-          Relationship Quiz Questions
-        </h3>
-        <p className="text-slate-600">
-          Strengthen relationships through interactive quizzes.
-        </p>
-      </div>
-    </Link>
-
-  </div>
-</section>
+<LatestBlogs />
 
           {/* --- EXPANDED FAQ SECTION --- */}
           <section className="w-full max-w-4xl mb-24">
@@ -436,7 +391,7 @@ export default function HomeClient() {
       href="/create"
       className="relative z-10 bg-indigo-500 text-white px-10 py-5 rounded-2xl font-black text-lg hover:bg-indigo-400 transition-all shadow-[0_0_20px_rgba(99,102,241,0.4)] hover:shadow-[0_0_30px_rgba(99,102,241,0.6)] whitespace-nowrap active:scale-95"
     >
-      Create Quiz 🚀
+      Create Quiz 
     </Link>
   </div>
 </motion.div>
