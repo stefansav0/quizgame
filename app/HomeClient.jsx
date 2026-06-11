@@ -134,6 +134,8 @@ export default function HomeClient() {
   </div>
 </motion.article>
 
+<LatestBlogs />
+
           {/* --- FEATURES GRID --- */}
           <section className="w-full max-w-5xl mb-24">
             <motion.div
@@ -305,7 +307,7 @@ export default function HomeClient() {
     </ul>
   </div>
 </motion.article>
-<LatestBlogs />
+
 
           {/* --- EXPANDED FAQ SECTION --- */}
           <section className="w-full max-w-4xl mb-24">
