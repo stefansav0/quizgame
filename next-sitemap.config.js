@@ -65,6 +65,11 @@ module.exports = {
       changefreq = "daily";
     }
 
+    else if (path.startsWith("/nhie/")) {
+      priority = 0.9;
+      changefreq = "daily";
+    }
+
     // Quiz pages
     else if (
       path.includes("/quiz") ||

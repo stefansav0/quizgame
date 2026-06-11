@@ -24,6 +24,7 @@ export default function Header() {
   const navLinks = [
     { name: "Home", path: "/" },
     { name: "Create Quiz", path: "/create" },
+    { name: "Never Have I Ever", path: "/nhie" },
     { name: "Blog", path: "/blog" },
     { name: "About", path: "/about" },
     { name: "Contact", path: "/contact" },
