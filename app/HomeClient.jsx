@@ -50,14 +50,7 @@ export default function HomeClient() {
         >
           {/* --- HERO SECTION --- */}
           <header className="text-center mb-20 max-w-3xl pt-10">
-  <motion.div
-    variants={itemVariants}
-    className="inline-flex items-center justify-center gap-2 bg-indigo-50 border border-indigo-100 px-5 py-2 rounded-full text-sm font-bold text-indigo-600 mb-8 shadow-sm"
-  >
-    <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
-
-    <span>Fun Friendship Quizzes & Social Games</span>
-  </motion.div>
+  
 
   <motion.h1
     variants={itemVariants}
