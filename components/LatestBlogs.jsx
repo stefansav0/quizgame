@@ -31,7 +31,7 @@ export default function LatestBlogs() {
       <section className="w-full max-w-6xl mx-auto mb-24">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-black">
-            Latest Friendship Quiz Guides
+            Latest Blogs
           </h2>
         </div>
 
@@ -49,15 +49,15 @@ export default function LatestBlogs() {
 
   return (
     <section className="w-full max-w-6xl mx-auto mb-24">
-      <div className="text-center mb-12">
-        <h2 className="text-4xl md:text-5xl font-black text-slate-900">
-          Latest Friendship Quiz Guides
-        </h2>
+     <div className="text-center mb-12">
+  <h2 className="text-4xl md:text-5xl font-black text-slate-900">
+    Latest Blogs
+  </h2>
 
-        <p className="text-slate-600 mt-4 text-lg">
-          Explore expert guides, friendship tips, quiz ideas and social games.
-        </p>
-      </div>
+  <p className="text-slate-600 mt-4 text-lg">
+    Read the latest articles on friendships, relationships, social games, quizzes, and meaningful conversations.
+  </p>
+</div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {blogs.map((blog) => {
