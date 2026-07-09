@@ -11,10 +11,10 @@ const getScoreColor = (percentage) => {
   return "text-rose-500";
 };
 
-// Helper for the final message
+// 
 // Helper for the final message
 const getResultMessage = (percentage) => {
-  if (percentage === 100) return "Wait, 100%?! Okay, you officially know me better than I know myself. 🏆";
+  if (percentage === 100) return "Wait, 100%?! Okay, you know me better than I know myself.😊🤗";
   if (percentage >= 80) return "Okay, I see you! You actually pay attention when I yap. We are definitely close. 🔥";
   if (percentage >= 60) return "Not bad! We're definitely friends, but you clearly zone out sometimes when I talk. ✨";
   if (percentage >= 40) return "Did you just guess half of these? We seriously need to hang out more. 😅";
