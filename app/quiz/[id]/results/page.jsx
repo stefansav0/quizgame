@@ -95,12 +95,7 @@ export default async function ResultsPage({ params }) {
         />
 
         <div className="mt-8 flex gap-4">
-          <Link 
-            href={`/quiz/${id}`}
-            className="flex-1 text-center bg-slate-700 text-white font-bold py-4 rounded-xl hover:bg-slate-600 transition-colors"
-          >
-            Play Quiz
-          </Link>
+          
           <Link 
             href="/create"
             className="flex-1 text-center bg-emerald-500 text-emerald-950 font-bold py-4 rounded-xl hover:bg-emerald-400 transition-colors shadow-lg"
