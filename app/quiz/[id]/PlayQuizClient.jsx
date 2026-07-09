@@ -12,12 +12,14 @@ const getScoreColor = (percentage) => {
 };
 
 // Helper for the final message
+// Helper for the final message
 const getResultMessage = (percentage) => {
-  if (percentage === 100) return "Flawless! You are certified besties. 🏆";
-  if (percentage >= 80) return "Amazing! You know them so well. 🔥";
-  if (percentage >= 60) return "Not bad! A solid friend. ✨";
-  if (percentage >= 40) return "Could be better. Acquaintance level. 👍";
-  return "Yikes... do you even talk? 😬";
+  if (percentage === 100) return "Wait, 100%?! Okay, you officially know me better than I know myself. 🏆";
+  if (percentage >= 80) return "Okay, I see you! You actually pay attention when I yap. We are definitely close. 🔥";
+  if (percentage >= 60) return "Not bad! We're definitely friends, but you clearly zone out sometimes when I talk. ✨";
+  if (percentage >= 40) return "Did you just guess half of these? We seriously need to hang out more. 😅";
+  return "Yikes... do we even know each other? I am officially offended. 💀";
+
 };
 
 // --- SAFE PARSER FOR API RESPONSES ---
@@ -291,13 +293,17 @@ export default function PlayQuizClient({ quiz }) {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               className="bg-white/90 backdrop-blur-xl rounded-[2.5rem] p-6 md:p-8 shadow-2xl border border-slate-200 flex flex-col relative overflow-hidden"
             >
+              {/* PERSONALIZED CREATOR HEADER */}
               <div className="flex items-center gap-3 mb-6 border-b border-slate-100 pb-4">
-                <div className="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-xl shadow-sm">
-                  🤖
+                <div className="w-11 h-11 bg-gradient-to-br from-emerald-100 to-teal-100 text-emerald-700 rounded-full flex items-center justify-center text-xl font-black shadow-sm uppercase border border-emerald-200">
+                  {quiz.creatorName.charAt(0)}
                 </div>
                 <div>
-                  <h2 className="text-lg font-black text-slate-800">Quiz Master</h2>
-                  <p className="text-xs text-emerald-500 font-bold">Online</p>
+                  <h2 className="text-lg font-black text-slate-800 leading-tight">{quiz.creatorName}</h2>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                    <p className="text-xs text-emerald-500 font-bold">Online</p>
+                  </div>
                 </div>
               </div>
 
@@ -308,22 +314,27 @@ export default function PlayQuizClient({ quiz }) {
                 animate="visible"
                 className="flex flex-col gap-4 w-full mb-6"
               >
-                {/* System Message 1 */}
+                {/* System Message 1 - Personalized */}
                 <motion.div variants={chatBubble} className="self-start max-w-[85%] bg-slate-100 text-slate-700 px-5 py-3 rounded-2xl rounded-tl-sm shadow-sm text-sm md:text-base font-medium">
-                  Analyzing your answers... 🧐
+                  Let's see your score, {playerName}... 👀
                 </motion.div>
 
-                {/* System Message 2 */}
+                {/* System Message 2 - Personalized */}
                 <motion.div variants={chatBubble} className="self-start max-w-[85%] bg-slate-100 text-slate-700 px-5 py-3 rounded-2xl rounded-tl-sm shadow-sm text-sm md:text-base font-medium">
-                  Calculating friendship levels with {quiz.creatorName}... 🧮
+                  Let's see what our bond is. Do you really know me? 🤔
                 </motion.div>
 
-                {/* Score Message (Outgoing/Right Side) */}
-                <motion.div variants={chatBubble} className="self-end max-w-[85%] bg-emerald-500 text-white px-5 py-4 rounded-2xl rounded-tr-sm shadow-md">
-                  <p className="text-sm opacity-90 mb-1">Final Score:</p>
-                  <p className="text-3xl font-black">
-                    {score} <span className="text-lg opacity-75">/ {quiz.questions.length}</span> ✨
-                  </p>
+                {/* Score Message (Outgoing/Right Side) - Enhanced UI */}
+                <motion.div variants={chatBubble} className="self-end max-w-[85%] bg-gradient-to-br from-emerald-500 to-teal-500 text-white px-6 py-5 rounded-[2rem] rounded-tr-sm shadow-lg relative overflow-hidden border border-emerald-400/50">
+                  {/* Decorative background glow */}
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full blur-2xl -mr-12 -mt-12 pointer-events-none" />
+                  
+                  <p className="text-sm font-bold opacity-90 mb-1 tracking-wider uppercase text-emerald-50">Final Score</p>
+                  <div className="flex items-baseline gap-1 relative z-10">
+                    <p className="text-4xl font-black drop-shadow-sm">{score}</p>
+                    <span className="text-xl opacity-80 font-bold">/ {quiz.questions.length}</span>
+                    <span className="text-2xl ml-2 drop-shadow-md">✨</span>
+                  </div>
                 </motion.div>
 
                 {/* Verdict Message */}
@@ -332,14 +343,14 @@ export default function PlayQuizClient({ quiz }) {
                 </motion.div>
 
                 {/* Leaderboard Reveal */}
-                <motion.div variants={chatBubble} className="w-full mt-4 bg-slate-50 border border-slate-200 rounded-2xl p-4 shadow-sm">
-                  <h3 className="text-sm font-bold mb-3 text-center text-slate-500 uppercase tracking-widest">
+                <motion.div variants={chatBubble} className="w-full mt-4 bg-slate-50 border border-slate-200 rounded-3xl p-5 shadow-sm">
+                  <h3 className="text-sm font-bold mb-4 text-center text-slate-500 uppercase tracking-widest">
                     🏆 Live Leaderboard
                   </h3>
                   
                   {isSaving ? (
-                    <div className="flex flex-col items-center justify-center py-4 gap-2">
-                      <div className="w-5 h-5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+                    <div className="flex flex-col items-center justify-center py-6 gap-3">
+                      <div className="w-6 h-6 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
                       <div className="text-xs text-slate-400 font-bold uppercase tracking-widest animate-pulse">Syncing...</div>
                     </div>
                   ) : (
@@ -347,27 +358,31 @@ export default function PlayQuizClient({ quiz }) {
                       {leaderboard.map((entry, idx) => (
                         <div
                           key={idx}
-                          className={`flex justify-between items-center p-3 rounded-xl border ${
+                          className={`flex justify-between items-center p-3.5 rounded-2xl border transition-all ${
                             entry.playerName === playerName
-                              ? "bg-emerald-50 border-emerald-200 shadow-sm"
-                              : "bg-white border-slate-100"
+                              ? "bg-white border-emerald-200 shadow-md scale-[1.02]"
+                              : "bg-transparent border-transparent hover:bg-slate-100"
                           }`}
                         >
                           <div className="flex items-center gap-3">
-                            <span className={`font-black text-sm ${idx === 0 ? "text-amber-500" : "text-slate-400"}`}>
-                              {idx + 1}.
+                            <span className={`font-black text-sm w-5 text-center ${
+                              idx === 0 ? "text-amber-500 text-lg" : 
+                              idx === 1 ? "text-slate-400" : 
+                              idx === 2 ? "text-amber-700" : "text-slate-300"
+                            }`}>
+                              {idx === 0 ? "👑" : `${idx + 1}.`}
                             </span>
                             <span className={`font-bold ${entry.playerName === playerName ? "text-emerald-700" : "text-slate-700"}`}>
                               {entry.playerName}
                             </span>
                           </div>
-                          <span className={`font-black text-sm ${entry.playerName === playerName ? "text-emerald-600" : "text-slate-500"}`}>
+                          <span className={`font-black text-sm ${entry.playerName === playerName ? "text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg" : "text-slate-500"}`}>
                             {entry.score} pts
                           </span>
                         </div>
                       ))}
                       {leaderboard.length === 0 && (
-                        <p className="text-center text-slate-500 text-sm py-2">No scores recorded yet!</p>
+                        <p className="text-center text-slate-500 text-sm py-4">No scores recorded yet!</p>
                       )}
                     </div>
                   )}
@@ -376,7 +391,7 @@ export default function PlayQuizClient({ quiz }) {
                 <motion.div variants={chatBubble} className="w-full pt-2">
                   <Link
                     href="/create"
-                    className="block w-full bg-slate-800 text-white font-black text-base py-4 px-6 rounded-2xl text-center hover:bg-slate-700 hover:scale-[1.02] transition-all shadow-lg active:scale-95"
+                    className="block w-full bg-slate-900 text-white font-black text-base py-4 px-6 rounded-2xl text-center hover:bg-slate-800 hover:scale-[1.02] transition-all shadow-lg active:scale-95"
                   >
                     Create Your Own Quiz 🚀
                   </Link>
