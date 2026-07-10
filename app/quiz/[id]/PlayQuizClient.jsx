@@ -17,7 +17,7 @@ const getResultMessage = (percentage) => {
   if (percentage === 100) return "Wait, 100%?! Okay, you know me better than I know myself.😊🤗";
   if (percentage >= 80) return "Okay, I see you! You actually pay attention when I yap. We are definitely close. 🔥";
   if (percentage >= 60) return "Not bad! We're definitely friends, but you clearly zone out sometimes when I talk. ✨";
-  if (percentage >= 40) return "Did you just guess half of these? We seriously need to hang out more. 😅";
+  if (percentage >= 40) return "Did you just guess half of these? Nice effort! 🌼 You know a few things already. 😅";
   return "Yikes... do we even know each other? I am officially offended. 💀";
 
 };

@@ -22,10 +22,13 @@ export default function SetupStep({
   // Auto-scroll ONLY the chat container, preventing the whole page from jumping
   useEffect(() => {
     if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTo({
-        top: chatContainerRef.current.scrollHeight,
-        behavior: "smooth"
-      });
+      // Small timeout to allow DOM updates
+      setTimeout(() => {
+        chatContainerRef.current.scrollTo({
+          top: chatContainerRef.current.scrollHeight,
+          behavior: "smooth"
+        });
+      }, 50);
     }
   }, [messages, inputMode]);
 
@@ -97,26 +100,29 @@ export default function SetupStep({
   };
 
   return (
-    <div className="flex flex-col w-full h-[550px] max-h-[80vh] bg-slate-50 rounded-[2.5rem] overflow-hidden shadow-2xl border border-slate-200 relative">
+    // ADJUSTED: Dynamic height and responsive border-radius for mobile optimization
+    <div className="flex flex-col w-full h-[80vh] min-h-[550px] md:h-[600px] max-h-[850px] bg-slate-50 rounded-3xl md:rounded-[2.5rem] overflow-hidden shadow-2xl border border-slate-200 relative">
       
       {/* Chat Header */}
-      <div className="bg-white px-6 py-4 border-b border-slate-100 flex items-center gap-3 shadow-sm z-10 shrink-0">
-        <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-xl shadow-inner">
+      {/* ADJUSTED: Tighter padding and scaled elements on mobile */}
+      <div className="bg-white px-4 md:px-6 py-3 md:py-4 border-b border-slate-100 flex items-center gap-3 shadow-sm z-10 shrink-0">
+        <div className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-emerald-100 flex items-center justify-center text-lg md:text-xl shadow-inner shrink-0">
           👋
         </div>
         <div>
-          <h2 className="text-slate-800 font-black text-lg leading-tight">GetKnowify</h2>
-          <p className="text-emerald-500 text-xs font-bold flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <h2 className="text-slate-800 font-black text-base md:text-lg leading-tight">GetKnowify</h2>
+          <p className="text-emerald-500 text-[10px] md:text-xs font-bold flex items-center gap-1">
+            <span className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-emerald-500 animate-pulse"></span>
             Online
           </p>
         </div>
       </div>
 
       {/* Chat Messages Area */}
+      {/* ADJUSTED: Less padding on mobile (p-3 vs p-6) */}
       <div 
         ref={chatContainerRef}
-        className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar bg-slate-50/50 pb-8"
+        className="flex-1 overflow-y-auto p-3 md:p-6 space-y-4 custom-scrollbar bg-slate-50/50 pb-8"
       >
         <AnimatePresence>
           {messages.map((msg, idx) => (
@@ -128,7 +134,7 @@ export default function SetupStep({
               className={`flex w-full ${msg.type === "user" ? "justify-end" : "justify-start"}`}
             >
               <div 
-                className={`max-w-[85%] px-5 py-3.5 shadow-sm text-[15px] leading-relaxed ${
+                className={`max-w-[90%] md:max-w-[85%] px-4 py-3 md:px-5 md:py-3.5 shadow-sm text-sm md:text-[15px] leading-relaxed ${
                   msg.type === "user" 
                     ? "bg-emerald-500 text-white rounded-2xl rounded-tr-sm font-medium" 
                     : "bg-white text-slate-700 rounded-2xl rounded-tl-sm border border-slate-100"
@@ -143,17 +149,18 @@ export default function SetupStep({
         {/* Typing indicator */}
         {inputMode === "none" && messages.length > 0 && messages[messages.length - 1].type === "user" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-start">
-            <div className="bg-white px-4 py-3 rounded-2xl rounded-tl-sm border border-slate-100 flex gap-1">
-              <span className="w-2 h-2 bg-slate-300 rounded-full animate-bounce" style={{ animationDelay: "0ms" }}></span>
-              <span className="w-2 h-2 bg-slate-300 rounded-full animate-bounce" style={{ animationDelay: "150ms" }}></span>
-              <span className="w-2 h-2 bg-slate-300 rounded-full animate-bounce" style={{ animationDelay: "300ms" }}></span>
+            <div className="bg-white px-4 py-3 md:py-3.5 rounded-2xl rounded-tl-sm border border-slate-100 flex gap-1">
+              <span className="w-1.5 h-1.5 md:w-2 md:h-2 bg-slate-300 rounded-full animate-bounce" style={{ animationDelay: "0ms" }}></span>
+              <span className="w-1.5 h-1.5 md:w-2 md:h-2 bg-slate-300 rounded-full animate-bounce" style={{ animationDelay: "150ms" }}></span>
+              <span className="w-1.5 h-1.5 md:w-2 md:h-2 bg-slate-300 rounded-full animate-bounce" style={{ animationDelay: "300ms" }}></span>
             </div>
           </motion.div>
         )}
       </div>
 
       {/* Interactive Input Area */}
-      <div className="bg-white p-4 border-t border-slate-100 shadow-[0_-10px_40px_rgba(0,0,0,0.03)] z-10 min-h-[90px] flex flex-col justify-center shrink-0">
+      {/* ADJUSTED: Tighter padding on mobile */}
+      <div className="bg-white p-3 md:p-4 border-t border-slate-100 shadow-[0_-10px_40px_rgba(0,0,0,0.03)] z-10 min-h-[80px] md:min-h-[90px] flex flex-col justify-center shrink-0">
         <AnimatePresence mode="wait">
           
           {inputMode === "name" && (
@@ -171,14 +178,14 @@ export default function SetupStep({
                 placeholder="Type your name..."
                 value={localName}
                 onChange={(e) => setLocalName(e.target.value)}
-                className="flex-1 bg-slate-100 border-none text-slate-800 px-5 py-4 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all placeholder:text-slate-400"
+                className="flex-1 bg-slate-100 border-none text-slate-800 px-4 py-3.5 md:px-5 md:py-4 rounded-xl md:rounded-2xl outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all placeholder:text-slate-400 text-sm md:text-base"
               />
               <button 
                 type="submit"
                 disabled={!localName.trim()}
-                className="w-14 h-14 bg-emerald-500 text-white rounded-2xl flex items-center justify-center hover:bg-emerald-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md shrink-0"
+                className="w-12 h-12 md:w-14 md:h-14 bg-emerald-500 text-white rounded-xl md:rounded-2xl flex items-center justify-center hover:bg-emerald-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md shrink-0"
               >
-                <svg className="w-6 h-6 rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                <svg className="w-5 h-5 md:w-6 md:h-6 rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
               </button>
             </motion.form>
           )}
@@ -194,15 +201,15 @@ export default function SetupStep({
               <select
                 value={userInfo.country || ""}
                 onChange={selectCountry}
-                className="w-full bg-slate-100 text-slate-800 px-5 py-4 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all appearance-none cursor-pointer font-medium"
+                className="w-full bg-slate-100 text-slate-800 px-4 py-3.5 md:px-5 md:py-4 rounded-xl md:rounded-2xl outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all appearance-none cursor-pointer font-medium text-sm md:text-base"
               >
                 <option value="" disabled>Select your country...</option>
                 {Object.keys(COUNTRY_LANGUAGE_MAP).sort().map(country => (
                   <option key={country} value={country}>{country}</option>
                 ))}
               </select>
-              <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+              <div className="absolute right-4 md:right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
               </div>
             </motion.div>
           )}
@@ -218,15 +225,15 @@ export default function SetupStep({
               <select
                 value={userInfo.language || ""}
                 onChange={selectLanguage}
-                className="w-full bg-slate-100 text-slate-800 px-5 py-4 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all appearance-none cursor-pointer font-medium"
+                className="w-full bg-slate-100 text-slate-800 px-4 py-3.5 md:px-5 md:py-4 rounded-xl md:rounded-2xl outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all appearance-none cursor-pointer font-medium text-sm md:text-base"
               >
                 <option value="" disabled>Select your language...</option>
                 {availableLanguages?.map(lang => (
                   <option key={lang} value={lang}>{lang}</option>
                 ))}
               </select>
-              <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+              <div className="absolute right-4 md:right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
               </div>
             </motion.div>
           )}
@@ -241,10 +248,10 @@ export default function SetupStep({
               <button
                 onClick={handleStartQuizSetup}
                 disabled={isGenerating}
-                className="w-full bg-emerald-500 text-white font-black text-lg py-4 px-6 rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-70 disabled:pointer-events-none shadow-lg shadow-emerald-500/30 flex justify-center items-center gap-2"
+                className="w-full bg-emerald-500 text-white font-black text-base md:text-lg py-3.5 md:py-4 px-6 rounded-xl md:rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-70 disabled:pointer-events-none shadow-lg shadow-emerald-500/30 flex justify-center items-center gap-2"
               >
                 {isGenerating ? (
-                  <div className="w-6 h-6 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <div className="w-5 h-5 md:w-6 md:h-6 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
                 ) : (
                   "Let's Go! 🔥"
                 )}
