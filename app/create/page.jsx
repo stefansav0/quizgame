@@ -182,7 +182,7 @@ export default function CreateQuiz() {
               animate="center"
               exit="exit"
               transition={{ duration: 0.4, ease: "easeOut" }}
-              className="w-full h-full flex items-center justify-center"
+              className="bg-[#13151f]/90 backdrop-blur-xl rounded-[2.5rem] p-8 md:p-12 shadow-[0_0_50px_rgba(16,185,129,0.1)] border border-emerald-500/20 relative overflow-hidden"
             >
               <SetupStep 
                 userInfo={userInfo}
@@ -205,7 +205,7 @@ export default function CreateQuiz() {
               animate="center"
               exit="exit"
               transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="w-full h-full flex items-center justify-center"
+              className={`${questions[step - 1].bgColor} rounded-[2.5rem] p-6 md:p-10 shadow-2xl transition-colors duration-700 border border-white/10 backdrop-blur-xl relative overflow-hidden`}
             >
               <QuestionStep 
                 step={step}
@@ -226,7 +226,7 @@ export default function CreateQuiz() {
               key="step-11"
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              className="w-full h-full flex items-center justify-center"
+              className="bg-[#13151f]/90 backdrop-blur-xl rounded-[2.5rem] p-8 md:p-12 shadow-[0_0_50px_rgba(16,185,129,0.1)] border border-emerald-500/30 text-center relative overflow-hidden flex flex-col items-center"
             >
               <SuccessStep 
                 createdQuizId={createdQuizId}
