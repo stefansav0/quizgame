@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-, "app/api/nhie/[id]/route.js", "components/home/HeroSection.jsx", "components/home/Grids.tsx", "components/home/FloatingBackground.jsx", "components/home/FAQSection.jsx", "components/home/BottomBanner.jsx", "components/home/Articles.jsx"  ],
+, "app/api/nhie/[id]/route.js", "components/home/HeroSection.jsx", "components/home/Grids.jsx", "components/home/FloatingBackground.jsx", "components/home/FAQSection.jsx", "components/home/BottomBanner.jsx", "components/home/Articles.jsx"  ],
   "exclude": ["node_modules"]
 }

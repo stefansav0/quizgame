@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 
 export default function LandingPage() {
   return (
@@ -8,6 +9,18 @@ export default function LandingPage() {
       {/* Header with Navigation */}
       <header className="fixed top-0 w-full bg-white border-b border-slate-200 shadow-sm z-50">
         <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+
+          {/* Logo */}
+    <Link href="/" className="flex items-center">
+      <Image
+        src="/never-removebg-preview.png"
+        alt="Never Have I Ever"
+        width={180}
+        height={60}
+        priority
+        className="h-12 md:h-14 w-auto object-contain"
+      />
+    </Link>
           
           {/* Call to action button in header */}
           <Link
@@ -19,16 +32,30 @@ export default function LandingPage() {
         </div>
       </header>
 
+      
+
       {/* Main Content */}
       <main className="pt-20 pb-10">
         {/* Hero Banner Section */}
         <section className="max-w-4xl mx-auto px-4 text-center mb-16 mt-16">
+          
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
             The Ultimate Online Party Game for Friends and Family
           </h1>
           <p className="text-slate-600 mb-6">
             Looking for a fun way to connect with friends, whether near or far? Our platform allows you to host a virtual version of the classic "Never Have I Ever" game, where everyone can answer spicy, funny, or revealing questions privately. Share your unique game link with friends via chat apps like WhatsApp, Instagram, or Discord, and watch the fun unfold as they try to guess your secrets!
           </p>
+          <div className="flex justify-center mb-8">
+  <Image
+    src="/never-removebg-preview.png"
+    alt="Never Have I Ever"
+    width={280}
+    height={280}
+    priority
+    className="w-48 md:w-64 lg:w-72 h-auto object-contain drop-shadow-lg"
+  />
+</div>
+          
           <Link
             href="/nhie/create"
             className="inline-block bg-emerald-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-emerald-600 transition"
