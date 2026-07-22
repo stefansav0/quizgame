@@ -1,43 +1,33 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
     <footer className="w-full border-t border-slate-200 bg-white relative overflow-hidden">
-      
       {/* Soft Background Glow */}
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-24 bg-emerald-500/5 blur-[100px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-6 py-14 relative z-10">
-        
         {/* TOP SECTION */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 pb-12 border-b border-slate-200">
           
-          {/* BRAND */}
+          {/* BRAND & DESCRIPTION */}
           <div className="md:col-span-5 text-center md:text-left">
-            
             <Link
               href="/"
-              className="inline-flex items-center gap-3"
+              className="inline-flex items-center"
+              aria-label="GetKnowify Home"
             >
-              {/* LOGO ICON */}
-              <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-400 flex items-center justify-center shadow-md">
-                <span className="text-white font-black text-lg">
-                  G
-                </span>
-              </div>
-
-              {/* LOGO TEXT */}
-              <div className="flex flex-col leading-tight">
-                <span className="text-2xl font-black text-slate-900">
-                  Getknowify
-                </span>
-
-                <span className="text-xs text-slate-500 font-medium tracking-wide">
-                  Fun Quiz Platform
-                </span>
-              </div>
+              <Image
+                src="/favicon.ico"
+                alt="GetKnowify"
+                width={180}
+                height={60}
+                priority
+                className="h-14 md:h-16 w-auto object-contain"
+              />
             </Link>
 
             {/* DESCRIPTION */}
@@ -118,15 +108,12 @@ export default function Footer() {
               >
                 Terms & Conditions
               </Link>
-
-              
             </div>
           </div>
         </div>
 
         {/* BOTTOM */}
         <div className="pt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          
           <p>
             © {currentYear} Getknowify. All rights reserved.
           </p>

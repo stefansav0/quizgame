@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -41,26 +42,16 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
         
         {/* LOGO */}
-        <Link
-          href="/"
-          className="flex items-center gap-3 shrink-0"
-        >
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-400 flex items-center justify-center shadow-md">
-            <span className="text-white font-black text-lg">
-              G
-            </span>
-          </div>
-
-          <div className="flex flex-col leading-tight">
-            <span className="text-xl sm:text-2xl font-black text-slate-900">
-              Getknowify
-            </span>
-
-            <span className="text-[11px] sm:text-xs text-slate-500 font-medium tracking-wide">
-              Fun Quiz Platform
-            </span>
-          </div>
-        </Link>
+<Link href="/" className="shrink-0">
+  <Image
+    src="/favicon.ico" // your logo inside public folder
+    alt="GetKnowify"
+    width={140} // adjust size
+    height={50}
+    priority
+    className="h-12 w-auto object-contain"
+  />
+</Link>
 
         {/* DESKTOP NAVIGATION */}
         <nav className="hidden lg:flex items-center gap-8">

@@ -15,7 +15,7 @@ export default function LatestBlogs() {
 
         console.log("Blogs:", data.blogs);
 
-        setBlogs((data.blogs || []).slice(0, 8));
+        setBlogs((data.blogs || []).slice(0, 6));
       } catch (error) {
         console.error("Error fetching blogs:", error);
       } finally {
