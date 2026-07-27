@@ -42,11 +42,11 @@ export default function HeroSection() {
           variants={itemVariants}
           className="text-4xl sm:text-5xl md:text-7xl font-black text-center mb-3 sm:mb-6 tracking-tight text-slate-900 drop-shadow-sm leading-[1.2]"
         >
-          How Well Do You <br className="hidden md:block" />
+          How Close Are We, <br className="hidden md:block" />
           <span className="relative inline-block mt-1 sm:mt-2">
             <span className="absolute -inset-1 bg-gradient-to-r from-indigo-600 to-violet-600 blur-lg opacity-20 rounded-lg"></span>
             <span className="relative bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
-              Really Know Me?
+              Really?
             </span>
           </span>
         </motion.h1>

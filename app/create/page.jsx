@@ -10,7 +10,62 @@ import QuestionStep from "@/components/QuestionStep";
 import SuccessStep from "@/components/SuccessStep";
 import QuestionBankModal from "@/components/QuestionBankModal";
 
+// Import Layout and InfoSection
+import FloatingLayout from "@/components/FloatingLayout";
+import InfoSection from "@/components/InfoSection"; 
+
+// --- FALLING EMOJI COMPONENT ---
+const EMOJIS = ['💖', '✨', '😂', '🔥', '👀', '🎉', '🥰', '✌️', '🤪', '😜'];
+
+const FallingEmojis = () => {
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => setMounted(true), []);
+  
+  if (!mounted) return null;
+
+  // Generate random properties for 35 emojis
+  const drops = Array.from({ length: 35 }).map((_, i) => ({
+    id: i,
+    emoji: EMOJIS[Math.floor(Math.random() * EMOJIS.length)],
+    left: `${Math.random() * 100}%`,
+    duration: Math.random() * 5 + 6, // Between 6s and 11s
+    delay: -Math.random() * 10,      // Stagger start times
+    size: `${Math.random() * 1.5 + 1}rem`,
+  }));
+
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[5] overflow-hidden" aria-hidden="true">
+      {drops.map((drop) => (
+        <motion.div
+          key={drop.id}
+          initial={{ y: "-10vh", opacity: 0, rotate: -20 }}
+          animate={{ 
+            y: "110vh", 
+            opacity: [0, 0.8, 0.8, 0],
+            rotate: 20 
+          }}
+          transition={{
+            duration: drop.duration,
+            repeat: Infinity,
+            delay: drop.delay,
+            ease: "linear",
+          }}
+          className="absolute drop-shadow-md"
+          style={{ left: drop.left, fontSize: drop.size }}
+        >
+          {drop.emoji}
+        </motion.div>
+      ))}
+    </div>
+  );
+};
+// -------------------------------
+
 export default function CreateQuiz() {
+  // Changed to "light" theme
+  const [activeTheme, setActiveTheme] = useState("light");
+  
   const [isLoading, setIsLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -163,15 +218,20 @@ export default function CreateQuiz() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#0a0c10] flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0c10] flex items-center justify-center p-4 font-sans text-white overflow-hidden py-10 selection:bg-emerald-500/30">
-      <div className="w-full max-w-xl relative">
+    <FloatingLayout activeTheme={activeTheme}>
+      
+      {/* ADDED EMOJI RAIN */}
+      <FallingEmojis />
+      
+      {/* 1. MAIN QUIZ CONTAINER (Updated to Light Theme text-slate-900) */}
+      <div className="w-full max-w-xl relative flex-shrink-0 font-sans text-slate-900 selection:bg-emerald-200 z-20">
         <AnimatePresence mode="wait">
           
           {step === 0 && (
@@ -182,7 +242,7 @@ export default function CreateQuiz() {
               animate="center"
               exit="exit"
               transition={{ duration: 0.4, ease: "easeOut" }}
-              className="bg-[#13151f]/90 backdrop-blur-xl rounded-[2.5rem] p-8 md:p-12 shadow-[0_0_50px_rgba(16,185,129,0.1)] border border-emerald-500/20 relative overflow-hidden"
+              className="bg-white/80 backdrop-blur-xl rounded-[2.5rem] p-8 md:p-12 shadow-[0_10px_40px_rgba(0,0,0,0.08)] border border-slate-200 relative overflow-hidden"
             >
               <SetupStep 
                 userInfo={userInfo}
@@ -205,7 +265,7 @@ export default function CreateQuiz() {
               animate="center"
               exit="exit"
               transition={{ duration: 0.3, ease: "easeInOut" }}
-              className={`${questions[step - 1].bgColor} rounded-[2.5rem] p-6 md:p-10 shadow-2xl transition-colors duration-700 border border-white/10 backdrop-blur-xl relative overflow-hidden`}
+              className={`${questions[step - 1].bgColor} rounded-[2.5rem] p-6 md:p-10 shadow-xl transition-colors duration-700 border border-slate-200/50 backdrop-blur-xl relative overflow-hidden text-slate-900`}
             >
               <QuestionStep 
                 step={step}
@@ -226,7 +286,7 @@ export default function CreateQuiz() {
               key="step-11"
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              className="bg-[#13151f]/90 backdrop-blur-xl rounded-[2.5rem] p-8 md:p-12 shadow-[0_0_50px_rgba(16,185,129,0.1)] border border-emerald-500/30 text-center relative overflow-hidden flex flex-col items-center"
+              className="bg-white/90 backdrop-blur-xl rounded-[2.5rem] p-8 md:p-12 shadow-[0_10px_40px_rgba(0,0,0,0.08)] border border-emerald-200 text-center relative overflow-hidden flex flex-col items-center"
             >
               <SuccessStep 
                 createdQuizId={createdQuizId}
@@ -240,18 +300,23 @@ export default function CreateQuiz() {
           )}
 
         </AnimatePresence>
-
-        <AnimatePresence>
-          {showBankModal && (
-            <QuestionBankModal 
-              questionBank={questionBank}
-              swapQuestion={swapQuestion}
-              setShowBankModal={setShowBankModal}
-              modalVariants={modalVariants}
-            />
-          )}
-        </AnimatePresence>
       </div>
-    </div>
+
+      {/* 2. THE INFO SECTION */}
+      <InfoSection activeTheme={activeTheme} />
+
+      {/* 3. MODALS */}
+      <AnimatePresence>
+        {showBankModal && (
+          <QuestionBankModal 
+            questionBank={questionBank}
+            swapQuestion={swapQuestion}
+            setShowBankModal={setShowBankModal}
+            modalVariants={modalVariants}
+          />
+        )}
+      </AnimatePresence>
+
+    </FloatingLayout>
   );
 }

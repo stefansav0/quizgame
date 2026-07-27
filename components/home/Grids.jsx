@@ -89,30 +89,7 @@ export function TrustGrid() {
   );
 }
 
-export function QuickFactsGrid() {
-  const items = [
-    { title: "Easy to Create", desc: "Most personalized quizzes can be created within just a few minutes." },
-    { title: "Great Icebreaker", desc: "Perfect for starting conversations during school, college, or online events." },
-    { title: "Share Instantly", desc: "Quiz links can easily be shared through popular messaging and social apps." },
-    { title: "Fun for Everyone", desc: "Suitable for friends, couples, classmates, families, and communities." }
-  ];
 
-  return (
-    <section className="w-full max-w-6xl mb-24">
-      <motion.div variants={itemVariants} className="text-center mb-12">
-        <h2 className="text-3xl md:text-5xl font-black text-slate-900">Quick Facts About Friendship Quizzes</h2>
-      </motion.div>
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {items.map((item, index) => (
-          <div key={index} className="bg-white border border-slate-200 rounded-3xl p-8 text-center shadow-sm hover:shadow-lg transition-all">
-            <h3 className="text-xl font-bold text-slate-900 mb-3">{item.title}</h3>
-            <p className="text-slate-600 leading-7">{item.desc}</p>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
 
 export function HowItWorksGrid() {
   const items = [

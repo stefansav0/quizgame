@@ -1,7 +1,8 @@
 import { connectDB } from "@/lib/mongodb";
 import Quiz from "@/models/Quiz";
 import PlayQuizClient from "./PlayQuizClient";
-import Link from "next/link"; // Added Link for the Not Found button
+import Link from "next/link";
+import FloatingLayout from "@/components/FloatingLayout";
 
 // --- VIRAL LINK PREVIEWS FOR WHATSAPP/INSTAGRAM ---
 export async function generateMetadata({ params }) {
@@ -48,24 +49,23 @@ export default async function QuizPage({ params }) {
   // 🔴 IF QUIZ WAS DELETED OR DOES NOT EXIST
   if (!quiz) {
     return (
-      <div className="min-h-screen bg-[#0a0c10] flex flex-col items-center justify-center p-6 text-white font-sans relative overflow-hidden">
-        {/* Background Glow */}
-        <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg h-96 bg-rose-500/10 blur-[120px] pointer-events-none z-0" />
-
-        <div className="bg-[#13151f]/80 backdrop-blur-xl border border-white/10 p-10 rounded-[2rem] text-center max-w-md shadow-2xl relative z-10">
-          <div className="text-6xl mb-6">🗑️</div>
-          <h1 className="text-2xl md:text-3xl font-black mb-4 text-emerald-400 tracking-tight">Oops! Quiz Not Found</h1>
-          <p className="text-slate-400 mb-8 leading-relaxed font-medium">
-            Sorry, but we could not find that quiz. The creator might have deleted it to start over!
-          </p>
-          <Link 
-            href="/create" 
-            className="inline-block bg-emerald-500 text-emerald-950 font-black text-lg px-8 py-4 rounded-xl hover:bg-emerald-400 transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(16,185,129,0.2)] w-full"
-          >
-            Create Your Own Quiz 🚀
-          </Link>
+      <FloatingLayout activeTheme="light">
+        <div className="w-full max-w-md relative z-10 mt-10 md:mt-20">
+          <div className="bg-white/80 backdrop-blur-xl border border-slate-200 p-10 rounded-[2rem] text-center shadow-xl">
+            <div className="text-6xl mb-6 animate-bounce">🗑️</div>
+            <h1 className="text-2xl md:text-3xl font-black mb-4 text-emerald-500 tracking-tight">Oops! Quiz Not Found</h1>
+            <p className="text-slate-500 mb-8 leading-relaxed font-medium">
+              Sorry, but we could not find that quiz. The creator might have deleted it to start over!
+            </p>
+            <Link 
+              href="/create" 
+              className="inline-block bg-emerald-500 text-white font-black text-lg px-8 py-4 rounded-xl hover:bg-emerald-600 transition-all hover:scale-105 active:scale-95 shadow-[0_10px_20px_rgba(16,185,129,0.2)] w-full"
+            >
+              Create Your Own Quiz 🚀
+            </Link>
+          </div>
         </div>
-      </div>
+      </FloatingLayout>
     );
   }
 
@@ -80,5 +80,9 @@ export default async function QuizPage({ params }) {
     })),
   };
 
-  return <PlayQuizClient quiz={serializedQuiz} />;
+  return (
+    <FloatingLayout activeTheme="light">
+      <PlayQuizClient quiz={serializedQuiz} />
+    </FloatingLayout>
+  );
 }

@@ -2,17 +2,96 @@
 
 import { motion } from "framer-motion";
 import { itemVariants } from "@/lib/animations";
+import Image from "next/image";
+import Link from "next/link";
 
 export function WhatIsGetKnowify() {
   return (
-    <motion.article variants={itemVariants} className="w-full max-w-4xl mb-20 bg-white border border-slate-200 rounded-[2.5rem] p-8 md:p-14 shadow-sm">
-      <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-6">What Is GetKnowify?</h2>
-      <div className="space-y-5 text-slate-600 leading-relaxed text-lg">
-        <p>GetKnowify is a free online friendship quiz platform that helps people create personalized quizzes and discover how well their friends, classmates, family members, and partners know them.</p>
-        <p>Users can create custom quiz questions, share a unique quiz link, and compare scores in real time. Whether you want a best friend quiz, relationship challenge, or social media game, GetKnowify makes it simple and fun.</p>
-        <p>Our mission is to help people create meaningful conversations and stronger relationships through interactive quizzes and social games.</p>
-      </div>
-    </motion.article>
+    <section className="w-full max-w-5xl mb-24">
+      {/* White Card */}
+      <motion.article
+        variants={itemVariants}
+        className="bg-white border border-slate-200 rounded-[2.5rem] p-8 md:p-14 shadow-sm"
+      >
+        <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-6">
+          What Is GetKnowify?
+        </h2>
+
+        <div className="space-y-5 text-slate-600 leading-relaxed text-lg">
+          <p>
+            GetKnowify is a free online friendship quiz platform that helps
+            people create personalized quizzes and discover how well their
+            friends, classmates, family members, and partners know them.
+          </p>
+
+          <p>
+            Users can create custom quiz questions, share a unique quiz link,
+            and compare scores in real time. Whether you want a best friend
+            quiz, relationship challenge, or social media game, GetKnowify
+            makes it simple and fun.
+          </p>
+
+          <p>
+            Our mission is to help people create meaningful conversations and
+            stronger relationships through interactive quizzes and social games.
+          </p>
+        </div>
+      </motion.article>
+
+      {/* Image Outside the Card */}
+      {/* Large Image */}
+<motion.div
+  variants={itemVariants}
+  className="mt-10"
+>
+  <Image
+    src="/tips.png"
+    alt="What is GetKnowify"
+    width={1400}
+    height={900}
+    priority
+    className="w-full h-auto rounded-3xl shadow-2xl"
+  />
+</motion.div>
+
+{/* Two Images Below */}
+<motion.div
+  variants={itemVariants}
+  className="mt-10 flex justify-center"
+>
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl">
+    <Link href="/bff-quiz" className="group">
+      <Image
+        src="/bff-q.png"
+        alt="BFF Quiz"
+        width={400}
+        height={400}
+        className="w-full max-w-[320px] h-auto rounded-3xl shadow-xl transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl cursor-pointer mx-auto"
+      />
+    </Link>
+
+    <Link href="/fake-friend-quiz" className="group">
+      <Image
+        src="/ffq.png"
+        alt="Fake Friend Quiz"
+        width={400}
+        height={400}
+        className="w-full max-w-[320px] h-auto rounded-3xl shadow-xl transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl cursor-pointer mx-auto"
+      />
+    </Link>
+
+    <Link href="/bestfriend-quiz" className="group">
+      <Image
+        src="/best-q.png"
+        alt="Best Friends Quiz"
+        width={400}
+        height={400}
+        className="w-full max-w-[320px] h-auto rounded-3xl shadow-xl transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl cursor-pointer mx-auto"
+      />
+    </Link>
+  </div>
+</motion.div>
+    </section>
   );
 }
 
@@ -100,43 +179,9 @@ export function QuizIdeas() {
   );
 }
 
-export function ContentPromise() {
-  return (
-    <motion.article variants={itemVariants} className="w-full max-w-5xl mb-24 bg-indigo-50 border border-indigo-100 rounded-[2.5rem] p-8 md:p-14 shadow-sm">
-      <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-8">Our Commitment to Helpful Content</h2>
-      <div className="space-y-6 text-lg leading-8 text-slate-700">
-        <p>At GetKnowify, our goal is not only to provide fun quizzes but also to publish useful articles that help people build stronger friendships, discover creative conversation starters, and enjoy meaningful social activities.</p>
-        <p>Our blog is regularly updated with new ideas, friendship games, quiz inspiration, online trends, and practical tips that anyone can use. Whether you're looking for icebreakers, relationship activities, or fun questions to ask your best friend, we aim to create content that is helpful, easy to understand, and enjoyable to read.</p>
-        <p>We continuously review and improve our content so it remains relevant, accurate, and useful. As new trends emerge and users share feedback, we update our articles to provide a better experience for everyone visiting our website.</p>
-      </div>
-    </motion.article>
-  );
-}
 
-export function QuizTips() {
-  return (
-    <motion.article variants={itemVariants} className="w-full max-w-4xl mb-24 bg-indigo-50 border border-indigo-100 rounded-[2.5rem] p-8 md:p-14 shadow-sm text-left">
-      <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-6">Tips for Creating a Fun Friendship Quiz</h2>
-      <div className="space-y-5 text-slate-700 leading-relaxed text-lg">
-        <p>Creating a great quiz is not about making questions impossible. The best quizzes feel personal, entertaining, and easy to complete. Here are a few simple tips to make your friendship quiz more engaging:</p>
-        <ul className="space-y-4 mt-6">
-          <li className="flex flex-col">
-            <strong className="text-indigo-700 text-xl">1. Mix Easy and Difficult Questions</strong>
-            <span className="text-slate-600">Start with a few simple questions to make the quiz feel fun and approachable, then include a couple of unique or unexpected questions that only close friends would know.</span>
-          </li>
-          <li className="flex flex-col">
-            <strong className="text-indigo-700 text-xl">2. Keep the Quiz Short and Fun</strong>
-            <span className="text-slate-600">Shorter quizzes are usually more enjoyable to complete. Around 10 to 15 questions is often the perfect balance between fun and engaging.</span>
-          </li>
-          <li className="flex flex-col">
-            <strong className="text-indigo-700 text-xl">3. Share it Creatively</strong>
-            <span className="text-slate-600">Posting your quiz on Instagram, Snapchat, or WhatsApp with a playful caption can encourage more friends to participate and compare scores.</span>
-          </li>
-        </ul>
-      </div>
-    </motion.article>
-  );
-}
+
+
 
 export function PopularQuestions() {
   return (

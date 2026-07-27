@@ -13,15 +13,13 @@ import {
   DigitalAge,
   PrivacyMatters,
   QuizIdeas,
-  ContentPromise,
-  QuizTips,
   PopularQuestions
 } from "@/components/home/Articles";
 import {
   BenefitsGrid,
   WhyChooseGrid,
   TrustGrid,
-  QuickFactsGrid,
+  
   HowItWorksGrid
 } from "@/components/home/Grids";
 import FAQSection from "@/components/home/FAQSection";
@@ -56,12 +54,12 @@ export default function HomeClient() {
           <TrustGrid />
           
           <QuizIdeas />
-          <ContentPromise />
           
-          <QuickFactsGrid />
+          
+         
           <HowItWorksGrid />
           
-          <QuizTips />
+          
           <PopularQuestions />
           
           <FAQSection />
