@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export const metadata = {
   title: "BFF Quiz - Create a Best Friend Quiz",
@@ -23,6 +24,17 @@ export default function BestfriendQuizPage() {
           share it with friends, and compare their scores to find out who really
           deserves the title of your best friend.
         </p>
+
+        <div className="flex justify-center mb-8">
+                          <Image
+                            src="/best.png"
+                            alt="Fake Friend Quiz"
+                            width={280}
+                            height={280}
+                            priority
+                            className="w-48 md:w-64 lg:w-72 h-auto object-contain drop-shadow-lg"
+                          />
+                        </div>
 
         <div className="mt-10 flex justify-center gap-4">
           <Link

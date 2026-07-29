@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { AnimatePresence } from "framer-motion";
+import Image from "next/image";
+import { AnimatePresence, motion } from "framer-motion";
 import { translateText } from "@/lib/translate";
 import { BG_COLORS, generateNHIEBank } from "@/lib/constants";
 

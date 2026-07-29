@@ -13,7 +13,7 @@ const BotBubble = ({ children, delay = 0 }) => (
     className="flex items-start gap-3 w-full"
   >
     <div className="w-10 h-10 rounded-full bg-emerald-100 border border-emerald-200 flex items-center justify-center text-xl shadow-sm flex-shrink-0">
-      🤖
+      😀
     </div>
     <div className="bg-white border border-slate-200 shadow-sm text-slate-800 rounded-2xl rounded-tl-sm p-4 text-sm md:text-base max-w-[85%] leading-relaxed">
       {children}
@@ -107,11 +107,11 @@ export default function SetupForm({ userInfo, setUserInfo, isGenerating, handleS
       <div className="bg-white px-6 py-4 border-b border-slate-100 flex items-center gap-4 shadow-sm z-10 relative">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[150%] h-full bg-emerald-50/50 blur-[50px] pointer-events-none" />
         <div className="relative w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-2xl shadow-inner border border-emerald-200">
-          🤖
+          😀
           <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full"></span>
         </div>
         <div className="relative">
-          <h2 className="font-black text-slate-800 text-lg md:text-xl">GetKnowify Bot</h2>
+          <h2 className="font-black text-slate-800 text-lg md:text-xl">GetKnowify</h2>
           <p className="text-xs text-emerald-600 font-bold uppercase tracking-widest flex items-center gap-1.5 mt-0.5">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Online
           </p>

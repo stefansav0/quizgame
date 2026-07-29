@@ -33,7 +33,7 @@ export function BenefitsGrid() {
 
 export function WhyChooseGrid() {
   const items = [
-    { title: "100% Free", desc: "Create and share friendship quizzes without paying any subscription fees." },
+    { title: "Free", desc: "Create and share friendship quizzes without paying any subscription fees." },
     { title: "Works Everywhere", desc: "Use GetKnowify on desktop, tablet, or mobile without downloading an app." },
     { title: "Easy Sharing", desc: "Share your quiz link instantly through WhatsApp, Instagram, Snapchat, Facebook, or email." },
     { title: "Custom Questions", desc: "Personalize every quiz with questions that reflect your own personality and experiences." },
