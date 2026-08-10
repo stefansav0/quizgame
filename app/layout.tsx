@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Header from "@/components/Header"; 
+import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Script from "next/script";
 // @ts-ignore
@@ -19,11 +19,17 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Getknowify | How Well Do You Know Me?",
-  description: "Create custom quizzes and secret letters for your besties and partners. Find out who really knows you best!",
+  description:
+    "Create custom quizzes and secret letters for your besties and partners. Find out who really knows you best!",
   icons: {
     icon: "/favicon.ico?v=2",
     shortcut: "/favicon.ico?v=2",
     apple: "/favicon.ico?v=2",
+  },
+
+  // ✅ Google AdSense verification
+  other: {
+    "google-adsense-account": "ca-pub-9348579900264611",
   },
 };
 
@@ -35,9 +41,23 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        {/* =====================================================
+            GOOGLE ADSENSE
+            ===================================================== */}
 
-        {/* ✅ GOOGLE ANALYTICS (GA4) */}
-<Script
+        {/* ✅ AdSense Account Verification Meta Tag */}
+        <meta
+          name="google-adsense-account"
+          content="ca-pub-9348579900264611"
+        />
+
+        {/* =====================================================
+            GOOGLE ANALYTICS (GA4)
+            ===================================================== */}
+
+        {/* Replace G-XXXXXXXXXX with your actual GA4 Measurement ID */}
+
+        <Script
   strategy="afterInteractive"
   src="https://www.googletagmanager.com/gtag/js?id=G-9YDEEPLCYP"
 />
@@ -62,31 +82,33 @@ export default function RootLayout({
   }}
 />
 
-        {/* ✅ GOOGLE ADSENSE (IMPORTANT) */}
+        {/* =====================================================
+            GOOGLE ADSENSE SCRIPT
+            ===================================================== */}
+
         <Script
-          id="adsense-script"
-          strategy="afterInteractive"
+          id="google-adsense"
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9348579900264611"
           crossOrigin="anonymous"
+          strategy="afterInteractive"
         />
-
       </head>
-      
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#0f111a] text-white flex flex-col min-h-screen`}>
-        
+
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
         {/* Header */}
         <Header />
-        <AnalyticsTracker />
 
         {/* Main Content */}
-        <main className="flex-grow w-full pt-20">
-          {children}
-        </main>
+        <main>{children}</main>
 
         {/* Footer */}
         <Footer />
-        
+
+        {/* Analytics Tracker */}
+        <AnalyticsTracker />
       </body>
     </html>
   );
