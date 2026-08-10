@@ -9,97 +9,226 @@ export default function FeedbackPage() {
     rating: 0,
     message: "",
   });
+
   const [hoveredStar, setHoveredStar] = useState(0);
-  const [status, setStatus] = useState({ loading: false, success: false, error: "" });
+
+  const [status, setStatus] = useState({
+    loading: false,
+    success: false,
+    error: "",
+  });
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setStatus({ loading: true, success: false, error: "" });
+
+    setStatus({
+      loading: true,
+      success: false,
+      error: "",
+    });
 
     if (formData.rating === 0) {
-      setStatus({ loading: false, success: false, error: "Please select a star rating." });
+      setStatus({
+        loading: false,
+        success: false,
+        error: "Please select a star rating.",
+      });
       return;
     }
 
     try {
       const res = await fetch("/api/feedback", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(formData),
       });
 
       const data = await res.json();
 
       if (data.success) {
-        setStatus({ loading: false, success: true, error: "" });
-        setFormData({ name: "", rating: 0, message: "" }); // Reset form
+        setStatus({
+          loading: false,
+          success: true,
+          error: "",
+        });
+
+        setFormData({
+          name: "",
+          rating: 0,
+          message: "",
+        });
       } else {
-        setStatus({ loading: false, success: false, error: data.error || "Something went wrong." });
+        setStatus({
+          loading: false,
+          success: false,
+          error: data.error || "Something went wrong.",
+        });
       }
     } catch (error) {
-      setStatus({ loading: false, success: false, error: "Failed to connect to the server." });
+      setStatus({
+        loading: false,
+        success: false,
+        error: "Failed to connect to the server.",
+      });
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0c10] text-white font-sans selection:bg-emerald-500/30 py-24 px-6 relative">
-      
-      {/* BACKGROUND GLOW */}
-      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[150%] h-80 bg-emerald-500/10 blur-[120px] pointer-events-none z-0" />
+    <main className="min-h-screen w-full bg-white px-4 py-8 sm:px-6 sm:py-14">
+      <div className="mx-auto w-full max-w-2xl">
 
-      <main className="max-w-2xl mx-auto relative z-10">
-        <header className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-black mb-4 tracking-tight bg-gradient-to-r from-white via-emerald-100 to-emerald-400 bg-clip-text text-transparent">
+        {/* HEADER */}
+        <header className="mb-8 text-center sm:mb-10">
+
+          
+          <h1
+            className="
+              text-2xl
+              font-medium
+              uppercase
+              tracking-wide
+              text-[#c47b8c]
+              sm:text-3xl
+            "
+          >
             Share Your Experience
           </h1>
-          <p className="text-slate-400 text-lg">
-            We are always looking to improve. Let us know how we did!
+
+          <p className="mx-auto mt-3 max-w-lg text-sm leading-6 text-gray-600 sm:text-base">
+            We are always looking to improve.
+            <br />
+            Let us know how we did!
           </p>
+
         </header>
 
-        <div className="bg-[#13151f] border border-white/5 rounded-3xl p-8 md:p-10 shadow-2xl relative overflow-hidden">
-          {/* Subtle top border gradient */}
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 to-teal-300"></div>
+
+        {/* FEEDBACK CARD */}
+        <div
+          className="
+            overflow-hidden
+            rounded-2xl
+            bg-[#f8f7ff]
+            px-6
+            py-8
+            shadow-[0_6px_0_rgba(0,0,0,0.06)]
+            sm:px-10
+            sm:py-10
+          "
+        >
 
           {status.success ? (
-            <div className="text-center py-16">
-              <div className="w-20 h-20 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center text-4xl mx-auto mb-6">
-                ✨
+
+            /* SUCCESS MESSAGE */
+            <div className="py-8 text-center sm:py-12">
+
+              <div
+                className="
+                  mx-auto
+                  mb-6
+                  flex
+                  h-20
+                  w-20
+                  items-center
+                  justify-center
+                  rounded-full
+                  bg-emerald-50
+                  text-4xl
+                "
+              >
+                
               </div>
-              <h2 className="text-3xl font-bold text-white mb-4">Thank You!</h2>
-              <p className="text-slate-400 mb-8">Your feedback has been successfully submitted. We appreciate your insights.</p>
-              <Link href="/" className="text-emerald-400 font-bold hover:text-emerald-300 transition-colors">
+
+              <h2 className="mb-3 text-2xl font-bold text-gray-900 sm:text-3xl">
+                Thank You!
+              </h2>
+
+              <p className="mx-auto mb-7 max-w-md text-sm leading-6 text-gray-600 sm:text-base">
+                Your feedback has been successfully submitted.
+                We really appreciate your time and insights.
+              </p>
+
+              <Link
+                href="/"
+                className="
+                  inline-flex
+                  items-center
+                  rounded-xl
+                  bg-emerald-500
+                  px-6
+                  py-3
+                  font-bold
+                  text-white
+                  shadow-sm
+                  transition-all
+                  hover:-translate-y-0.5
+                  hover:bg-emerald-600
+                  hover:shadow-md
+                  active:scale-95
+                "
+              >
                 ← Return to Home
               </Link>
+
             </div>
+
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-6">
-              
-              {/* RATING STARS */}
-              <div className="flex flex-col items-center justify-center mb-8">
-                <label className="text-sm font-bold text-slate-300 uppercase tracking-widest mb-3">
-                  Rate your experience
+
+            /* FEEDBACK FORM */
+            <form
+              onSubmit={handleSubmit}
+              className="space-y-5"
+            >
+
+              {/* RATING */}
+              <div className="mb-7 flex flex-col items-center">
+
+                <label className="mb-3 text-sm font-bold uppercase tracking-wider text-gray-700">
+                  Rate Your Experience
                 </label>
-                <div className="flex gap-2">
+
+                <div className="flex gap-1.5 sm:gap-2">
+
                   {[1, 2, 3, 4, 5].map((star) => (
+
                     <button
                       key={star}
                       type="button"
+                      aria-label={`Rate ${star} out of 5`}
                       onMouseEnter={() => setHoveredStar(star)}
                       onMouseLeave={() => setHoveredStar(0)}
-                      onClick={() => setFormData({ ...formData, rating: star })}
-                      className="transition-transform hover:scale-110 focus:outline-none"
+                      onClick={() =>
+                        setFormData({
+                          ...formData,
+                          rating: star,
+                        })
+                      }
+                      className="
+                        rounded-lg
+                        p-1
+                        transition-transform
+                        hover:scale-110
+                        focus:outline-none
+                        focus:ring-2
+                        focus:ring-emerald-200
+                      "
                     >
                       <svg
-                        className={`w-10 h-10 transition-colors duration-200 ${
+                        className={`h-9 w-9 transition-colors duration-200 sm:h-10 sm:w-10 ${
                           star <= (hoveredStar || formData.rating)
-                            ? "text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]"
-                            : "text-slate-700"
+                            ? "text-yellow-400"
+                            : "text-gray-300"
                         }`}
                         fill="currentColor"
                         viewBox="0 0 20 20"
@@ -107,55 +236,149 @@ export default function FeedbackPage() {
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                       </svg>
                     </button>
+
                   ))}
+
                 </div>
+
+                {formData.rating > 0 && (
+                  <p className="mt-2 text-xs font-medium text-gray-500">
+                    {formData.rating} out of 5
+                  </p>
+                )}
+
               </div>
+
 
               {/* ERROR MESSAGE */}
               {status.error && (
-                <div className="bg-red-500/10 border border-red-500/50 text-red-400 p-4 rounded-xl text-sm font-medium">
+                <div
+                  className="
+                    rounded-xl
+                    border
+                    border-red-100
+                    bg-red-50
+                    px-4
+                    py-3
+                    text-center
+                    text-sm
+                    font-medium
+                    text-red-600
+                  "
+                >
                   {status.error}
                 </div>
               )}
 
-              {/* INPUT FIELDS */}
+
+              {/* NAME */}
               <div>
-                <label className="block text-sm font-medium text-slate-400 mb-2">Your Name</label>
+                <label
+                  htmlFor="name"
+                  className="mb-1.5 block text-sm font-semibold text-gray-700"
+                >
+                  Your Name
+                </label>
+
                 <input
+                  id="name"
                   type="text"
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
                   required
-                  className="w-full bg-[#0a0c10] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all placeholder:text-slate-600"
-                  placeholder="John Doe"
+                  placeholder="Enter your name"
+                  className="
+                    w-full
+                    rounded-xl
+                    border
+                    border-gray-200
+                    bg-white
+                    px-4
+                    py-3.5
+                    text-gray-900
+                    placeholder:text-gray-400
+                    outline-none
+                    transition
+                    focus:border-emerald-400
+                    focus:ring-2
+                    focus:ring-emerald-100
+                  "
                 />
               </div>
 
+
+              {/* EXPERIENCE */}
               <div>
-                <label className="block text-sm font-medium text-slate-400 mb-2">Your Experience</label>
+                <label
+                  htmlFor="message"
+                  className="mb-1.5 block text-sm font-semibold text-gray-700"
+                >
+                  Your Experience
+                </label>
+
                 <textarea
+                  id="message"
                   name="message"
                   value={formData.message}
                   onChange={handleInputChange}
                   required
-                  rows="5"
-                  className="w-full bg-[#0a0c10] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all placeholder:text-slate-600 resize-none"
+                  rows={5}
                   placeholder="Tell us what you loved or what we can improve..."
-                ></textarea>
+                  className="
+                    w-full
+                    resize-none
+                    rounded-xl
+                    border
+                    border-gray-200
+                    bg-white
+                    px-4
+                    py-3.5
+                    text-gray-900
+                    placeholder:text-gray-400
+                    outline-none
+                    transition
+                    focus:border-emerald-400
+                    focus:ring-2
+                    focus:ring-emerald-100
+                  "
+                />
               </div>
 
+
+              {/* SUBMIT BUTTON */}
               <button
                 type="submit"
                 disabled={status.loading}
-                className="w-full bg-emerald-500 text-emerald-950 font-black py-4 rounded-xl hover:bg-emerald-400 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed shadow-lg"
+                className="
+                  mt-2
+                  w-full
+                  rounded-xl
+                  bg-emerald-500
+                  px-6
+                  py-3.5
+                  font-bold
+                  text-white
+                  shadow-sm
+                  transition-all
+                  hover:-translate-y-0.5
+                  hover:bg-emerald-600
+                  hover:shadow-md
+                  active:scale-[0.98]
+                  disabled:cursor-not-allowed
+                  disabled:opacity-60
+                "
               >
-                {status.loading ? "Submitting..." : "Share Your Experience 🚀"}
+                {status.loading
+                  ? "Submitting..."
+                  : "Share Your Experience "}
               </button>
+
             </form>
           )}
+
         </div>
-      </main>
-    </div>
+      </div>
+    </main>
   );
 }

@@ -89,9 +89,7 @@ export default function HeroSection() {
         <Link href="/create" className="group relative w-full sm:w-auto z-10" aria-label="Create a Friendship Quiz">
           <div className="absolute -inset-1 bg-indigo-600 rounded-2xl blur opacity-30 group-hover:opacity-50 transition duration-500"></div>
           <div className="relative bg-indigo-600 hover:bg-indigo-700 text-white font-black text-lg px-8 py-4 sm:py-5 rounded-2xl text-center shadow-xl shadow-indigo-200 transition-all flex items-center justify-center gap-3 active:scale-95 group-hover:-translate-y-1">
-            <svg className="w-6 h-6 text-indigo-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
+            
             <span>Create Your Quiz</span>
           </div>
         </Link>

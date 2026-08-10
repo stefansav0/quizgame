@@ -80,40 +80,7 @@ export default function FakeFriendQuizPage() {
   </div>
 </section>
 
-{/* Why Play */}
-<section className="bg-gray-50 py-20">
-  <div className="max-w-5xl mx-auto px-6">
-    <h2 className="text-3xl font-bold text-center">
-      Why You'll Love It
-    </h2>
 
-    <div className="mt-12 grid gap-8 md:grid-cols-3">
-      <div className="text-center">
-        <div className="text-4xl">😂</div>
-        <h3 className="mt-4 font-semibold">Fun Challenge</h3>
-        <p className="mt-2 text-gray-600">
-          Find out who really pays attention to you.
-        </p>
-      </div>
-
-      <div className="text-center">
-        <div className="text-4xl">📱</div>
-        <h3 className="mt-4 font-semibold">Easy to Share</h3>
-        <p className="mt-2 text-gray-600">
-          Share your quiz on WhatsApp, Instagram, Snapchat, or anywhere.
-        </p>
-      </div>
-
-      <div className="text-center">
-        <div className="text-4xl">🏆</div>
-        <h3 className="mt-4 font-semibold">Instant Results</h3>
-        <p className="mt-2 text-gray-600">
-          See who scores the highest and knows you best.
-        </p>
-      </div>
-    </div>
-  </div>
-</section>
 
       {/* How It Works */}
       <section className="border-t border-gray-200 py-20">

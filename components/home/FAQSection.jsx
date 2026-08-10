@@ -1,37 +1,78 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { itemVariants } from "@/lib/animations";
+import { useState } from "react";
 
 export default function FAQSection() {
+  const faqs = [
+    {
+      q: "Is the friendship quiz free?",
+      a: "Yes. You can create and share your quiz without creating an account.",
+    },
+    {
+      q: "How do I create my own quiz?",
+      a: "Enter your name, choose questions, select your correct answers and create your personal quiz link.",
+    },
+    {
+      q: "Do my friends need an account?",
+      a: "No. Your friends can open your quiz link and answer the questions without creating an account.",
+    },
+    {
+      q: "Can I share my quiz on WhatsApp?",
+      a: "Yes. You can share your personal quiz link with friends through WhatsApp or any other messaging platform.",
+    },
+    {
+      q: "How do I know who knows me best?",
+      a: "Each friend receives a score based on how many of your answers they guessed correctly. The highest score wins.",
+    },
+  ];
+
+  const [open, setOpen] = useState(null);
+
   return (
-    <section className="w-full max-w-4xl mb-24">
-      <motion.div variants={itemVariants} className="text-center mb-12">
-        <h2 className="text-3xl md:text-4xl font-black text-slate-900">Frequently Asked Questions</h2>
-        <p className="text-slate-600 mt-4 text-lg">Answers to some common questions about the platform.</p>
-      </motion.div>
+    <section className="w-full py-20">
+      <div className="mx-auto max-w-3xl">
+        <div className="text-center">
+          <span className="text-sm font-bold uppercase tracking-wider text-pink-500">
+            FAQ
+          </span>
 
-      <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-gradient-to-br from-indigo-50 via-white to-violet-50 border border-indigo-100 rounded-[2.5rem] shadow-sm p-8 hover:shadow-md transition-shadow">
-          <h3 className="text-xl font-bold text-slate-900 mb-3">Is the quiz free to use?</h3>
-          <p className="text-slate-600 leading-relaxed">Yes. You can create quizzes, share them with friends, and view scores without paying any fees.</p>
+          <h2 className="mt-3 text-3xl font-extrabold text-gray-900 sm:text-4xl">
+            Frequently Asked Questions
+          </h2>
         </div>
 
-        <div className="bg-slate-100 border border-slate-200 p-8 rounded-[2rem] shadow-sm hover:shadow-md transition-shadow">
-          <h3 className="text-xl font-bold text-slate-900 mb-3">Can I create custom questions?</h3>
-          <p className="text-slate-600 leading-relaxed">Yes. You can write your own questions and answers to personalize your friendship quiz and make it more unique.</p>
-        </div>
+        <div className="mt-10 space-y-3">
+          {faqs.map((faq, index) => {
+            const isOpen = open === index;
 
-        <div className="bg-white border border-slate-200 p-8 rounded-[2rem] shadow-sm hover:shadow-md transition-shadow">
-          <h3 className="text-xl font-bold text-slate-900 mb-3">Are my quiz results private?</h3>
-          <p className="text-slate-600 leading-relaxed">Your quiz and leaderboard are only accessible through your shared quiz link or dashboard. For more details, please review our privacy policy.</p>
-        </div>
+            return (
+              <div
+                key={faq.q}
+                className="overflow-hidden rounded-2xl border border-gray-100 bg-white"
+              >
+                <button
+                  onClick={() => setOpen(isOpen ? null : index)}
+                  className="flex w-full items-center justify-between p-5 text-left"
+                >
+                  <span className="font-semibold text-gray-900">
+                    {faq.q}
+                  </span>
 
-        <div className="bg-white border border-slate-200 p-8 rounded-[2rem] shadow-sm hover:shadow-md transition-shadow">
-          <h3 className="text-xl font-bold text-slate-900 mb-3">How many people can join my quiz?</h3>
-          <p className="text-slate-600 leading-relaxed">You can share your quiz with as many friends, classmates, or followers as you want.</p>
+                  <span className="ml-4 text-xl text-pink-500">
+                    {isOpen ? "−" : "+"}
+                  </span>
+                </button>
+
+                {isOpen && (
+                  <div className="px-5 pb-5 text-sm leading-6 text-gray-600">
+                    {faq.a}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
-      </motion.div>
+      </div>
     </section>
   );
 }

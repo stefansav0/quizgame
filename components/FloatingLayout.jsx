@@ -21,118 +21,286 @@ const gallery = [
     image: "/favicon.ico",
     title: "How Well Do You Know Me?",
     subtitle: "Tap to begin →",
-    href: "/create", 
+    href: "/",
   },
   {
     image: "/bff.png",
     title: "Create BFF Quiz",
     subtitle: "Tap to create →",
-    href: "/bff-quiz", 
+    href: "/bff-quiz",
   },
   {
     image: "/never-removebg-preview.png",
     title: "Never Have I Ever",
     subtitle: "Tap to play →",
-    href: "/nhie", 
+    href: "/nhie",
   },
   {
     image: "/frind-removebg-preview.png",
     title: "Quiz Ideas",
-    subtitle: "Tap to play →",
-    href: "/blog/trending-quiz-ideas", 
+    subtitle: "Tap to explore →",
+    href: "/blog/trending-quiz-ideas",
+  },
+  {
+    image: "/ms.png",
+    title: "Secret Message",
+    subtitle: "Tap to send →",
+    href: "/letter/create",
+  },
+  {
+    image: "/tips.png",
+    title: "Quiz Tips",
+    subtitle: "Tap to learn →",
+    href: "/blog/funny-best-friend-challenge-ideas",
   },
 ];
 
-export default function FloatingLayout({ activeTheme = "light", children }) {
-  // Safely determine if the theme is light or dark (supports both string and object props)
+export default function FloatingLayout({
+  activeTheme = "light",
+  children,
+}) {
+  // Safely determine if the theme is light or dark
   const isStringTheme = typeof activeTheme === "string";
+
   const isLight = isStringTheme
     ? activeTheme === "light"
-    : (!activeTheme?.bg || activeTheme.bg.includes("50") || activeTheme.bg.includes("white") || activeTheme.bg.includes("100"));
+    : !activeTheme?.bg ||
+      activeTheme.bg.includes("50") ||
+      activeTheme.bg.includes("white") ||
+      activeTheme.bg.includes("100");
 
-  // Dynamically assign classes based on the theme
+  // Background
   const bgClass = isStringTheme
-    ? isLight ? "from-slate-50 to-slate-100" : "from-slate-900 to-slate-800"
-    : (activeTheme?.bg || "from-slate-50 to-slate-100");
+    ? isLight
+      ? "from-slate-50 to-slate-100"
+      : "from-slate-900 to-slate-800"
+    : activeTheme?.bg || "from-slate-50 to-slate-100";
 
+  // Glow
   const glowClass = isStringTheme
-    ? isLight ? "bg-emerald-500/10" : "bg-blue-500/20"
-    : (activeTheme?.glow || "bg-emerald-500/10");
+    ? isLight
+      ? "bg-emerald-500/10"
+      : "bg-blue-500/20"
+    : activeTheme?.glow || "bg-emerald-500/10";
 
-  // Colors for container, cards, and text
-  const textClass = isLight ? "text-slate-900" : "text-white";
-  const cardBgClass = isLight ? "bg-white border-slate-200 shadow-xl" : "bg-white/10 border-white/20 shadow-2xl";
-  const cardTitleClass = isLight ? "text-slate-800" : "text-white";
-  const cardSubtitleClass = isLight ? "text-slate-500" : "text-white/70";
-  const dividerTextClass = isLight ? "text-slate-400" : "text-slate-400";
-  const dividerLineClass = isLight ? "bg-slate-300" : "bg-white/20";
+  // Theme colors
+  const textClass = isLight
+    ? "text-slate-900"
+    : "text-white";
+
+  const cardBgClass = isLight
+    ? "bg-white border-slate-200 shadow-xl"
+    : "bg-white/10 border-white/20 shadow-2xl";
+
+  const cardTitleClass = isLight
+    ? "text-slate-800"
+    : "text-white";
+
+  const cardSubtitleClass = isLight
+    ? "text-slate-500"
+    : "text-white/70";
+
+  const dividerTextClass = isLight
+    ? "text-slate-400"
+    : "text-slate-400";
+
+  const dividerLineClass = isLight
+    ? "bg-slate-300"
+    : "bg-white/20";
 
   return (
     <div
-      className={`min-h-screen bg-gradient-to-br ${bgClass} flex flex-col items-center p-4 font-sans ${textClass} overflow-x-hidden py-10 transition-colors duration-1000 relative`}
+      className={`
+        min-h-screen
+        bg-gradient-to-br
+        ${bgClass}
+        flex
+        flex-col
+        items-center
+        px-4
+        pb-10
+        pt-10
+        font-sans
+        ${textClass}
+        overflow-x-hidden
+        transition-colors
+        duration-1000
+        relative
+      `}
     >
       {/* Background Glow */}
       <div
-        className={`absolute top-[10%] left-1/2 -translate-x-1/2 w-full max-w-4xl h-[600px] blur-[160px] rounded-full pointer-events-none ${glowClass}`}
+        className={`
+          absolute
+          top-[10%]
+          left-1/2
+          -translate-x-1/2
+          w-full
+          max-w-4xl
+          h-[600px]
+          blur-[160px]
+          rounded-full
+          pointer-events-none
+          ${glowClass}
+        `}
       />
 
       {/* Main Content */}
-      <div className="w-full max-w-4xl relative z-10 flex flex-col items-center mt-10 md:mt-20">
+      <div
+        className="
+          w-full
+          max-w-4xl
+          relative
+          z-10
+          flex
+          flex-col
+          items-center
+          mt-6
+          md:mt-16
+        "
+      >
         {children}
 
         {/* Bottom Gallery */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.8 }}
-          className="w-full mt-20 mb-10"
+          transition={{
+            delay: 0.5,
+            duration: 0.8,
+          }}
+          className="w-full mt-14 mb-6 sm:mt-20"
         >
-          <div className="flex items-center justify-center gap-4 mb-8">
-            <div className={`h-px w-16 ${dividerLineClass}`} />
-            <p className={`text-sm font-bold uppercase tracking-widest ${dividerTextClass}`}>
+          {/* Divider */}
+          <div className="flex items-center justify-center gap-3 mb-7 sm:gap-4 sm:mb-8">
+            <div
+              className={`h-px w-10 sm:w-16 ${dividerLineClass}`}
+            />
+
+            <p
+              className={`
+                text-xs
+                sm:text-sm
+                font-bold
+                uppercase
+                tracking-widest
+                ${dividerTextClass}
+                whitespace-nowrap
+              `}
+            >
               More Fun Games ❤️
             </p>
-            <div className={`h-px w-16 ${dividerLineClass}`} />
+
+            <div
+              className={`h-px w-10 sm:w-16 ${dividerLineClass}`}
+            />
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 px-4">
+          {/* Gallery */}
+          <div
+            className="
+              grid
+              grid-cols-2
+              gap-4
+              px-1
+              sm:gap-5
+              sm:px-4
+              md:grid-cols-3
+              lg:grid-cols-4
+            "
+          >
             {gallery.map((item, index) => (
               <motion.div
-                key={item.href}
+                key={item.href + index}
                 variants={floatAnimation}
                 animate="animate"
-                transition={{ delay: index * 0.3 }}
+                transition={{
+                  delay: index * 0.3,
+                }}
                 whileHover={{
-                  scale: 1.05,
+                  scale: 1.04,
                   rotate: 0,
                 }}
-                className={`group ${
-                  index % 2 === 0
-                    ? "rotate-[-4deg]"
-                    : "rotate-[4deg] mt-4 md:mt-8"
-                }`}
+                className={`
+                  group
+                  ${
+                    index % 2 === 0
+                      ? "rotate-[-2deg]"
+                      : "rotate-[2deg] mt-3 md:mt-5"
+                  }
+                `}
               >
                 <Link href={item.href}>
-                  <div className={`cursor-pointer overflow-hidden rounded-3xl ${cardBgClass} backdrop-blur-xl border transition-all duration-300 hover:shadow-pink-500/30`}>
+                  <div
+                    className={`
+                      cursor-pointer
+                      overflow-hidden
+                      rounded-2xl
+                      sm:rounded-3xl
+                      ${cardBgClass}
+                      backdrop-blur-xl
+                      border
+                      transition-all
+                      duration-300
+                      hover:shadow-pink-500/30
+                    `}
+                  >
+                    {/* Image */}
+                    <div
+                      className="
+                        flex
+                        aspect-square
+                        w-full
+                        items-center
+                        justify-center
+                        overflow-hidden
+                        bg-white/50
+                      "
+                    >
+                      <Image
+                        src={item.image}
+                        alt={item.title}
+                        width={500}
+                        height={500}
+                        className="
+                          h-full
+                          w-full
+                          object-contain
+                          p-2
+                          sm:p-3
+                          transition-transform
+                          duration-500
+                          group-hover:scale-110
+                        "
+                      />
+                    </div>
 
-                    <Image
-                      src={item.image}
-                      alt={item.title}
-                      width={500}
-                      height={500}
-                      className="w-full aspect-square object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
-
-                    <div className="p-4 text-center">
-                      <h3 className={`font-semibold text-lg leading-tight ${cardTitleClass}`}>
+                    {/* Text */}
+                    <div className="p-2.5 text-center sm:p-4">
+                      <h3
+                        className={`
+                          font-semibold
+                          text-sm
+                          sm:text-lg
+                          leading-tight
+                          ${cardTitleClass}
+                        `}
+                      >
                         {item.title}
                       </h3>
 
-                      <p className={`text-sm mt-1.5 ${cardSubtitleClass}`}>
+                      <p
+                        className={`
+                          text-xs
+                          sm:text-sm
+                          mt-1
+                          sm:mt-1.5
+                          ${cardSubtitleClass}
+                        `}
+                      >
                         {item.subtitle}
                       </p>
                     </div>
-
                   </div>
                 </Link>
               </motion.div>
