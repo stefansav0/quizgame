@@ -2,138 +2,137 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import AffiliateClick from "@/models/AffiliateClick";
 
-const ALLOWED_ORIGIN =
-  "https://admin.getknowify.com";
-  "http://localhost:3000";
+const allowedOrigins = [
+  "https://admin.getknowify.com",
+  "http://localhost:3000",
+];
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
-  "Access-Control-Allow-Methods": "GET, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
-};
+function getCorsHeaders(request) {
+  const origin = request.headers.get("origin");
 
-const PRODUCT_NAME =
-  "The Art of Natural Attraction";
+  const allowedOrigin = allowedOrigins.includes(origin)
+    ? origin
+    : "https://admin.getknowify.com";
 
-// --------------------------------------------------
-// OPTIONS - CORS preflight
-// --------------------------------------------------
+  return {
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Methods": "GET, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+  };
+}
 
-export async function OPTIONS() {
+// =========================================================
+// OPTIONS
+// =========================================================
+
+export async function OPTIONS(request) {
   return new NextResponse(null, {
     status: 204,
-    headers: corsHeaders,
+    headers: getCorsHeaders(request),
   });
 }
 
-// --------------------------------------------------
-// GET - Affiliate statistics
-// --------------------------------------------------
+// =========================================================
+// GET
+// =========================================================
 
 export async function GET(request) {
   try {
     await connectDB();
 
+    const corsHeaders = getCorsHeaders(request);
+
+    // =====================================================
+    // DATES
+    // =====================================================
+
     const now = new Date();
 
-    // ------------------------------------------------
-    // Start of today
-    // ------------------------------------------------
+    // Today
+    const startOfToday = new Date(now);
+    startOfToday.setHours(0, 0, 0, 0);
 
-    const startOfDay = new Date(now);
-
-    startOfDay.setHours(0, 0, 0, 0);
-
-    // ------------------------------------------------
-    // Start of this week
-    // Sunday = first day
-    // ------------------------------------------------
-
+    // Monday of current week
     const startOfWeek = new Date(now);
 
+    const day = startOfWeek.getDay();
+
+    const diff = day === 0 ? 6 : day - 1;
+
     startOfWeek.setDate(
-      startOfWeek.getDate() -
-        startOfWeek.getDay()
+      startOfWeek.getDate() - diff
     );
 
     startOfWeek.setHours(0, 0, 0, 0);
 
-    // ------------------------------------------------
-    // Start of this month
-    // ------------------------------------------------
-
+    // First day of month
     const startOfMonth = new Date(
       now.getFullYear(),
       now.getMonth(),
       1
     );
 
-    // ------------------------------------------------
+    // =====================================================
+    // COMMON FILTER
+    // =====================================================
+
+    const productFilter = {
+      product: "The Art of Natural Attraction",
+    };
+
+    // =====================================================
     // TOTAL
-    // ------------------------------------------------
+    // =====================================================
 
     const totalClicks =
-      await AffiliateClick.countDocuments({
-        product: PRODUCT_NAME,
-      });
+      await AffiliateClick.countDocuments(
+        productFilter
+      );
 
-    // ------------------------------------------------
+    // =====================================================
     // TODAY
-    // ------------------------------------------------
+    // =====================================================
 
     const todayClicks =
       await AffiliateClick.countDocuments({
-        product: PRODUCT_NAME,
-
+        ...productFilter,
         createdAt: {
-          $gte: startOfDay,
+          $gte: startOfToday,
         },
       });
 
-    // ------------------------------------------------
-    // THIS WEEK
-    // ------------------------------------------------
+    // =====================================================
+    // WEEK
+    // =====================================================
 
     const weekClicks =
       await AffiliateClick.countDocuments({
-        product: PRODUCT_NAME,
-
+        ...productFilter,
         createdAt: {
           $gte: startOfWeek,
         },
       });
 
-    // ------------------------------------------------
-    // THIS MONTH
-    // ------------------------------------------------
+    // =====================================================
+    // MONTH
+    // =====================================================
 
     const monthClicks =
       await AffiliateClick.countDocuments({
-        product: PRODUCT_NAME,
-
+        ...productFilter,
         createdAt: {
           $gte: startOfMonth,
         },
       });
 
-    // ------------------------------------------------
-    // DATE-WISE CLICKS
-    // ------------------------------------------------
-    //
-    // Example:
-    //
-    // 2026-08-12 → 5
-    // 2026-08-13 → 12
-    // 2026-08-14 → 8
-    //
-    // ------------------------------------------------
+    // =====================================================
+    // DAILY CLICKS
+    // =====================================================
 
     const dailyClicks =
       await AffiliateClick.aggregate([
         {
-          $match: {
-            product: PRODUCT_NAME,
-          },
+          $match: productFilter,
         },
 
         {
@@ -158,21 +157,21 @@ export async function GET(request) {
         },
       ]);
 
-    // ------------------------------------------------
-    // DEVICE-WISE CLICKS
-    // ------------------------------------------------
+    // =====================================================
+    // DEVICE CLICKS
+    // =====================================================
 
     const deviceClicks =
       await AffiliateClick.aggregate([
         {
-          $match: {
-            product: PRODUCT_NAME,
-          },
+          $match: productFilter,
         },
 
         {
           $group: {
-            _id: "$device",
+            _id: {
+              $ifNull: ["$device", "unknown"],
+            },
 
             clicks: {
               $sum: 1,
@@ -187,21 +186,21 @@ export async function GET(request) {
         },
       ]);
 
-    // ------------------------------------------------
-    // SOURCE-WISE CLICKS
-    // ------------------------------------------------
+    // =====================================================
+    // SOURCE CLICKS
+    // =====================================================
 
     const sourceClicks =
       await AffiliateClick.aggregate([
         {
-          $match: {
-            product: PRODUCT_NAME,
-          },
+          $match: productFilter,
         },
 
         {
           $group: {
-            _id: "$source",
+            _id: {
+              $ifNull: ["$source", "unknown"],
+            },
 
             clicks: {
               $sum: 1,
@@ -216,32 +215,62 @@ export async function GET(request) {
         },
       ]);
 
-    // ------------------------------------------------
+    // =====================================================
+    // COUNTRY CLICKS
+    // =====================================================
+
+    const countryClicks =
+      await AffiliateClick.aggregate([
+        {
+          $match: productFilter,
+        },
+
+        {
+          $group: {
+            _id: {
+              $ifNull: ["$countryCode", "XX"],
+            },
+
+            country: {
+              $first: {
+                $ifNull: ["$country", "Unknown"],
+              },
+            },
+
+            clicks: {
+              $sum: 1,
+            },
+          },
+        },
+
+        {
+          $sort: {
+            clicks: -1,
+          },
+        },
+      ]);
+
+    // =====================================================
     // RECENT CLICKS
-    // ------------------------------------------------
+    // =====================================================
 
     const recentClicks =
-      await AffiliateClick.find({
-        product: PRODUCT_NAME,
-      })
+      await AffiliateClick.find(
+        productFilter
+      )
         .sort({
           createdAt: -1,
         })
-        .limit(20)
-        .select(
-          "product source device referrer createdAt"
-        )
+        .limit(50)
         .lean();
 
-    // ------------------------------------------------
+    // =====================================================
     // RESPONSE
-    // ------------------------------------------------
+    // =====================================================
 
     return NextResponse.json(
       {
         success: true,
-
-        product: PRODUCT_NAME,
 
         stats: {
           totalClicks,
@@ -256,22 +285,15 @@ export async function GET(request) {
 
         sourceClicks,
 
+        countryClicks,
+
         recentClicks,
       },
-
       {
         status: 200,
-
-        headers: {
-          ...corsHeaders,
-
-          // Prevent browser/proxy caching
-          "Cache-Control":
-            "no-store, no-cache, must-revalidate",
-        },
+        headers: corsHeaders,
       }
     );
-
   } catch (error) {
     console.error(
       "Affiliate stats error:",
@@ -281,15 +303,12 @@ export async function GET(request) {
     return NextResponse.json(
       {
         success: false,
-
         message:
           "Failed to load affiliate statistics",
       },
-
       {
         status: 500,
-
-        headers: corsHeaders,
+        headers: getCorsHeaders(request),
       }
     );
   }

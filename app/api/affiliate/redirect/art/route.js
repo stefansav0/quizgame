@@ -9,37 +9,90 @@ export async function GET(request) {
   try {
     await connectDB();
 
-    const userAgent = request.headers.get("user-agent") || "";
-    const referrer = request.headers.get("referer") || "";
+    const userAgent =
+      request.headers.get("user-agent") || "";
 
-    // Detect device
+    const referrer =
+      request.headers.get("referer") || "";
+
+    // =====================================================
+    // DEVICE
+    // =====================================================
+
     let device = "unknown";
 
     if (/tablet|ipad/i.test(userAgent)) {
       device = "tablet";
-    } else if (/mobile|android|iphone/i.test(userAgent)) {
+    } else if (
+      /mobile|android|iphone/i.test(userAgent)
+    ) {
       device = "mobile";
     } else {
       device = "desktop";
     }
 
-    // Record click
+    // =====================================================
+    // VERCEL GEO INFORMATION
+    // =====================================================
+
+    const country =
+      request.headers.get(
+        "x-vercel-ip-country"
+      ) || "Unknown";
+
+    const countryCode =
+      request.headers.get(
+        "x-vercel-ip-country"
+      ) || "XX";
+
+    const city =
+      request.headers.get(
+        "x-vercel-ip-city"
+      ) || "Unknown";
+
+    // =====================================================
+    // RECORD CLICK
+    // =====================================================
+
     await AffiliateClick.create({
       product: "The Art of Natural Attraction",
+
       source: "homepage-banner",
+
       device,
+
       userAgent,
+
       referrer,
+
+      country,
+
+      countryCode,
+
+      city,
     });
 
-    // Redirect to affiliate page
-    return NextResponse.redirect(AFFILIATE_URL, 302);
+    // =====================================================
+    // REDIRECT
+    // =====================================================
+
+    return NextResponse.redirect(
+      AFFILIATE_URL,
+      302
+    );
 
   } catch (error) {
-    console.error("Affiliate redirect error:", error);
+    console.error(
+      "Affiliate redirect error:",
+      error
+    );
 
-    // Even if tracking fails, don't prevent the visitor
-    // from reaching the affiliate page.
-    return NextResponse.redirect(AFFILIATE_URL, 302);
+    // Tracking failure should never stop
+    // the visitor from reaching the product.
+
+    return NextResponse.redirect(
+      AFFILIATE_URL,
+      302
+    );
   }
 }

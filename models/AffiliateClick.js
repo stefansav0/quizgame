@@ -28,6 +28,20 @@ const AffiliateClickSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    country: {
+  type: String,
+  default: "Unknown",
+},
+
+countryCode: {
+  type: String,
+  default: "XX",
+},
+
+city: {
+  type: String,
+  default: "Unknown",
+},
   },
   {
     timestamps: true,
