@@ -4,8 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 
-const ART_AFFILIATE_LINK =
-  "https://elevenmarketingdigital.com/the-art-of-natural-attraction/#aff=digiravi";
+
 
 const floatAnimation = {
   animate: {
@@ -164,9 +163,10 @@ export default function FloatingLayout({
       >
         {children}
 
-        {/* =========================================================
+       {/* =========================================================
     ART OF NATURAL ATTRACTION BANNER
 ========================================================= */}
+
 <motion.div
   initial={{ opacity: 0, y: 25 }}
   animate={{ opacity: 1, y: 0 }}
@@ -177,7 +177,7 @@ export default function FloatingLayout({
   className="w-full mt-12 sm:mt-16 px-1 sm:px-4"
 >
   <a
-    href={ART_AFFILIATE_LINK}
+    href="/api/affiliate/redirect/art"
     target="_blank"
     rel="nofollow sponsored noopener noreferrer"
     className="group block"
