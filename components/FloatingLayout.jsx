@@ -4,6 +4,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 
+const ART_AFFILIATE_LINK =
+  "https://elevenmarketingdigital.com/the-art-of-natural-attraction/#aff=digiravi";
+
 const floatAnimation = {
   animate: {
     y: [0, -15, 0],
@@ -160,6 +163,95 @@ export default function FloatingLayout({
         "
       >
         {children}
+
+        {/* =========================================================
+    ART OF NATURAL ATTRACTION BANNER
+========================================================= */}
+<motion.div
+  initial={{ opacity: 0, y: 25 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{
+    delay: 0.35,
+    duration: 0.7,
+  }}
+  className="w-full mt-12 sm:mt-16 px-1 sm:px-4"
+>
+  <a
+    href={ART_AFFILIATE_LINK}
+    target="_blank"
+    rel="nofollow sponsored noopener noreferrer"
+    className="group block"
+  >
+    <div
+      className="
+        relative
+        overflow-hidden
+        rounded-3xl
+        bg-white
+        shadow-xl
+        transition-all
+        duration-500
+        hover:-translate-y-1
+        hover:shadow-2xl
+        cursor-pointer
+      "
+    >
+      <Image
+        src="/art.png"
+        alt="The Art of Natural Attraction"
+        width={1774}
+        height={887}
+        className="
+          block
+          w-full
+          h-auto
+          object-cover
+          transition-transform
+          duration-700
+          group-hover:scale-[1.025]
+        "
+        priority
+      />
+
+      {/* Hover CTA */}
+      <div
+        className="
+          absolute
+          inset-0
+          flex
+          items-end
+          justify-center
+          bg-gradient-to-t
+          from-black/45
+          via-transparent
+          to-transparent
+          opacity-0
+          transition-opacity
+          duration-300
+          group-hover:opacity-100
+        "
+      >
+        <span
+          className="
+            mb-5
+            rounded-full
+            bg-white
+            px-6
+            py-3
+            text-sm
+            font-bold
+            text-slate-900
+            shadow-xl
+            sm:px-8
+            sm:py-3.5
+          "
+        >
+          Discover More →
+        </span>
+      </div>
+    </div>
+  </a>
+</motion.div>
 
         {/* Bottom Gallery */}
         <motion.div
