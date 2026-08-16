@@ -4,6 +4,7 @@ import AffiliateClick from "@/models/AffiliateClick";
 
 const ALLOWED_ORIGIN =
   "https://admin.getknowify.com";
+  "http://localhost:3000";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
