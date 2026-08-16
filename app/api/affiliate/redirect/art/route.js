@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import AffiliateClick from "@/models/AffiliateClick";
+import crypto from "crypto";
 
 const AFFILIATE_URL =
   "https://elevenmarketingdigital.com/the-art-of-natural-attraction/#aff=digiravi";
@@ -9,6 +10,18 @@ export async function GET(request) {
   try {
     await connectDB();
 
+    // =====================================================
+    // GENERATE UNIQUE CLICK ID
+    // =====================================================
+
+    const clickId = crypto.randomUUID();
+
+    console.log("🆔 Affiliate Click ID:", clickId);
+
+    // =====================================================
+    // REQUEST INFORMATION
+    // =====================================================
+
     const userAgent =
       request.headers.get("user-agent") || "";
 
@@ -16,7 +29,7 @@ export async function GET(request) {
       request.headers.get("referer") || "";
 
     // =====================================================
-    // DEVICE
+    // DEVICE DETECTION
     // =====================================================
 
     let device = "unknown";
@@ -35,26 +48,24 @@ export async function GET(request) {
     // VERCEL GEO INFORMATION
     // =====================================================
 
-    const country =
-      request.headers.get(
-        "x-vercel-ip-country"
-      ) || "Unknown";
-
     const countryCode =
-      request.headers.get(
-        "x-vercel-ip-country"
-      ) || "XX";
+      request.headers.get("x-vercel-ip-country") || "XX";
+
+    const country =
+      countryCode !== "XX"
+        ? countryCode
+        : "Unknown";
 
     const city =
-      request.headers.get(
-        "x-vercel-ip-city"
-      ) || "Unknown";
+      request.headers.get("x-vercel-ip-city") || "Unknown";
 
     // =====================================================
     // RECORD CLICK
     // =====================================================
 
-    await AffiliateClick.create({
+    const click = await AffiliateClick.create({
+      clickId,
+
       product: "The Art of Natural Attraction",
 
       source: "homepage-banner",
@@ -70,26 +81,83 @@ export async function GET(request) {
       countryCode,
 
       city,
+
+      status: "clicked",
+
+      transactionId: "",
+      orderId: "",
+      productId: "",
+
+      saleAmount: 0,
+      commission: 0,
+
+      currency: "",
+
+      transactionType: "",
+      billingStatus: "",
+      billingType: "",
+      orderType: "",
+
+      affiliateId: "",
+      affiliateName: "",
+
+      isTest: false,
+
+      purchasedAt: null,
     });
+
+    console.log(
+      "✅ Affiliate click saved:",
+      click._id.toString()
+    );
+
+    console.log(
+      "🆔 Click ID:",
+      clickId
+    );
+
+    console.log(
+      "🌍 Country:",
+      countryCode
+    );
+
+    console.log(
+      "📱 Device:",
+      device
+    );
+
+    // =====================================================
+    // ADD CLICK ID TO VENDOR URL
+    // =====================================================
+
+    const redirectUrl = new URL(AFFILIATE_URL);
+
+    redirectUrl.searchParams.set(
+      "cid",
+      clickId
+    );
+
+    console.log(
+      "🔗 Redirect URL:",
+      redirectUrl.toString()
+    );
 
     // =====================================================
     // REDIRECT
     // =====================================================
 
     return NextResponse.redirect(
-      AFFILIATE_URL,
+      redirectUrl.toString(),
       302
     );
 
   } catch (error) {
     console.error(
-      "Affiliate redirect error:",
+      "❌ Affiliate redirect error:",
       error
     );
 
-    // Tracking failure should never stop
-    // the visitor from reaching the product.
-
+    // Fallback: still send visitor to product
     return NextResponse.redirect(
       AFFILIATE_URL,
       302
