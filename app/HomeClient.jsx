@@ -9,6 +9,7 @@ import { PopularQuestions } from "@/components/home/Articles";
 import FAQSection from "@/components/home/FAQSection";
 import Image from "next/image";
 import Link from "next/link";
+import AdBanner from "@/components/ads/AdBanner";
 
 export default function HomeClient() {
   return (
@@ -25,6 +26,8 @@ export default function HomeClient() {
               HERO
               ===================================================== */}
           <HeroSection />
+
+          <AdBanner placement="HOME_TOP" />
 
          {/* =====================================================
     QUIZ CARDS
@@ -169,6 +172,8 @@ export default function HomeClient() {
   </div>
 </section>
 
+<AdBanner placement="HOME_MIDDLE" />
+
           {/* =====================================================
               LATEST BLOGS
               ===================================================== */}
@@ -178,6 +183,8 @@ export default function HomeClient() {
               POPULAR QUESTIONS
               ===================================================== */}
           <PopularQuestions />
+
+          <AdBanner placement="HOME_BOTTOM" />
 
          {/* =====================================================
     ABOUT GETKNOWIFY
