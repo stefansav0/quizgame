@@ -3,7 +3,7 @@ import { connectDB } from "@/lib/mongodb";
 import Ad from "@/models/Ad";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "https://getknowify.com",
+  "Access-Control-Allow-Origin": "https://admin.getknowify.com/",
   "Access-Control-Allow-Methods": "GET, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
 };
