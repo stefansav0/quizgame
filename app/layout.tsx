@@ -6,6 +6,7 @@ import Script from "next/script";
 // @ts-ignore
 import "./globals.css";
 import AnalyticsTracker from "@/components/AnalyticsTracker";
+import EzoicRouteHandler from "@/components/EzoicRouteHandler";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,7 +28,7 @@ export const metadata: Metadata = {
     apple: "/favicon.ico?v=2",
   },
 
-  // ✅ Google AdSense verification
+  // Google AdSense verification
   other: {
     "google-adsense-account": "ca-pub-9348579900264611",
   },
@@ -42,49 +43,57 @@ export default function RootLayout({
     <html lang="en">
       <head>
         {/* =====================================================
+            EZOIC PRIVACY / CONSENT SCRIPTS
+            Must load before Ezoic's main script
+            ===================================================== */}
+
+        <Script
+          id="ezoic-cmp"
+          src="https://cmp.gatekeeperconsent.com/min.js"
+          strategy="beforeInteractive"
+          data-cfasync="false"
+        />
+
+        <Script
+          id="ezoic-cmp-2"
+          src="https://the.gatekeeperconsent.com/cmp.min.js"
+          strategy="beforeInteractive"
+          data-cfasync="false"
+        />
+
+        {/* =====================================================
+            EZOIC HEADER SCRIPT
+            ===================================================== */}
+
+        <Script
+          id="ezoic-sa"
+          src="https://www.ezojs.com/ezoic/sa.min.js"
+          strategy="afterInteractive"
+        />
+
+        {/* Ezoic initialization */}
+        <Script id="ezoic-init" strategy="afterInteractive">
+          {`
+            window.ezstandalone = window.ezstandalone || {};
+            window.ezstandalone.cmd = window.ezstandalone.cmd || [];
+          `}
+        </Script>
+
+        {/* Ezoic Analytics */}
+        <Script
+          id="ezoic-analytics"
+          src="https://ezoicanalytics.com/analytics.js"
+          strategy="afterInteractive"
+        />
+
+        {/* =====================================================
             GOOGLE ADSENSE
             ===================================================== */}
 
-        {/* ✅ AdSense Account Verification Meta Tag */}
         <meta
           name="google-adsense-account"
           content="ca-pub-9348579900264611"
         />
-
-        {/* =====================================================
-            GOOGLE ANALYTICS (GA4)
-            ===================================================== */}
-
-        {/* Replace G-XXXXXXXXXX with your actual GA4 Measurement ID */}
-
-        <Script
-  strategy="afterInteractive"
-  src="https://www.googletagmanager.com/gtag/js?id=G-9YDEEPLCYP"
-/>
-
-<Script
-  id="google-analytics"
-  strategy="afterInteractive"
-  dangerouslySetInnerHTML={{
-    __html: `
-      window.dataLayer = window.dataLayer || [];
-
-      function gtag(){
-        dataLayer.push(arguments);
-      }
-
-      gtag('js', new Date());
-
-      gtag('config', 'G-9YDEEPLCYP', {
-        page_path: window.location.pathname,
-      });
-    `,
-  }}
-/>
-
-        {/* =====================================================
-            GOOGLE ADSENSE SCRIPT
-            ===================================================== */}
 
         <Script
           id="google-adsense"
@@ -93,11 +102,44 @@ export default function RootLayout({
           crossOrigin="anonymous"
           strategy="afterInteractive"
         />
+
+        {/* =====================================================
+            GOOGLE ANALYTICS (GA4)
+            ===================================================== */}
+
+        <Script
+          id="google-analytics-script"
+          strategy="afterInteractive"
+          src="https://www.googletagmanager.com/gtag/js?id=G-9YDEEPLCYP"
+        />
+
+        <Script
+          id="google-analytics"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+
+              function gtag(){
+                dataLayer.push(arguments);
+              }
+
+              gtag('js', new Date());
+
+              gtag('config', 'G-9YDEEPLCYP', {
+                page_path: window.location.pathname,
+              });
+            `,
+          }}
+        />
       </head>
 
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        {/* Ezoic route/navigation handler */}
+        <EzoicRouteHandler />
+
         {/* Header */}
         <Header />
 
@@ -107,7 +149,7 @@ export default function RootLayout({
         {/* Footer */}
         <Footer />
 
-        {/* Analytics Tracker */}
+        {/* Existing Analytics Tracker */}
         <AnalyticsTracker />
       </body>
     </html>
