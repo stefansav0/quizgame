@@ -47,9 +47,7 @@ export default function HomeClient() {
         <div aria-hidden="true" className="pointer-events-none absolute -right-24 top-16 -z-10 h-80 w-80 rounded-full bg-violet-200/50 blur-3xl" />
         <div className="mx-auto max-w-7xl px-4 pb-14 pt-14 text-center sm:px-6 md:pb-20 md:pt-20 lg:px-8">
           <motion.div {...reveal} className="mx-auto max-w-4xl">
-            <span className="inline-flex rounded-full border border-indigo-200 bg-white px-4 py-2 text-xs font-bold text-indigo-700 shadow-sm sm:text-sm">
-              Friendship quizzes & social games
-            </span>
+            
             <h1 className="mt-6 text-4xl font-black tracking-tight text-slate-950 sm:text-5xl md:text-7xl">
               How Well Do You <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">Really Know Me?</span>
             </h1>
