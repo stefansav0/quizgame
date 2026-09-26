@@ -10,9 +10,10 @@ export default function NHIECreatorPage() {
       <div className="mx-auto w-full max-w-6xl px-4 pt-6">
         <Link
           href="/nhie"
-          className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-slate-700 shadow-sm transition hover:border-emerald-300 hover:text-emerald-700"
+          className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-emerald-300 hover:text-emerald-700"
         >
-          ← About Never Have I Ever
+          <span aria-hidden="true">←</span>
+          About Never Have I Ever
         </Link>
       </div>
 

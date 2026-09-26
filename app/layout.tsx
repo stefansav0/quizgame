@@ -1,155 +1,120 @@
+
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
+
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import Script from "next/script";
-// @ts-ignore
-import "./globals.css";
 import AnalyticsTracker from "@/components/AnalyticsTracker";
-import EzoicRouteHandler from "@/components/EzoicRouteHandler";
+
+import "./globals.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
 });
 
+const ADSENSE_ID = "ca-pub-9348579900264611";
+const GA_ID = "G-9YDEEPLCYP";
+
 export const metadata: Metadata = {
-  title: "Getknowify | How Well Do You Know Me?",
+  metadataBase: new URL("https://getknowify.com"),
+
+  title: {
+    default: "GetKnowify | How Well Do You Know Me?",
+    template: "%s | GetKnowify",
+  },
+
   description:
-    "Create custom quizzes and secret letters for your besties and partners. Find out who really knows you best!",
+    "Create custom friendship quizzes, play Never Have I Ever, and send secret letters to your best friends and partners. Discover who knows you best!",
+
+  applicationName: "GetKnowify",
+
   icons: {
     icon: "/favicon.ico?v=2",
     shortcut: "/favicon.ico?v=2",
     apple: "/favicon.ico?v=2",
   },
 
-  // Google AdSense verification
+  openGraph: {
+    type: "website",
+    siteName: "GetKnowify",
+    title: "GetKnowify | How Well Do You Know Me?",
+    description:
+      "Create friendship quizzes, play Never Have I Ever, and share secret letters with your friends.",
+    url: "https://getknowify.com",
+  },
+
+  robots: {
+    index: true,
+    follow: true,
+  },
+
   other: {
-    "google-adsense-account": "ca-pub-9348579900264611",
+    "google-adsense-account": ADSENSE_ID,
   },
 };
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
     <html lang="en">
       <head>
-        {/* =====================================================
-            EZOIC PRIVACY / CONSENT SCRIPTS
-            Must load before Ezoic's main script
-            ===================================================== */}
-
-        <Script
-          id="ezoic-cmp"
-          src="https://cmp.gatekeeperconsent.com/min.js"
-          strategy="beforeInteractive"
-          data-cfasync="false"
-        />
-
-        <Script
-          id="ezoic-cmp-2"
-          src="https://the.gatekeeperconsent.com/cmp.min.js"
-          strategy="beforeInteractive"
-          data-cfasync="false"
-        />
-
-        {/* =====================================================
-            EZOIC HEADER SCRIPT
-            ===================================================== */}
-
-        <Script
-          id="ezoic-sa"
-          src="https://www.ezojs.com/ezoic/sa.min.js"
-          strategy="afterInteractive"
-        />
-
-        {/* Ezoic initialization */}
-        <Script id="ezoic-init" strategy="afterInteractive">
-          {`
-            window.ezstandalone = window.ezstandalone || {};
-            window.ezstandalone.cmd = window.ezstandalone.cmd || [];
-          `}
-        </Script>
-
-        {/* Ezoic Analytics */}
-        <Script
-          id="ezoic-analytics"
-          src="https://ezoicanalytics.com/analytics.js"
-          strategy="afterInteractive"
-        />
-
-        {/* =====================================================
-            GOOGLE ADSENSE
-            ===================================================== */}
-
-        <meta
-          name="google-adsense-account"
-          content="ca-pub-9348579900264611"
-        />
-
+        {/* Google AdSense */}
         <Script
           id="google-adsense"
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9348579900264611"
-          crossOrigin="anonymous"
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_ID}`}
           strategy="afterInteractive"
+          async
+          crossOrigin="anonymous"
         />
 
-        {/* =====================================================
-            GOOGLE ANALYTICS (GA4)
-            ===================================================== */}
-
+        {/* Google Analytics GA4 */}
         <Script
           id="google-analytics-script"
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
           strategy="afterInteractive"
-          src="https://www.googletagmanager.com/gtag/js?id=G-9YDEEPLCYP"
         />
 
         <Script
           id="google-analytics"
           strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
+        >
+          {`
+            window.dataLayer = window.dataLayer || [];
 
-              function gtag(){
-                dataLayer.push(arguments);
-              }
+            function gtag() {
+              dataLayer.push(arguments);
+            }
 
-              gtag('js', new Date());
+            gtag("js", new Date());
 
-              gtag('config', 'G-9YDEEPLCYP', {
-                page_path: window.location.pathname,
-              });
-            `,
-          }}
-        />
+            gtag("config", "${GA_ID}", {
+              page_path: window.location.pathname,
+            });
+          `}
+        </Script>
       </head>
 
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {/* Ezoic route/navigation handler */}
-        <EzoicRouteHandler />
-
-        {/* Header */}
         <Header />
 
-        {/* Main Content */}
-        <main>{children}</main>
+        <main id="main-content">{children}</main>
 
-        {/* Footer */}
         <Footer />
 
-        {/* Existing Analytics Tracker */}
         <AnalyticsTracker />
       </body>
     </html>
