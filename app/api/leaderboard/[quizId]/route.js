@@ -1,41 +1,82 @@
-import { connectDB } from "@/lib/mongodb";
-import Result from "@/models/Result";
 
-export async function GET(req, { params }) {
+import { connectDB } from "@/lib/mongodb";
+import Quiz from "@/models/Quiz";
+import Score from "@/models/Score";
+import mongoose from "mongoose";
+import { NextResponse } from "next/server";
+
+export async function GET(request, { params }) {
   try {
-    // ✅ NEXT.JS 15 FIX: Await the params object before reading properties
-    const resolvedParams = await params;
-    const { quizId } = resolvedParams;
+    const { id } = await params;
+
+    if (!mongoose.isValidObjectId(id)) {
+      return NextResponse.json(
+        { error: "Invalid quiz ID" },
+        { status: 400 }
+      );
+    }
 
     await connectDB();
 
-    const results = await Result
-      .find({ quizId: quizId }) // Use the awaited quizId here
-      .sort({ score: -1 })
+    const quiz = await Quiz.findById(id)
+      .select("questions")
       .lean();
 
-    // 🔥 Format response (clean + safe)
-    const formattedResults = results.map((r) => ({
-      playerName: r.playerName,
-      score: r.score,
-      totalQuestions: r.answers?.length || 0,
+    if (!quiz) {
+      return NextResponse.json(
+        { error: "Quiz not found" },
+        { status: 404 }
+      );
+    }
 
-      // ✅ Full answer breakdown
-      answers: (r.answers || []).map((a) => ({
-        question: a.question,
-        selected: a.selected,
-        correct: a.correct,
-        isCorrect: a.isCorrect,
-      })),
+    const scores = await Score.find({ quizId: id })
+      .sort({ score: -1, createdAt: 1 })
+      .limit(50)
+      .lean();
+
+    const results = scores.map((entry) => ({
+      id: entry._id.toString(),
+      playerName: entry.playerName,
+      score: entry.score,
+      totalQuestions: entry.totalQuestions,
+      percentage: entry.totalQuestions
+        ? Math.round(
+            (entry.score / entry.totalQuestions) * 100
+          )
+        : 0,
+      createdAt: entry.createdAt,
+      answers: (quiz.questions || []).map(
+        (question, index) => {
+          const selectedIndex =
+            entry.selectedAnswers?.[index];
+
+          const validSelection =
+            Number.isInteger(selectedIndex) &&
+            selectedIndex >= 0 &&
+            selectedIndex < question.options.length;
+
+          return {
+            question: question.question,
+            selected: validSelection
+              ? question.options[selectedIndex]
+              : null,
+            correct:
+              question.options[question.correctAnswer] ??
+              null,
+            isCorrect:
+              validSelection &&
+              selectedIndex === question.correctAnswer,
+          };
+        }
+      ),
     }));
 
-    return Response.json(formattedResults);
-
+    return NextResponse.json(results);
   } catch (error) {
     console.error("Leaderboard error:", error);
 
-    return Response.json(
-      { error: "Failed to fetch leaderboard" },
+    return NextResponse.json(
+      { error: "Unable to load leaderboard" },
       { status: 500 }
     );
   }

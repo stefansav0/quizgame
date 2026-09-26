@@ -1,64 +1,138 @@
+
 import { connectDB } from "@/lib/mongodb";
+import Quiz from "@/models/Quiz";
 import Score from "@/models/Score";
+import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 
-// POST: Save a player's score when they finish
 export async function POST(request, { params }) {
   try {
-    await connectDB();
-    
-    // In Next.js 15+, params is a Promise and MUST be awaited!
-    const resolvedParams = await params;
-    const id = resolvedParams.id;
+    const { id } = await params;
 
-    const body = await request.json();
-    
-    // 🐛 DEBUG LOG: This will print in your VS Code terminal!
-    console.log("Data received from frontend:", body);
-
-    // Extract selectedAnswers from the incoming request
-    const { playerName, score, totalQuestions, selectedAnswers } = body;
-
-    if (!playerName) {
-      return NextResponse.json({ error: "Player name is required" }, { status: 400 });
+    if (!mongoose.isValidObjectId(id)) {
+      return NextResponse.json(
+        { error: "Invalid quiz ID" },
+        { status: 400 }
+      );
     }
 
-    const newScore = await Score.create({
-      quizId: id, // Associates this score with the specific quiz
+    const body = await request.json();
+    const playerName =
+      typeof body.playerName === "string"
+        ? body.playerName.trim()
+        : "";
+
+    if (playerName.length < 1 || playerName.length > 40) {
+      return NextResponse.json(
+        { error: "Enter a name between 1 and 40 characters" },
+        { status: 400 }
+      );
+    }
+
+    await connectDB();
+
+    const quiz = await Quiz.findById(id).lean();
+
+    if (!quiz) {
+      return NextResponse.json(
+        { error: "Quiz not found" },
+        { status: 404 }
+      );
+    }
+
+    const questions = quiz.questions || [];
+    const selectedAnswers = body.selectedAnswers;
+
+    if (
+      questions.length === 0 ||
+      !Array.isArray(selectedAnswers) ||
+      selectedAnswers.length !== questions.length
+    ) {
+      return NextResponse.json(
+        { error: "Invalid or incomplete answers" },
+        { status: 400 }
+      );
+    }
+
+    const validAnswers = selectedAnswers.every(
+      (answer, index) =>
+        Number.isInteger(answer) &&
+        answer >= 0 &&
+        answer < questions[index].options.length
+    );
+
+    if (!validAnswers) {
+      return NextResponse.json(
+        { error: "One or more selected answers are invalid" },
+        { status: 400 }
+      );
+    }
+
+    const score = questions.reduce(
+      (total, question, index) =>
+        total +
+        (selectedAnswers[index] === question.correctAnswer
+          ? 1
+          : 0),
+      0
+    );
+
+    const savedScore = await Score.create({
+      quizId: quiz._id,
       playerName,
       score,
-      totalQuestions,
-      // 🚨 CRITICAL: Save the array to the database!
-      selectedAnswers: selectedAnswers || [], 
+      totalQuestions: questions.length,
+      selectedAnswers,
     });
 
-    // 🐛 DEBUG LOG: Check if MongoDB actually saved the array
-    console.log("Data saved to MongoDB:", newScore);
-
-    return NextResponse.json({ success: true }, { status: 201 });
+    return NextResponse.json(
+      {
+        success: true,
+        score: savedScore.score,
+        totalQuestions: savedScore.totalQuestions,
+        scoreId: savedScore._id.toString(),
+      },
+      { status: 201 }
+    );
   } catch (error) {
-    console.error("Score Save Error:", error);
-    return NextResponse.json({ error: "Failed to save score" }, { status: 500 });
+    console.error("Score save error:", error);
+
+    return NextResponse.json(
+      { error: "Unable to save your score" },
+      { status: 500 }
+    );
   }
 }
 
-// GET: Fetch the top scores for the Leaderboard
 export async function GET(request, { params }) {
   try {
+    const { id } = await params;
+
+    if (!mongoose.isValidObjectId(id)) {
+      return NextResponse.json(
+        { error: "Invalid quiz ID" },
+        { status: 400 }
+      );
+    }
+
     await connectDB();
-    
-    // Await params here as well
-    const resolvedParams = await params;
-    const id = resolvedParams.id;
-    
-    // Find all scores for this quiz, sort by highest score first
+
     const scores = await Score.find({ quizId: id })
       .sort({ score: -1, createdAt: 1 })
-      .limit(50);
-      
-    return NextResponse.json({ success: true, scores }, { status: 200 });
+      .limit(50)
+      .select("playerName score totalQuestions createdAt")
+      .lean();
+
+    return NextResponse.json({
+      success: true,
+      scores,
+    });
   } catch (error) {
-    console.error("Leaderboard Fetch Error:", error);
-    return NextResponse.json({ error: "Failed to fetch leaderboard" }, { status: 500 });
+    console.error("Score fetch error:", error);
+
+    return NextResponse.json(
+      { error: "Unable to load leaderboard" },
+      { status: 500 }
+    );
   }
 }

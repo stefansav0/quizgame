@@ -1,27 +1,55 @@
+
 "use client";
+
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { TEMPLATES } from "@/constants/letterData"; 
+import {
+  motion,
+  AnimatePresence,
+  useReducedMotion,
+} from "framer-motion";
+import { TEMPLATES } from "@/constants/letterData";
+
+const TOTAL_STEPS = 4;
 
 const slideVariants = {
   enter: (direction) => ({
-    x: direction > 0 ? 50 : -50,
+    x: direction > 0 ? 35 : -35,
     opacity: 0,
-    scale: 0.95,
   }),
   center: {
-    zIndex: 1,
     x: 0,
     opacity: 1,
-    scale: 1,
   },
   exit: (direction) => ({
-    zIndex: 0,
-    x: direction < 0 ? 50 : -50,
+    x: direction < 0 ? 35 : -35,
     opacity: 0,
-    scale: 0.95,
   }),
 };
+
+const infoCards = [
+  {
+    icon: "💌",
+    title: "About Secret Letters",
+    description:
+      "Sometimes it's easier to put your feelings into words. Write a heartfelt message, an apology, a thank-you note, or a little reminder that someone matters to you.",
+  },
+  {
+    icon: "✨",
+    title: "How It Works",
+    steps: [
+      "Enter your name and the recipient's name.",
+      "Choose a theme or message template.",
+      "Personalize your message.",
+      "Seal your letter and share its link.",
+    ],
+  },
+  {
+    icon: "🔒",
+    title: "Before You Share",
+    description:
+      "Anyone who receives your letter link may be able to open it or forward it. Only include information you're comfortable sharing. You can delete your active letter using the option on its management screen.",
+  },
+];
 
 export default function LetterWizard({
   letterData,
@@ -35,298 +63,785 @@ export default function LetterWizard({
   const [wizardStep, setWizardStep] = useState(0);
   const [direction, setDirection] = useState(1);
 
-  const nextStep = () => {
-    setDirection(1);
-    setWizardStep((prev) => prev + 1);
+  const reduceMotion = useReducedMotion();
+
+  const theme = {
+    text: activeTheme?.text || "from-purple-300 to-pink-300",
+    button:
+      activeTheme?.button ||
+      "from-purple-600 to-pink-600",
+    label: activeTheme?.label || "text-purple-300",
+    border:
+      activeTheme?.border ||
+      "focus:border-purple-400",
   };
 
-  const prevStep = () => {
-    setDirection(-1);
-    setWizardStep((prev) => prev - 1);
-  };
+  const senderName =
+    typeof letterData?.senderName === "string"
+      ? letterData.senderName
+      : "";
 
-  const handleKeyDown = (e, nextAction) => {
-    if (e.key === "Enter" && !e.shiftKey && canProceed()) {
-      e.preventDefault();
-      nextAction();
+  const recipientName =
+    typeof letterData?.recipientName === "string"
+      ? letterData.recipientName
+      : "";
+
+  const message =
+    typeof letterData?.message === "string"
+      ? letterData.message
+      : "";
+
+  const canProceed = () => {
+    switch (wizardStep) {
+      case 0:
+        return senderName.trim().length > 0;
+      case 1:
+        return recipientName.trim().length > 0;
+      case 2:
+        return Boolean(activeTemplate);
+      case 3:
+        return message.trim().length > 0;
+      default:
+        return false;
     }
   };
 
-  const canProceed = () => {
-    if (wizardStep === 0) return letterData.senderName.trim().length > 0;
-    if (wizardStep === 1) return letterData.recipientName.trim().length > 0;
-    if (wizardStep === 2) return activeTemplate !== "";
-    if (wizardStep === 3) return letterData.message.trim().length > 0;
-    return false;
+  const nextStep = () => {
+    if (!canProceed() || wizardStep >= TOTAL_STEPS - 1) {
+      return;
+    }
+
+    setDirection(1);
+    setWizardStep((previous) => previous + 1);
+  };
+
+  const prevStep = () => {
+    if (wizardStep <= 0 || isSubmitting) return;
+
+    setDirection(-1);
+    setWizardStep((previous) => previous - 1);
+  };
+
+  const handleKeyDown = (event) => {
+    if (
+      event.key === "Enter" &&
+      !event.shiftKey &&
+      !event.nativeEvent?.isComposing &&
+      canProceed()
+    ) {
+      event.preventDefault();
+      nextStep();
+    }
+  };
+
+  const handleSubmit = () => {
+    if (!canProceed() || isSubmitting) return;
+
+    handleSealEnvelope();
+  };
+
+  const animationProps = {
+    custom: direction,
+    variants: slideVariants,
+    initial: reduceMotion ? false : "enter",
+    animate: "center",
+    exit: reduceMotion ? undefined : "exit",
+    transition: {
+      duration: reduceMotion ? 0 : 0.3,
+      ease: "easeOut",
+    },
   };
 
   return (
-    <div className="w-full flex flex-col items-center">
-      
-      {/* ==================================== */}
-      {/* THE MAIN WIZARD BOX                  */}
-      {/* ==================================== */}
-      <div className="bg-[#13151f]/80 backdrop-blur-3xl rounded-[2.5rem] shadow-2xl border border-white/10 relative overflow-hidden flex flex-col w-full max-w-4xl mx-auto transition-all duration-500 min-h-[400px]">
-        
-        {/* Progress Bar (Hidden on Step 0) */}
+    <div className="flex w-full min-w-0 flex-col items-center">
+      {/* MAIN WIZARD */}
+      <section
+        aria-label="Create your secret letter"
+        className="
+          relative
+          mx-auto
+          flex
+          min-h-[420px]
+          w-full
+          max-w-4xl
+          flex-col
+          overflow-hidden
+          rounded-[1.75rem]
+          border
+          border-white/10
+          bg-[#13151f]/90
+          shadow-2xl
+          backdrop-blur-xl
+          sm:rounded-[2.5rem]
+        "
+      >
+        {/* Progress bar */}
         {wizardStep > 0 && (
-          <div className="absolute top-0 left-0 h-1 bg-white/10 w-full z-20">
+          <div
+            className="absolute left-0 top-0 z-20 h-1 w-full bg-white/10"
+            role="progressbar"
+            aria-label="Letter creation progress"
+            aria-valuemin={0}
+            aria-valuemax={3}
+            aria-valuenow={wizardStep}
+          >
             <div
-              className={`h-full bg-gradient-to-r ${activeTheme.button} transition-all duration-500`}
-              style={{ width: `${((wizardStep) / 3) * 100}%` }}
+              className={`
+                h-full
+                bg-gradient-to-r
+                transition-all
+                duration-300
+                ${theme.button}
+              `}
+              style={{
+                width: `${(wizardStep / 3) * 100}%`,
+              }}
             />
           </div>
         )}
 
-        <div className="flex-grow relative overflow-y-auto custom-scrollbar">
+        {/* Step content */}
+        <div className="relative flex min-h-[420px] flex-1 flex-col">
           <AnimatePresence mode="wait" custom={direction}>
-            
-            {/* STEP 0: HERO & SENDER NAME (Inside Box) */}
+            {/* STEP 0: INTRODUCTION */}
             {wizardStep === 0 && (
               <motion.div
-                key="step-0"
-                custom={direction}
-                variants={slideVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{ duration: 0.4, ease: "easeOut" }}
-                className="p-8 md:p-12 space-y-10 flex flex-col justify-center min-h-[400px]"
+                key="letter-step-0"
+                {...animationProps}
+                className="
+                  flex
+                  min-h-[420px]
+                  flex-col
+                  justify-center
+                  gap-9
+                  p-6
+                  sm:p-10
+                  md:p-12
+                "
               >
                 <div className="text-center">
-                  <h1 className={`text-5xl md:text-6xl font-black mb-4 bg-gradient-to-r ${activeTheme.text} bg-clip-text text-transparent tracking-tight drop-shadow-lg`}>
+                  <span
+                    className="mb-5 block text-6xl"
+                    aria-hidden="true"
+                  >
+                    💌
+                  </span>
+
+                  <h1
+                    className={`
+                      bg-gradient-to-r
+                      bg-clip-text
+                      text-4xl
+                      font-black
+                      tracking-tight
+                      text-transparent
+                      sm:text-5xl
+                      md:text-6xl
+                      ${theme.text}
+                    `}
+                  >
                     Secret Letters
                   </h1>
-                  <p className="text-lg text-slate-300 font-medium max-w-xl mx-auto">
-                    Seal your unspoken feelings in a digital envelope. A safe, beautiful, and private way to say what's on your mind.
+
+                  <p className="mx-auto mt-5 max-w-xl text-base leading-8 text-slate-300 sm:text-lg">
+                    Some feelings deserve more than a
+                    quick message. Create a thoughtful
+                    digital letter for someone special.
                   </p>
                 </div>
 
-                <div className="max-w-md mx-auto w-full">
-                  <label className={`block text-center text-xs font-bold ${activeTheme.label} mb-4 uppercase tracking-widest`}>
-                    Ready? Enter your name to begin
+                <div className="mx-auto w-full max-w-md">
+                  <label
+                    htmlFor="letter-sender-name"
+                    className={`
+                      mb-3
+                      block
+                      text-center
+                      text-xs
+                      font-extrabold
+                      uppercase
+                      tracking-widest
+                      ${theme.label}
+                    `}
+                  >
+                    First, what's your name?
                   </label>
-                  <div className="relative">
+
+                  <div className="flex flex-col gap-3 sm:relative">
                     <input
+                      id="letter-sender-name"
                       type="text"
                       name="senderName"
-                      placeholder="E.g. Alex ✨"
-                      value={letterData.senderName}
+                      value={senderName}
                       onChange={handleChange}
-                      onKeyDown={(e) => handleKeyDown(e, nextStep)}
-                      className={`w-full bg-black/40 border border-white/10 text-white px-6 py-5 rounded-2xl outline-none ${activeTheme.border} focus:bg-black/60 transition-all text-lg font-medium placeholder:text-slate-600 shadow-inner`}
+                      onKeyDown={handleKeyDown}
+                      placeholder="E.g. Alex"
+                      autoComplete="name"
+                      maxLength={100}
+                      className={`
+                        min-h-14
+                        w-full
+                        rounded-2xl
+                        border
+                        border-white/15
+                        bg-black/40
+                        px-5
+                        py-4
+                        text-base
+                        font-medium
+                        text-white
+                        outline-none
+                        transition
+                        placeholder:text-slate-500
+                        focus:bg-black/60
+                        sm:pr-32
+                        ${theme.border}
+                      `}
                     />
-                    {letterData.senderName.trim() && (
-                      <button
-                        onClick={nextStep}
-                        className={`absolute right-2 top-2 bottom-2 px-6 rounded-xl font-bold bg-gradient-to-r ${activeTheme.button} text-white shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all`}
-                      >
-                        Start →
-                      </button>
-                    )}
+
+                    <button
+                      type="button"
+                      onClick={nextStep}
+                      disabled={!canProceed()}
+                      className={`
+                        min-h-12
+                        rounded-xl
+                        bg-gradient-to-r
+                        px-6
+                        font-extrabold
+                        text-white
+                        transition
+                        disabled:cursor-not-allowed
+                        disabled:opacity-40
+                        sm:absolute
+                        sm:bottom-1
+                        sm:right-1
+                        sm:top-1
+                        ${theme.button}
+                      `}
+                    >
+                      Start →
+                    </button>
                   </div>
                 </div>
               </motion.div>
             )}
 
-            {/* STEP 1: RECIPIENT NAME */}
+            {/* STEP 1: RECIPIENT */}
             {wizardStep === 1 && (
               <motion.div
-                key="step-1"
-                custom={direction}
-                variants={slideVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{ duration: 0.4, ease: "easeOut" }}
-                className="p-6 md:p-10 flex flex-col items-center justify-center min-h-[500px] text-center space-y-8"
+                key="letter-step-1"
+                {...animationProps}
+                className="
+                  flex
+                  min-h-[440px]
+                  flex-col
+                  items-center
+                  justify-center
+                  gap-8
+                  p-6
+                  text-center
+                  sm:p-10
+                "
               >
                 <div>
-                  <span className="text-6xl mb-4 block drop-shadow-xl">💌</span>
-                  <h2 className="text-3xl md:text-4xl font-black text-white mb-3">Who is this letter for?</h2>
-                  <p className="text-slate-400 text-lg">Enter the name of the lucky recipient.</p>
+                  <span
+                    className="mb-4 block text-6xl"
+                    aria-hidden="true"
+                  >
+                    💖
+                  </span>
+
+                  <h2 className="text-3xl font-black text-white sm:text-4xl">
+                    Who is this letter for?
+                  </h2>
+
+                  <p className="mt-4 text-base leading-7 text-slate-400">
+                    Enter the name of the person
+                    receiving your letter.
+                  </p>
                 </div>
 
-                <div className="w-full max-w-md space-y-2 text-left">
-                  <label className={`text-xs font-bold ${activeTheme.label} ml-2 uppercase tracking-widest`}>Recipient's Name</label>
+                <div className="w-full max-w-md text-left">
+                  <label
+                    htmlFor="letter-recipient-name"
+                    className={`
+                      mb-3
+                      block
+                      text-xs
+                      font-extrabold
+                      uppercase
+                      tracking-widest
+                      ${theme.label}
+                    `}
+                  >
+                    Recipient's name
+                  </label>
+
                   <input
+                    id="letter-recipient-name"
                     type="text"
                     name="recipientName"
-                    placeholder="E.g. Sarah 💖"
-                    value={letterData.recipientName}
+                    value={recipientName}
                     onChange={handleChange}
-                    onKeyDown={(e) => handleKeyDown(e, nextStep)}
-                    className={`w-full bg-black/40 border border-white/10 text-white px-6 py-5 rounded-2xl outline-none ${activeTheme.border} focus:bg-black/60 transition-all text-lg font-medium placeholder:text-slate-600 shadow-inner`}
-                    autoFocus
+                    onKeyDown={handleKeyDown}
+                    placeholder="E.g. Sarah"
+                    autoComplete="off"
+                    maxLength={100}
+                    className={`
+                      min-h-14
+                      w-full
+                      rounded-2xl
+                      border
+                      border-white/15
+                      bg-black/40
+                      px-5
+                      py-4
+                      text-base
+                      font-medium
+                      text-white
+                      outline-none
+                      transition
+                      placeholder:text-slate-500
+                      focus:bg-black/60
+                      ${theme.border}
+                    `}
                   />
                 </div>
               </motion.div>
             )}
 
-            {/* STEP 2: VIBE & TEMPLATE */}
+            {/* STEP 2: TEMPLATE */}
             {wizardStep === 2 && (
               <motion.div
-                key="step-2"
-                custom={direction}
-                variants={slideVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{ duration: 0.4, ease: "easeOut" }}
-                className="p-6 md:p-10 flex flex-col min-h-[500px]"
+                key="letter-step-2"
+                {...animationProps}
+                className="
+                  flex
+                  min-h-[440px]
+                  flex-col
+                  p-6
+                  sm:p-10
+                "
               >
-                <div className="text-center mb-8">
-                  <h2 className="text-3xl md:text-4xl font-black text-white mb-3">Pick a Vibe</h2>
-                  <p className="text-slate-400 text-lg">Choose a template to set the tone for your letter.</p>
+                <div className="mb-8 text-center">
+                  <span
+                    className="mb-4 block text-5xl"
+                    aria-hidden="true"
+                  >
+                    ✨
+                  </span>
+
+                  <h2 className="text-3xl font-black text-white sm:text-4xl">
+                    Pick a Vibe
+                  </h2>
+
+                  <p className="mt-4 text-base leading-7 text-slate-400">
+                    Choose a template to set the
+                    tone of your letter.
+                  </p>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 max-w-5xl mx-auto w-full">
-                  {TEMPLATES.map((template) => (
-                    <button
-                      key={template.id}
-                      onClick={() => applyTemplate(template.id, template.theme)}
-                      className={`flex flex-col items-center justify-center p-5 rounded-2xl font-bold transition-all border ${
-                        activeTemplate === template.id
-                          ? `bg-gradient-to-br ${activeTheme.button} border-transparent text-white scale-[1.05] shadow-[0_0_25px_rgba(255,255,255,0.2)] z-10`
-                          : `bg-black/40 border-white/5 text-slate-400 hover:bg-white/10 hover:text-white hover:border-white/20 active:scale-95`
-                      }`}
-                    >
-                      <span className="text-4xl mb-3 drop-shadow-md">{template.icon}</span>
-                      <span className="text-xs tracking-wider uppercase text-center">{template.label}</span>
-                    </button>
-                  ))}
+                <div
+                  className="
+                    mx-auto
+                    grid
+                    w-full
+                    max-w-3xl
+                    grid-cols-2
+                    gap-3
+                    sm:grid-cols-3
+                    lg:grid-cols-4
+                  "
+                  aria-label="Letter templates"
+                >
+                  {TEMPLATES.map((template) => {
+                    const selected =
+                      activeTemplate === template.id;
+
+                    return (
+                      <button
+                        key={template.id}
+                        type="button"
+                        onClick={() =>
+                          applyTemplate(
+                            template.id,
+                            template.theme
+                          )
+                        }
+                        aria-pressed={selected}
+                        className={`
+                          flex
+                          min-h-32
+                          min-w-0
+                          flex-col
+                          items-center
+                          justify-center
+                          gap-3
+                          rounded-2xl
+                          border
+                          p-4
+                          text-center
+                          font-bold
+                          transition-all
+                          focus-visible:outline
+                          focus-visible:outline-2
+                          focus-visible:outline-offset-2
+                          focus-visible:outline-purple-400
+                          ${
+                            selected
+                              ? `border-transparent bg-gradient-to-br text-white shadow-lg ${theme.button}`
+                              : "border-white/10 bg-black/30 text-slate-300 hover:border-white/30 hover:bg-white/10"
+                          }
+                        `}
+                      >
+                        <span
+                          className="text-4xl"
+                          aria-hidden="true"
+                        >
+                          {template.icon}
+                        </span>
+
+                        <span className="break-words text-xs uppercase tracking-wide sm:text-sm">
+                          {template.label}
+                        </span>
+
+                        {selected && (
+                          <span className="text-xs font-semibold text-white/90">
+                            Selected ✓
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               </motion.div>
             )}
 
-            {/* STEP 3: COMPOSE & SEAL */}
+            {/* STEP 3: COMPOSE */}
             {wizardStep === 3 && (
               <motion.div
-                key="step-3"
-                custom={direction}
-                variants={slideVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{ duration: 0.4, ease: "easeOut" }}
-                className="p-6 md:p-10 flex flex-col min-h-[500px]"
+                key="letter-step-3"
+                {...animationProps}
+                className="
+                  flex
+                  min-h-[490px]
+                  flex-col
+                  p-6
+                  sm:p-10
+                "
               >
-                <div className="text-center mb-8">
-                  <h2 className={`text-3xl md:text-4xl font-black mb-3 bg-gradient-to-r ${activeTheme.text} bg-clip-text text-transparent`}>
+                <div className="mb-7 text-center">
+                  <h2
+                    className={`
+                      bg-gradient-to-r
+                      bg-clip-text
+                      text-3xl
+                      font-black
+                      text-transparent
+                      sm:text-4xl
+                      ${theme.text}
+                    `}
+                  >
                     Write Your Heart Out
                   </h2>
-                  <p className="text-slate-400 text-lg">Tweak the generated template or write from scratch.</p>
+
+                  <p className="mt-3 text-base leading-7 text-slate-400">
+                    Personalize your template or
+                    write something entirely your own.
+                  </p>
                 </div>
 
-                <div className="relative group max-w-3xl mx-auto w-full flex-grow flex flex-col">
-                  <div className={`absolute -inset-1 bg-gradient-to-r ${activeTheme.button} rounded-[2rem] blur opacity-20 group-focus-within:opacity-40 transition duration-500`}></div>
-                  <textarea
-                    name="message"
-                    value={letterData.message}
-                    onChange={handleChange}
-                    className={`relative w-full flex-grow min-h-[300px] bg-[#0a0b10]/90 backdrop-blur-md border border-white/10 text-white px-8 py-8 rounded-[1.5rem] outline-none ${activeTheme.border} transition-all text-lg leading-relaxed placeholder:text-slate-600 resize-none shadow-inner custom-scrollbar font-medium`}
+                <div className="relative mx-auto flex w-full max-w-3xl flex-1 flex-col">
+                  <label
+                    htmlFor="letter-message"
+                    className={`
+                      mb-3
+                      text-xs
+                      font-extrabold
+                      uppercase
+                      tracking-widest
+                      ${theme.label}
+                    `}
+                  >
+                    Your message
+                  </label>
+
+                  <div
+                    aria-hidden="true"
+                    className={`
+                      pointer-events-none
+                      absolute
+                      inset-0
+                      rounded-3xl
+                      bg-gradient-to-r
+                      opacity-10
+                      blur-xl
+                      ${theme.button}
+                    `}
                   />
+
+                  <textarea
+                    id="letter-message"
+                    name="message"
+                    value={message}
+                    onChange={handleChange}
+                    placeholder="Dear someone special..."
+                    rows={10}
+                    className={`
+                      relative
+                      min-h-[300px]
+                      w-full
+                      flex-1
+                      resize-y
+                      rounded-3xl
+                      border
+                      border-white/15
+                      bg-[#0a0b10]/95
+                      px-5
+                      py-5
+                      text-base
+                      font-medium
+                      leading-8
+                      text-white
+                      outline-none
+                      transition
+                      placeholder:text-slate-500
+                      sm:px-7
+                      sm:py-7
+                      ${theme.border}
+                    `}
+                  />
+
+                  <p className="relative mt-3 text-right text-xs text-slate-400">
+                    {message.length} characters
+                  </p>
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
 
-        {/* Persistent Navigation Footer (Steps 1, 2, 3) */}
+        {/* PERSISTENT NAVIGATION */}
         {wizardStep > 0 && (
-          <div className="p-6 border-t border-white/10 flex justify-between items-center bg-black/30 backdrop-blur-xl rounded-b-[2.5rem]">
+          <div
+            className="
+              flex
+              flex-wrap
+              items-center
+              justify-between
+              gap-3
+              border-t
+              border-white/10
+              bg-black/30
+              p-4
+              backdrop-blur-lg
+              sm:p-6
+            "
+          >
             <button
+              type="button"
               onClick={prevStep}
-              className="px-6 py-3 font-bold text-slate-300 hover:text-white transition-colors bg-white/5 hover:bg-white/10 rounded-xl flex items-center gap-2"
+              disabled={isSubmitting}
+              className="
+                min-h-12
+                rounded-xl
+                border
+                border-white/10
+                bg-white/5
+                px-5
+                py-3
+                font-bold
+                text-slate-300
+                transition
+                hover:bg-white/10
+                hover:text-white
+                disabled:opacity-50
+              "
             >
               ← Back
             </button>
 
-            {wizardStep < 3 ? (
+            <span className="order-3 w-full text-center text-xs font-semibold text-slate-400 sm:order-none sm:w-auto">
+              Step {wizardStep + 1} of {TOTAL_STEPS}
+            </span>
+
+            {wizardStep < TOTAL_STEPS - 1 ? (
               <button
+                type="button"
                 onClick={nextStep}
                 disabled={!canProceed()}
-                className={`px-8 py-3 rounded-xl font-bold transition-all flex items-center gap-2 ${
-                  canProceed()
-                    ? `bg-gradient-to-r ${activeTheme.button} text-white shadow-lg hover:scale-[1.02] active:scale-[0.98]`
-                    : `bg-white/5 text-slate-500 cursor-not-allowed`
-                }`}
+                className={`
+                  min-h-12
+                  rounded-xl
+                  bg-gradient-to-r
+                  px-6
+                  py-3
+                  font-bold
+                  text-white
+                  transition
+                  hover:brightness-110
+                  disabled:cursor-not-allowed
+                  disabled:opacity-40
+                  ${theme.button}
+                `}
               >
                 Continue →
               </button>
             ) : (
               <button
-                onClick={handleSealEnvelope}
+                type="button"
+                onClick={handleSubmit}
                 disabled={!canProceed() || isSubmitting}
-                className={`px-8 py-4 rounded-xl font-black text-lg transition-all flex items-center gap-2 ${
-                  canProceed() && !isSubmitting
-                    ? `bg-gradient-to-r ${activeTheme.button} text-white shadow-[0_5px_20px_rgba(0,0,0,0.4)] hover:scale-[1.02] active:scale-[0.98]`
-                    : `bg-white/5 text-slate-500 cursor-not-allowed`
-                }`}
+                className={`
+                  min-h-12
+                  rounded-xl
+                  bg-gradient-to-r
+                  px-5
+                  py-3
+                  font-black
+                  text-white
+                  transition
+                  hover:brightness-110
+                  disabled:cursor-not-allowed
+                  disabled:opacity-40
+                  sm:px-7
+                  ${theme.button}
+                `}
               >
-                {isSubmitting ? (
-                  <div className="w-6 h-6 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
-                ) : (
-                  "Seal Envelope 💌"
-                )}
+                {isSubmitting
+                  ? "Sealing..."
+                  : "Seal Envelope 💌"}
               </button>
             )}
           </div>
         )}
-      </div>
+      </section>
 
-      {/* ==================================== */}
-      {/* CONTENT OUTSIDE THE BOX (Step 0 only)*/}
-      {/* ==================================== */}
+      {/* INFORMATION CARDS
+          Visible on the introductory step.
+          Outside the wizard's max-w-4xl container.
+      */}
       <AnimatePresence>
-        {wizardStep === 1, 2,3 && (
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
+        {wizardStep === 0 && (
+          <motion.section
+            key="letter-information"
+            initial={
+              reduceMotion
+                ? false
+                : { opacity: 0, y: 20 }
+            }
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left mt-10 max-w-5xl w-full px-4 pb-12"
+            exit={
+              reduceMotion
+                ? undefined
+                : { opacity: 0, y: -10 }
+            }
+            transition={{
+              duration: reduceMotion ? 0 : 0.35,
+            }}
+            aria-label="About Secret Letters"
+            className="
+              mx-auto
+              mt-10
+              w-full
+              min-w-0
+              max-w-6xl
+              pb-8
+              sm:mt-14
+            "
           >
-            {/* About Box */}
-            <div className="bg-black/20 backdrop-blur-md p-8 rounded-3xl border border-white/10 shadow-xl hover:bg-black/30 transition-colors">
-              <div className="text-3xl mb-4"></div>
-              <h3 className={`font-bold mb-3 text-xl ${activeTheme.label}`}>About</h3>
-              <p className="text-slate-300 leading-relaxed font-medium">
-                Secret Letters is a digital canvas for vulnerability. Whether it's a heartfelt confession, a lingering apology, or just a random reminder of love, we help you find the perfect words to express your true feelings.
-              </p>
-            </div>
+            <div
+              className="
+                grid
+                w-full
+                grid-cols-1
+                gap-5
+                md:grid-cols-3
+                md:gap-6
+              "
+            >
+              {infoCards.map((card) => (
+                <article
+                  key={card.title}
+                  className="
+                    min-w-0
+                    rounded-3xl
+                    border
+                    border-white/10
+                    bg-black/20
+                    p-6
+                    shadow-xl
+                    backdrop-blur-md
+                    transition-colors
+                    hover:bg-black/30
+                    sm:p-7
+                  "
+                >
+                  <span
+                    className="mb-4 block text-3xl"
+                    aria-hidden="true"
+                  >
+                    {card.icon}
+                  </span>
 
-            {/* How to Create Box */}
-            <div className="bg-black/20 backdrop-blur-md p-8 rounded-3xl border border-white/10 shadow-xl hover:bg-black/30 transition-colors">
-              <div className="text-3xl mb-4"></div>
-              <h3 className={`font-bold mb-3 text-xl ${activeTheme.label}`}>How It Works</h3>
-              <ul className="text-slate-300 leading-relaxed space-y-3 font-medium">
-                <li><strong className="text-white">1.</strong> Enter your name & theirs.</li>
-                <li><strong className="text-white">2.</strong> Select a vibe / template.</li>
-                <li><strong className="text-white">3.</strong> Customize your heartfelt message.</li>
-                <li><strong className="text-white">4.</strong> Seal the envelope & share the link!</li>
-              </ul>
-            </div>
+                  <h2
+                    className={`
+                      mb-4
+                      break-words
+                      text-xl
+                      font-black
+                      sm:text-2xl
+                      ${theme.label}
+                    `}
+                  >
+                    {card.title}
+                  </h2>
 
-            {/* FAQ Box */}
-            <div className="bg-black/20 backdrop-blur-md p-8 rounded-3xl border border-white/10 shadow-xl hover:bg-black/30 transition-colors">
-              <div className="text-3xl mb-4"></div>
-              <h3 className={`font-bold mb-3 text-xl ${activeTheme.label}`}>FAQ</h3>
-              <div className="space-y-4 text-slate-300 leading-relaxed font-medium">
-                <p>
-                  <strong className="text-white block mb-1">Are these letters private?</strong> 
-                  Yes. Only the person with the exact unique link can read it.
-                </p>
-                <p>
-                  <strong className="text-white block mb-1">Can I delete it?</strong> 
-                  Absolutely. You have the power to "shred" your active letter directly from this device at any time.
-                </p>
-              </div>
+                  {card.description && (
+                    <p className="break-words text-sm leading-7 text-slate-200 sm:text-base">
+                      {card.description}
+                    </p>
+                  )}
+
+                  {card.steps && (
+                    <ol className="space-y-3">
+                      {card.steps.map((item, index) => (
+                        <li
+                          key={item}
+                          className="flex items-start gap-3 text-sm leading-7 text-slate-200 sm:text-base"
+                        >
+                          <span
+                            className={`
+                              flex
+                              h-7
+                              w-7
+                              shrink-0
+                              items-center
+                              justify-center
+                              rounded-full
+                              bg-white/10
+                              text-xs
+                              font-black
+                              ${theme.label}
+                            `}
+                          >
+                            {index + 1}
+                          </span>
+
+                          <span className="min-w-0 break-words">
+                            {item}
+                          </span>
+                        </li>
+                      ))}
+                    </ol>
+                  )}
+                </article>
+              ))}
             </div>
-          </motion.div>
+          </motion.section>
         )}
       </AnimatePresence>
-
     </div>
   );
 }

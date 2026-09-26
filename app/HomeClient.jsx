@@ -1,317 +1,177 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { containerVariants } from "@/lib/animations";
-import FloatingBackground from "@/components/home/FloatingBackground";
-import HeroSection from "@/components/home/HeroSection";
-import LatestBlogs from "@/components/LatestBlogs";
-import { PopularQuestions } from "@/components/home/Articles";
-import FAQSection from "@/components/home/FAQSection";
-import Image from "next/image";
+import { motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
-import AdBanner from "@/components/ads/AdBanner";
+import LatestBlogs from "@/components/LatestBlogs";
+
+const games = [
+  { emoji: "🧠", title: "Friendship Quiz", description: "Create 10 questions about yourself, choose your answers, and see how well your friends know you.", href: "/create", action: "Create your quiz", accent: "from-indigo-50 to-violet-50", border: "hover:border-indigo-300" },
+  { emoji: "🎉", title: "Never Have I Ever", description: "Discover new stories and start conversations with a classic group game.", href: "/nhie", action: "Play the game", accent: "from-rose-50 to-orange-50", border: "hover:border-rose-300" },
+  { emoji: "💌", title: "Secret Letters", description: "Write a personal message and share it with someone special.", href: "/letter/create", action: "Write a letter", accent: "from-emerald-50 to-teal-50", border: "hover:border-emerald-300" },
+];
+
+const steps = [
+  { number: "01", title: "Create", description: "Enter your name and language. Generate 10 questions, then edit or replace any you like." },
+  { number: "02", title: "Choose answers", description: "Select the correct answer to each question so friends can test how well they know you." },
+  { number: "03", title: "Share", description: "Save your quiz and send its unique link to friends, family or classmates." },
+  { number: "04", title: "See results", description: "Visit your dashboard to see how participants scored." },
+];
+
+const examples = [
+  "What food could I eat every day?",
+  "Which place would I love to visit?",
+  "What always makes me laugh?",
+  "What is my ideal weekend?",
+  "Which hobby do I enjoy most?",
+  "What is a memory we share?",
+];
+
+const faqs = [
+  { question: "How many questions are in a friendship quiz?", answer: "Each GetKnowify friendship quiz contains 10 questions. You can edit or replace questions before saving it." },
+  { question: "Can I change the generated questions?", answer: "Yes. Review the questions, edit their text or answer options, and swap questions using the question bank." },
+  { question: "How do I share my quiz?", answer: "After saving your quiz, copy its unique link and send it to the people you want to challenge." },
+  { question: "Do I need to share personal information?", answer: "No. Use fun topics such as favorites, hobbies and memories. Avoid passwords, private addresses and other sensitive details." },
+];
 
 export default function HomeClient() {
+  const reduceMotion = useReducedMotion();
+  const reveal = reduceMotion
+    ? {}
+    : { initial: { opacity: 0, y: 20 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, amount: 0.15 }, transition: { duration: 0.45 } };
+
   return (
-    <main className="w-full">
-      {/* Main Container */}
-      <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col items-center px-4 sm:px-6 lg:px-8">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="show"
-          className="flex w-full flex-col items-center"
-        >
-          {/* =====================================================
-              HERO
-              ===================================================== */}
-          <HeroSection />
+    <main className="min-h-screen overflow-x-hidden bg-slate-50 text-slate-900">
+      {/* HERO: primary action and a concise introduction */}
+      <section className="relative isolate overflow-hidden bg-gradient-to-b from-indigo-50 via-white to-slate-50">
+        <div aria-hidden="true" className="pointer-events-none absolute -left-32 -top-32 -z-10 h-80 w-80 rounded-full bg-indigo-200/60 blur-3xl" />
+        <div aria-hidden="true" className="pointer-events-none absolute -right-24 top-16 -z-10 h-80 w-80 rounded-full bg-violet-200/50 blur-3xl" />
+        <div className="mx-auto max-w-7xl px-4 pb-14 pt-14 text-center sm:px-6 md:pb-20 md:pt-20 lg:px-8">
+          <motion.div {...reveal} className="mx-auto max-w-4xl">
+            <span className="inline-flex rounded-full border border-indigo-200 bg-white px-4 py-2 text-xs font-bold text-indigo-700 shadow-sm sm:text-sm">
+              Friendship quizzes & social games
+            </span>
+            <h1 className="mt-6 text-4xl font-black tracking-tight text-slate-950 sm:text-5xl md:text-7xl">
+              How Well Do You <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">Really Know Me?</span>
+            </h1>
+            <p className="mx-auto mt-6 max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
+              Create a personalized 10-question quiz, share it with friends, and discover who remembers the little things about you.
+            </p>
+            <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+              <Link href="/create" className="rounded-2xl bg-indigo-600 px-8 py-4 text-base font-bold text-white shadow-lg shadow-indigo-200 transition hover:bg-indigo-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-600">
+                Create Your Quiz →
+              </Link>
+              <Link href="#explore-games" className="rounded-2xl border border-slate-300 bg-white px-8 py-4 text-base font-bold text-slate-800 transition hover:border-indigo-300 hover:bg-indigo-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-600">
+                Explore Games
+              </Link>
+            </div>
+            <p className="mt-5 text-sm text-slate-500">Personalize questions · Share a link · Compare results</p>
+          </motion.div>
+        </div>
+      </section>
 
-          <AdBanner placement="HOME_TOP" />
+      {/* GAMES: now directly after the hero */}
+      <section id="explore-games" aria-labelledby="games-heading" className="scroll-mt-20 border-y border-slate-200 bg-white">
+        <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 md:py-20 lg:px-8">
+          <motion.div {...reveal} className="mx-auto max-w-3xl text-center">
+            <span className="text-sm font-bold uppercase tracking-wider text-indigo-600">Choose your experience</span>
+            <h2 id="games-heading" className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">More Ways to Have Fun</h2>
+            <p className="mt-4 text-base leading-7 text-slate-600">Make a quiz, start a group conversation or send a personal message.</p>
+          </motion.div>
+          <div className="mt-10 grid gap-5 md:grid-cols-3">
+            {games.map((game) => (
+              <Link key={game.href} href={game.href} className={`group flex h-full flex-col rounded-3xl border border-slate-200 bg-gradient-to-br ${game.accent} p-7 shadow-sm transition hover:-translate-y-1 ${game.border} hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-600`}>
+                <span aria-hidden="true" className="text-4xl">{game.emoji}</span>
+                <h3 className="mt-5 text-2xl font-black">{game.title}</h3>
+                <p className="mt-3 flex-1 text-sm leading-7 text-slate-600 sm:text-base">{game.description}</p>
+                <span className="mt-6 inline-flex font-bold text-indigo-700 group-hover:underline">{game.action} →</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
 
-         {/* =====================================================
-    QUIZ CARDS
-    ===================================================== */}
-<section className="w-full py-5 sm:py-7">
-  <div className="mx-auto flex w-full max-w-5xl flex-wrap justify-center gap-4 px-2 sm:gap-5">
-
-    {/* Secret Letter */}
-    <Link
-      href="/letter/create"
-      className="group w-full overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl sm:w-[calc(50%-10px)] lg:w-[300px]"
-    >
-      <div className="flex h-40 items-center justify-center bg-white sm:h-44">
-        <Image
-          src="/ms.png"
-          alt="Secret Letter - Express your feelings anonymously"
-          width={500}
-          height={500}
-          className="h-full w-full object-contain p-2 transition-transform duration-300 group-hover:scale-105"
-        />
-      </div>
-
-      <div className="px-3 pb-4 pt-2 text-center">
-        <h2 className="text-lg font-bold text-gray-900">
-          Secret Letter
-        </h2>
-
-        <p className="mt-1 text-sm leading-5 text-gray-600">
-          Express your feelings With your Loved one.
-        </p>
-      </div>
-    </Link>
-
-
-    {/* Never Have I Ever */}
-    <Link
-      href="/nhie"
-      className="group w-full overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl sm:w-[calc(50%-10px)] lg:w-[300px]"
-    >
-      <div className="flex h-40 items-center justify-center bg-white sm:h-44">
-        <Image
-          src="/never-removebg-preview.png"
-          alt="Never Have I Ever - Test your friendship"
-          width={500}
-          height={500}
-          className="h-full w-full object-contain p-2 transition-transform duration-300 group-hover:scale-105"
-        />
-      </div>
-
-      <div className="px-3 pb-4 pt-2 text-center">
-        <h2 className="text-lg font-bold text-gray-900">
-          Never Have I Ever
-        </h2>
-
-        <p className="mt-1 text-sm leading-5 text-gray-600">
-          Test your friendship with this fun game and see who really knows you.
-        </p>
-      </div>
-    </Link>
-
-
-    {/* BFF Quiz */}
-    <Link
-      href="/bff-quiz"
-      className="group w-full overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl sm:w-[calc(50%-10px)] lg:w-[300px]"
-    >
-      <div className="flex h-40 items-center justify-center bg-white sm:h-44">
-        <Image
-          src="/bff-q.png"
-          alt="BFF Quiz - Find out how well your best friend knows you"
-          width={500}
-          height={500}
-          className="h-full w-full object-contain p-2 transition-transform duration-300 group-hover:scale-105"
-        />
-      </div>
-
-      <div className="px-3 pb-4 pt-2 text-center">
-        <h2 className="text-lg font-bold text-gray-900">
-          BFF Quiz
-        </h2>
-
-        <p className="mt-1 text-sm leading-5 text-gray-600">
-          Find out how well your best friend really knows you.
-        </p>
-      </div>
-    </Link>
-
-
-    {/* Fake Friend Quiz */}
-    <Link
-      href="/fake-friend-quiz"
-      className="group w-full overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl sm:w-[calc(50%-10px)] lg:w-[300px]"
-    >
-      <div className="flex h-40 items-center justify-center bg-white sm:h-44">
-        <Image
-          src="/ffq.png"
-          alt="Fake Friend Quiz - Test your friendship"
-          width={500}
-          height={500}
-          className="h-full w-full object-contain p-2 transition-transform duration-300 group-hover:scale-105"
-        />
-      </div>
-
-      <div className="px-3 pb-4 pt-2 text-center">
-        <h2 className="text-lg font-bold text-gray-900">
-          Fake Friend Quiz
-        </h2>
-
-        <p className="mt-1 text-sm leading-5 text-gray-600">
-          Put your friendship to the test and see who really knows you.
-        </p>
-      </div>
-    </Link>
-
-
-    {/* Best Friend Quiz */}
-    <Link
-      href="/bestfriend-quiz"
-      className="group w-full overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl sm:w-[calc(50%-10px)] lg:w-[300px]"
-    >
-      <div className="flex h-40 items-center justify-center bg-white sm:h-44">
-        <Image
-          src="/best-q.png"
-          alt="Best Friend Quiz - Challenge your best friend"
-          width={500}
-          height={500}
-          className="h-full w-full object-contain p-2 transition-transform duration-300 group-hover:scale-105"
-        />
-      </div>
-
-      <div className="px-3 pb-4 pt-2 text-center">
-        <h2 className="text-lg font-bold text-gray-900">
-          Best Friend Quiz
-        </h2>
-
-        <p className="mt-1 text-sm leading-5 text-gray-600">
-          Challenge your best friend and compare your answers.
-        </p>
-      </div>
-    </Link>
-
-  </div>
-</section>
-
-<AdBanner placement="HOME_MIDDLE" />
-
-          {/* =====================================================
-              LATEST BLOGS
-              ===================================================== */}
-          <LatestBlogs />
-
-          {/* =====================================================
-              POPULAR QUESTIONS
-              ===================================================== */}
-          <PopularQuestions />
-
-          <AdBanner placement="HOME_BOTTOM" />
-
-         {/* =====================================================
-    ABOUT GETKNOWIFY
-    ===================================================== */}
-<section className="w-full py-12">
-  <div className="mx-auto max-w-5xl px-4 sm:px-6">
-
-    <div className="mx-auto max-w-3xl text-center">
-      <h2 className="inline-flex rounded-full bg-pink-50 px-4 py-1.5 text-sm font-semibold text-pink-600">
-        About GetKnowify
-      </h2>
-
-      <p className="mt-4 text-sm leading-6 text-gray-600 sm:text-base">
-        GetKnowify is a fun social quiz platform where you can create a
-        personalized quiz and challenge your friends to see how well they
-        really know you.
-      </p>
-    </div>
-
-  </div>
-</section>
-
-
-{/* =====================================================
-    HOW IT WORKS
-    ===================================================== */}
-<section className="w-full py-12">
-  <div className="mx-auto max-w-6xl px-4 sm:px-6">
-
-    {/* Heading */}
-    <div className="mx-auto max-w-3xl text-center">
-      <span className="text-sm font-bold uppercase tracking-wider text-pink-500">
-        Simple & Fun
-      </span>
-
-      <h2 className="mt-3 text-3xl font-extrabold text-gray-900 sm:text-4xl">
-        How It Works
-      </h2>
-
-      <p className="mt-3 text-sm text-gray-600 sm:text-base">
-        Create your quiz and challenge your friends in four simple steps.
-      </p>
-    </div>
-
-    {/* Steps */}
-    <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-
-      {/* Step 1 */}
-      <div className="rounded-3xl border border-gray-100 bg-white p-6 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-        <span className="mt-4 block text-xs font-bold uppercase tracking-wider text-pink-500">
-          Step 01
-        </span>
-
-        <h3 className="mt-2 text-lg font-bold text-gray-900">
-          Create
-        </h3>
-
-        <p className="mt-2 text-sm leading-6 text-gray-600">
-          Choose questions and create your personalized quiz.
-        </p>
-      </div>
-
-
-      {/* Step 2 */}
-      <div className="rounded-3xl border border-gray-100 bg-white p-6 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-        <span className="mt-4 block text-xs font-bold uppercase tracking-wider text-purple-500">
-          Step 02
-        </span>
-
-        <h3 className="mt-2 text-lg font-bold text-gray-900">
-          Share
-        </h3>
-
-        <p className="mt-2 text-sm leading-6 text-gray-600">
-          Share your unique quiz link with your friends.
-        </p>
-      </div>
-
-
-      {/* Step 3 */}
-      <div className="rounded-3xl border border-gray-100 bg-white p-6 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-        <span className="mt-4 block text-xs font-bold uppercase tracking-wider text-blue-500">
-          Step 03
-        </span>
-
-        <h3 className="mt-2 text-lg font-bold text-gray-900">
-          Challenge
-        </h3>
-
-        <p className="mt-2 text-sm leading-6 text-gray-600">
-          Let your friends answer and guess your choices.
-        </p>
-      </div>
-
-
-      {/* Step 4 */}
-      <div className="rounded-3xl border border-gray-100 bg-white p-6 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-        <span className="mt-4 block text-xs font-bold uppercase tracking-wider text-yellow-500">
-          Step 04
-        </span>
-
-        <h3 className="mt-2 text-lg font-bold text-gray-900">
-          See Results
-        </h3>
-
-        <p className="mt-2 text-sm leading-6 text-gray-600">
-          Compare scores and find out who knows you best.
-        </p>
-      </div>
-
-    </div>
-
-  </div>
-</section>
-
-<FloatingBackground />
-
-
-
-
-          {/* =====================================================
-              FAQ
-              ===================================================== */}
-          <FAQSection />
-
+      {/* HOW IT WORKS */}
+      <section id="how-it-works" aria-labelledby="steps-heading" className="scroll-mt-20 mx-auto max-w-7xl px-4 py-14 sm:px-6 md:py-20 lg:px-8">
+        <motion.div {...reveal} className="mx-auto max-w-3xl text-center">
+          <span className="text-sm font-bold uppercase tracking-wider text-indigo-600">Four simple steps</span>
+          <h2 id="steps-heading" className="mt-3 text-3xl font-black sm:text-4xl">How Your Friendship Quiz Works</h2>
+          <p className="mt-4 text-base leading-7 text-slate-600">You can personalize every question before sharing your quiz.</p>
         </motion.div>
-      </div>
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {steps.map((step) => (
+            <article key={step.number} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+              <span className="text-sm font-black text-indigo-600">{step.number}</span>
+              <h3 className="mt-4 text-xl font-bold">{step.title}</h3>
+              <p className="mt-3 text-sm leading-7 text-slate-600">{step.description}</p>
+            </article>
+          ))}
+        </div>
+        <div className="mt-9 text-center">
+          <Link href="/create" className="inline-flex rounded-2xl bg-indigo-600 px-7 py-3.5 font-bold text-white transition hover:bg-indigo-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-600">Start Creating</Link>
+        </div>
+      </section>
+
+      {/* ABOUT: a concise introduction instead of multiple overlapping sections */}
+      <section aria-labelledby="about-heading" className="border-y border-slate-200 bg-white">
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-14 sm:px-6 md:py-20 lg:grid-cols-2 lg:items-center lg:gap-14 lg:px-8">
+          <motion.div {...reveal}>
+            <span className="text-sm font-bold uppercase tracking-wider text-indigo-600">About GetKnowify</span>
+            <h2 id="about-heading" className="mt-3 text-3xl font-black sm:text-4xl">A Small Quiz, a Big Conversation</h2>
+            <p className="mt-5 text-base leading-8 text-slate-600">GetKnowify turns your interests, preferences and memories into a quiz that friends can play online. Create your own questions, choose the answers and share your unique quiz link.</p>
+            <p className="mt-4 text-base leading-8 text-slate-600">Use it with best friends, family, classmates, your partner or people who live far away. The goal is to spark conversations and enjoy comparing answers.</p>
+          </motion.div>
+          <div className="rounded-3xl border border-indigo-100 bg-indigo-50 p-6 sm:p-8">
+            <h3 className="text-xl font-black">What could you ask?</h3>
+            <ul className="mt-5 grid gap-3 sm:grid-cols-2">
+              {examples.map((example) => (
+                <li key={example} className="rounded-2xl border border-indigo-100 bg-white p-4 text-sm leading-6 text-slate-700">{example}</li>
+              ))}
+            </ul>
+            <p className="mt-5 text-sm leading-6 text-slate-600">Tip: Mix easy favorites with a few shared memories. Avoid sensitive personal information.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* BLOG: retain the existing dynamic component */}
+      <section aria-labelledby="blog-heading" className="mx-auto max-w-7xl px-4 py-14 sm:px-6 md:py-20 lg:px-8">
+        <div className="mx-auto mb-10 max-w-3xl text-center">
+          <span className="text-sm font-bold uppercase tracking-wider text-indigo-600">Helpful guides</span>
+          <h2 id="blog-heading" className="mt-3 text-3xl font-black sm:text-4xl">Friendship, Quiz & Social Game Ideas</h2>
+          <p className="mt-4 text-base leading-7 text-slate-600">Find ideas for better questions, group games and more meaningful conversations.</p>
+        </div>
+        <LatestBlogs />
+      </section>
+
+      {/* FAQ: focused on actual product behavior */}
+      <section id="faq" aria-labelledby="faq-heading" className="scroll-mt-20 border-y border-slate-200 bg-white">
+        <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 md:py-20 lg:px-8">
+          <div className="mx-auto max-w-3xl text-center">
+            <span className="text-sm font-bold uppercase tracking-wider text-indigo-600">FAQ</span>
+            <h2 id="faq-heading" className="mt-3 text-3xl font-black sm:text-4xl">Frequently Asked Questions</h2>
+          </div>
+          <div className="mt-10 grid gap-4 md:grid-cols-2">
+            {faqs.map((faq) => (
+              <article key={faq.question} className="rounded-3xl border border-slate-200 bg-slate-50 p-6">
+                <h3 className="text-lg font-bold">{faq.question}</h3>
+                <p className="mt-3 text-sm leading-7 text-slate-600 sm:text-base">{faq.answer}</p>
+              </article>
+            ))}
+          </div>
+          <p className="mt-8 text-center text-sm leading-7 text-slate-600">For details about how information is handled, read our <Link href="/privacy" className="font-semibold text-indigo-700 underline underline-offset-4 hover:text-indigo-900">Privacy Policy</Link>.</p>
+        </div>
+      </section>
+
+      {/* FINAL CTA */}
+      <section className="px-4 py-14 sm:px-6 md:py-20 lg:px-8">
+        <div className="mx-auto max-w-6xl rounded-[2rem] bg-slate-950 px-6 py-12 text-center shadow-xl sm:px-12 md:py-16">
+          <h2 className="text-3xl font-black text-white sm:text-4xl">Ready to see who knows you best?</h2>
+          <p className="mx-auto mt-4 max-w-2xl text-base leading-8 text-slate-300">Create 10 questions about yourself, share your quiz and see how your friends do.</p>
+          <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
+            <Link href="/create" className="rounded-2xl bg-indigo-500 px-8 py-4 font-bold text-white transition hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">Create Your Quiz</Link>
+            <Link href="#how-it-works" className="rounded-2xl border border-slate-600 px-8 py-4 font-bold text-white transition hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">How It Works</Link>
+          </div>
+        </div>
+      </section>
     </main>
   );
 }
