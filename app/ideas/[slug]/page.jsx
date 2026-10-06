@@ -72,7 +72,7 @@ async function getIdea(slug) {
 
     const blog = data.success ? data.blog : null;
 
-    // Never expose draft/unpublished ideas publicly
+    // Never expose drafts publicly
     if (!blog || blog.status !== "published") {
       return null;
     }
@@ -88,7 +88,10 @@ async function getIdea(slug) {
 // GET RELATED IDEAS
 // ======================================================
 
-async function getRelatedIdeas(currentSlug, currentCategory) {
+async function getRelatedIdeas(
+  currentSlug,
+  currentCategory
+) {
   try {
     const baseUrl =
       process.env.NEXT_PUBLIC_SITE_URL ||
@@ -135,7 +138,11 @@ async function getRelatedIdeas(currentSlug, currentCategory) {
 
     return related;
   } catch (error) {
-    console.error("Failed to fetch related ideas:", error);
+    console.error(
+      "Failed to fetch related ideas:",
+      error
+    );
+
     return [];
   }
 }
@@ -182,9 +189,7 @@ export async function generateMetadata({ params }) {
     openGraph: {
       title: idea.title,
       description,
-
       url: `https://www.getknowify.com/ideas/${idea.slug}`,
-
       siteName: "GetKnowify",
 
       images: [
@@ -215,13 +220,12 @@ export async function generateMetadata({ params }) {
 }
 
 // ======================================================
-// CONTENT RENDERER
+// LEGACY TEXT CONTENT RENDERER
 // ======================================================
 
 const renderContent = (content) => {
   if (!content) return null;
 
-  // Remove empty lines
   const lines = content
     .split("\n")
     .filter((line) => line.trim() !== "");
@@ -229,95 +233,88 @@ const renderContent = (content) => {
   return lines.map((line, index) => {
     const trimmed = line.trim();
 
-    // -----------------------------------------------
-    // Basic inline formatting
-    // -----------------------------------------------
-
     let formattedLine = trimmed
       .replace(
         /\*\*(.*?)\*\*/g,
-        '<strong class="text-slate-900 font-bold">$1</strong>'
+        '<strong>$1</strong>'
       )
       .replace(
         /\[(.*?)\]/g,
-        '<span class="text-emerald-600 font-semibold cursor-pointer hover:underline">$1</span>'
+        '<span>$1</span>'
       );
 
-    // -----------------------------------------------
     // H2
-    // -----------------------------------------------
-
     if (trimmed.startsWith("## ")) {
       return (
         <h2
           key={index}
-          className="text-2xl md:text-3xl font-extrabold mt-12 mb-6 text-slate-900 tracking-tight border-b border-slate-100 pb-3 text-left block"
+          className="idea-fallback-h2"
           dangerouslySetInnerHTML={{
-            __html: formattedLine.replace("## ", ""),
+            __html: formattedLine.replace(
+              "## ",
+              ""
+            ),
           }}
         />
       );
     }
 
-    // -----------------------------------------------
     // H3
-    // -----------------------------------------------
-
     if (trimmed.startsWith("### ")) {
       return (
         <h3
           key={index}
-          className="text-xl font-bold mt-8 mb-5 text-slate-800 text-left block"
+          className="idea-fallback-h3"
           dangerouslySetInnerHTML={{
-            __html: formattedLine.replace("### ", ""),
+            __html: formattedLine.replace(
+              "### ",
+              ""
+            ),
           }}
         />
       );
     }
 
-    // -----------------------------------------------
-    // Bullet list
-    // -----------------------------------------------
-
+    // Bullet
     if (
       trimmed.startsWith("* ") ||
       trimmed.startsWith("- ")
     ) {
       return (
-        <li
+        <div
           key={index}
-          className="ml-6 list-disc mb-3 text-slate-700 text-lg leading-relaxed text-left block"
+          className="idea-fallback-bullet"
           dangerouslySetInnerHTML={{
-            __html: formattedLine.replace(/^(\* |- )/, ""),
+            __html: formattedLine.replace(
+              /^(\* |- )/,
+              ""
+            ),
           }}
         />
       );
     }
 
-    // -----------------------------------------------
-    // Numbered list
-    // -----------------------------------------------
-
+    // Number
     if (/^\d+\.\s/.test(trimmed)) {
       return (
-        <li
+        <div
           key={index}
-          className="ml-6 list-decimal mb-3 text-slate-700 text-lg leading-relaxed text-left block"
+          className="idea-fallback-number"
           dangerouslySetInnerHTML={{
-            __html: formattedLine.replace(/^\d+\.\s/, ""),
+            __html: formattedLine.replace(
+              /^\d+\.\s/,
+              ""
+            ),
           }}
         />
       );
     }
 
-    // -----------------------------------------------
-    // Normal paragraph
-    // -----------------------------------------------
-
+    // Paragraph
     return (
       <p
         key={index}
-        className="mb-8 text-slate-700 leading-relaxed text-lg text-left block"
+        className="idea-fallback-p"
         dangerouslySetInnerHTML={{
           __html: formattedLine,
         }}
@@ -325,6 +322,25 @@ const renderContent = (content) => {
     );
   });
 };
+
+// ======================================================
+// DECODE HTML ENTITIES
+// ======================================================
+
+function decodeHtmlEntities(html) {
+  if (!html) return "";
+
+  return html
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
+    .replace(/&apos;/gi, "'")
+    .replace(/&#x2F;/gi, "/")
+    .replace(/&#47;/gi, "/")
+    .replace(/&#96;/gi, "`")
+    .replace(/&amp;/gi, "&");
+}
 
 // ======================================================
 // MAIN IDEA PAGE
@@ -343,8 +359,8 @@ export default async function IdeaPage({ params }) {
         </h1>
 
         <p className="text-slate-500">
-          The quiz or game idea you are looking for may have been
-          moved or is no longer available.
+          The quiz or game idea you are looking for may
+          have been moved or is no longer available.
         </p>
 
         <Link
@@ -358,7 +374,7 @@ export default async function IdeaPage({ params }) {
   }
 
   // ====================================================
-  // GET RELATED IDEAS
+  // RELATED IDEAS
   // ====================================================
 
   const relatedIdeas = await getRelatedIdeas(
@@ -367,102 +383,21 @@ export default async function IdeaPage({ params }) {
   );
 
   // ====================================================
-  // DATA SANITIZATION
+  // CONTENT
   // ====================================================
 
   let safeContent = idea.content || "";
 
+  safeContent = decodeHtmlEntities(safeContent);
 
   // ====================================================
-// DECODE HTML ENTITIES
-// ====================================================
-
-const decodeHtmlEntities = (html) => {
-  if (!html) return "";
-
-  return html
-    .replace(/&lt;/gi, "<")
-    .replace(/&gt;/gi, ">")
-    .replace(/&quot;/gi, '"')
-    .replace(/&#39;/gi, "'")
-    .replace(/&apos;/gi, "'")
-    .replace(/&amp;/gi, "&")
-    .replace(/&#x2F;/gi, "/")
-    .replace(/&#47;/gi, "/")
-    .replace(/&#96;/gi, "`");
-};
-
-safeContent = decodeHtmlEntities(safeContent);
-
-  // ----------------------------------------------------
-  // Repair AI-hallucinated JSX arrays
-  // ----------------------------------------------------
-
-  safeContent = safeContent.replace(
-    /\{\[\s*([\s\S]*?)\s*\]\.map\([\s\S]*?\)\}/g,
-    (match, arrayInner) => {
-      const strings = [];
-
-      const stringRegex = /"([^"]+)"|'([^']+)'/g;
-
-      let matchItem;
-
-      while (
-        (matchItem = stringRegex.exec(arrayInner)) !== null
-      ) {
-        strings.push(matchItem[1] || matchItem[2]);
-      }
-
-      if (strings.length > 0) {
-        return `
-<ol class="ml-6 list-decimal mb-8">
-${strings
-  .map(
-    (str) =>
-      `<li class="mb-2 text-slate-700">${str}</li>`
-  )
-  .join("\n")}
-</ol>
-`;
-      }
-
-      return match;
-    }
-  );
-
+  // STRUCTURAL HTML DETECTION
   // ====================================================
-  // CHECK FOR STRUCTURAL HTML
-  // ====================================================
-
-  /*
-    Admin articles can contain real HTML such as:
-
-    <p>Paragraph</p>
-    <h2>Heading</h2>
-    <h3>Subheading</h3>
-    <ul>
-      <li>Item</li>
-    </ul>
-
-    If structural HTML exists, render it directly
-    through the styled prose container.
-  */
 
   const hasStructuralHtml =
     /<(p|h1|h2|h3|h4|h5|h6|ul|ol|li|blockquote|table|thead|tbody|tr|th|td|div|section|article|a|strong|em|br)\b[^>]*>/i.test(
       safeContent
     );
-
-  // ====================================================
-  // CONVERT BR TAGS TO NEWLINES
-  // ====================================================
-
-  if (!hasStructuralHtml) {
-    safeContent = safeContent.replace(
-      /<br\s*\/?>/gi,
-      "\n"
-    );
-  }
 
   // ====================================================
   // DESCRIPTION
@@ -475,7 +410,8 @@ ${strings
     "Discover useful quiz and game ideas on GetKnowify.";
 
   const finalDescription =
-    idea.metaDescription || fallbackDescription;
+    idea.metaDescription ||
+    fallbackDescription;
 
   // ====================================================
   // JSON-LD
@@ -542,7 +478,7 @@ ${strings
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-12 relative z-10">
 
-        {/* BACK TO IDEAS */}
+        {/* BACK */}
 
         <nav className="mb-8">
           <Link
@@ -559,9 +495,9 @@ ${strings
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
 
-          {/* ==========================================
-              MAIN CONTENT
-          ========================================== */}
+          {/* ==================================================
+              MAIN ARTICLE
+          ================================================== */}
 
           <div className="lg:col-span-8">
 
@@ -600,7 +536,8 @@ ${strings
                     <div className="text-left">
 
                       <p className="text-base font-bold text-slate-900">
-                        {idea.author || "GetKnowify Team"}
+                        {idea.author ||
+                          "GetKnowify Team"}
                       </p>
 
                       <time className="text-sm text-slate-500 font-medium">
@@ -615,14 +552,7 @@ ${strings
                                 year: "numeric",
                               }
                             )
-                          : new Date().toLocaleDateString(
-                              "en-US",
-                              {
-                                month: "long",
-                                day: "numeric",
-                                year: "numeric",
-                              }
-                            )}
+                          : ""}
                       </time>
 
                     </div>
@@ -645,32 +575,16 @@ ${strings
                   </figure>
                 )}
 
-                {/* CONTENT */}
+                {/* ==================================================
+                    ARTICLE CONTENT
+                ================================================== */}
 
                 <div className="w-full text-left">
 
                   {hasStructuralHtml ? (
 
-                    /*
-                      Real HTML from Admin Dashboard
-                      gets rendered here.
-                    */
-
                     <div
-                      className="
-                        prose prose-slate prose-lg max-w-none
-                        prose-p:mb-8 prose-p:leading-8
-                        prose-headings:text-slate-900
-                        prose-h1:text-5xl prose-h1:font-black
-                        prose-h2:text-3xl prose-h2:font-bold prose-h2:mt-12 prose-h2:mb-6
-                        prose-h3:text-2xl prose-h3:font-semibold
-                        prose-ul:my-6 prose-ol:my-6
-                        prose-li:my-2 prose-li:text-slate-700
-                        prose-a:text-emerald-600 hover:prose-a:text-emerald-700
-                        prose-strong:text-slate-900 prose-strong:font-bold
-                        prose-img:rounded-3xl prose-img:shadow-xl
-                        prose-blockquote:border-emerald-500 prose-blockquote:text-slate-700
-                      "
+                      className="idea-html-content"
                       dangerouslySetInnerHTML={{
                         __html: safeContent,
                       }}
@@ -678,7 +592,7 @@ ${strings
 
                   ) : (
 
-                    <div className="content-wrapper">
+                    <div className="idea-fallback-content">
                       {renderContent(safeContent)}
                     </div>
 
@@ -692,9 +606,9 @@ ${strings
 
           </div>
 
-          {/* ==========================================
+          {/* ==================================================
               RELATED IDEAS
-          ========================================== */}
+          ================================================== */}
 
           <aside className="lg:col-span-4">
 
@@ -801,6 +715,178 @@ ${strings
         </div>
 
       </main>
+
+      {/* ====================================================
+          ARTICLE HTML STYLES
+          No Typography plugin required
+      ==================================================== */}
+
+      <style jsx global>{`
+
+        .idea-html-content {
+          width: 100%;
+          color: #334155;
+          font-size: 1.125rem;
+          line-height: 1.8;
+          text-align: left;
+        }
+
+        .idea-html-content p {
+          display: block;
+          margin: 0 0 1.75rem 0;
+          color: #334155;
+          font-size: 1.125rem;
+          line-height: 1.8;
+        }
+
+        .idea-html-content h2 {
+          display: block;
+          margin: 3rem 0 1.25rem 0;
+          color: #0f172a;
+          font-size: 1.875rem;
+          line-height: 1.3;
+          font-weight: 800;
+          letter-spacing: -0.02em;
+        }
+
+        .idea-html-content h2:first-child {
+          margin-top: 0;
+        }
+
+        .idea-html-content h3 {
+          display: block;
+          margin: 2.5rem 0 1rem 0;
+          color: #1e293b;
+          font-size: 1.5rem;
+          line-height: 1.35;
+          font-weight: 700;
+        }
+
+        .idea-html-content ul {
+          display: block;
+          list-style-type: disc !important;
+          margin: 0 0 2rem 0 !important;
+          padding-left: 2rem !important;
+        }
+
+        .idea-html-content ol {
+          display: block;
+          list-style-type: decimal !important;
+          margin: 0 0 2rem 0 !important;
+          padding-left: 2rem !important;
+        }
+
+        .idea-html-content li {
+          display: list-item !important;
+          margin: 0 0 0.65rem 0;
+          padding-left: 0.25rem;
+          color: #334155;
+          font-size: 1.125rem;
+          line-height: 1.7;
+        }
+
+        .idea-html-content strong {
+          color: #0f172a;
+          font-weight: 700;
+        }
+
+        .idea-html-content em {
+          font-style: italic;
+        }
+
+        .idea-html-content a {
+          color: #059669;
+          font-weight: 600;
+          text-decoration: underline;
+          text-underline-offset: 3px;
+        }
+
+        .idea-html-content a:hover {
+          color: #047857;
+        }
+
+        .idea-html-content blockquote {
+          margin: 2rem 0;
+          padding: 1rem 1.5rem;
+          border-left: 4px solid #10b981;
+          background: #f0fdf4;
+          color: #334155;
+        }
+
+        .idea-html-content img {
+          max-width: 100%;
+          height: auto;
+          border-radius: 1rem;
+          margin: 2rem 0;
+        }
+
+        .idea-html-content br {
+          line-height: 1.8;
+        }
+
+        .idea-fallback-content {
+          color: #334155;
+          font-size: 1.125rem;
+          line-height: 1.8;
+        }
+
+        .idea-fallback-p {
+          margin-bottom: 1.75rem;
+          line-height: 1.8;
+        }
+
+        .idea-fallback-h2 {
+          margin: 3rem 0 1.25rem;
+          font-size: 1.875rem;
+          line-height: 1.3;
+          font-weight: 800;
+          color: #0f172a;
+        }
+
+        .idea-fallback-h3 {
+          margin: 2.5rem 0 1rem;
+          font-size: 1.5rem;
+          line-height: 1.35;
+          font-weight: 700;
+          color: #1e293b;
+        }
+
+        .idea-fallback-bullet {
+          position: relative;
+          margin: 0 0 0.65rem 1.5rem;
+          padding-left: 0.5rem;
+        }
+
+        .idea-fallback-bullet::before {
+          content: "•";
+          position: absolute;
+          left: -1.25rem;
+          font-weight: 700;
+        }
+
+        .idea-fallback-number {
+          margin: 0 0 0.65rem 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+          .idea-html-content,
+          .idea-html-content p,
+          .idea-html-content li {
+            font-size: 1rem;
+            line-height: 1.75;
+          }
+
+          .idea-html-content h2 {
+            font-size: 1.6rem;
+            margin-top: 2.5rem;
+          }
+
+          .idea-html-content h3 {
+            font-size: 1.35rem;
+          }
+        }
+
+      `}</style>
 
     </div>
   );
