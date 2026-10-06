@@ -6,7 +6,6 @@ import Link from "next/link";
 
 export const revalidate = 60;
 
-
 // ======================================================
 // GET ALL PUBLISHED SLUGS
 // ======================================================
@@ -44,7 +43,6 @@ export async function generateStaticParams() {
   }
 }
 
-
 // ======================================================
 // GET SINGLE IDEA
 // ======================================================
@@ -72,13 +70,19 @@ async function getIdea(slug) {
 
     const data = await res.json();
 
-    return data.success ? data.blog : null;
+    const blog = data.success ? data.blog : null;
+
+    // Never expose draft/unpublished ideas publicly
+    if (!blog || blog.status !== "published") {
+      return null;
+    }
+
+    return blog;
   } catch (error) {
     console.error("Failed to fetch idea:", error);
     return null;
   }
 }
-
 
 // ======================================================
 // GET RELATED IDEAS
@@ -135,7 +139,6 @@ async function getRelatedIdeas(currentSlug, currentCategory) {
     return [];
   }
 }
-
 
 // ======================================================
 // DYNAMIC SEO METADATA
@@ -210,7 +213,6 @@ export async function generateMetadata({ params }) {
     },
   };
 }
-
 
 // ======================================================
 // CONTENT RENDERER
@@ -324,7 +326,6 @@ const renderContent = (content) => {
   });
 };
 
-
 // ======================================================
 // MAIN IDEA PAGE
 // ======================================================
@@ -337,7 +338,6 @@ export default async function IdeaPage({ params }) {
   if (!idea) {
     return (
       <div className="min-h-screen bg-slate-50 text-slate-900 flex items-center justify-center flex-col gap-4 px-6 text-center">
-
         <h1 className="text-3xl font-bold text-slate-800">
           Idea not found 😢
         </h1>
@@ -353,7 +353,6 @@ export default async function IdeaPage({ params }) {
         >
           ← Return to Quiz & Game Ideas
         </Link>
-
       </div>
     );
   }
@@ -367,7 +366,6 @@ export default async function IdeaPage({ params }) {
     idea.category
   );
 
-
   // ====================================================
   // DATA SANITIZATION
   // ====================================================
@@ -375,12 +373,33 @@ export default async function IdeaPage({ params }) {
   let safeContent = idea.content || "";
 
 
+  // ====================================================
+// DECODE HTML ENTITIES
+// ====================================================
+
+const decodeHtmlEntities = (html) => {
+  if (!html) return "";
+
+  return html
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
+    .replace(/&apos;/gi, "'")
+    .replace(/&amp;/gi, "&")
+    .replace(/&#x2F;/gi, "/")
+    .replace(/&#47;/gi, "/")
+    .replace(/&#96;/gi, "`");
+};
+
+safeContent = decodeHtmlEntities(safeContent);
+
   // ----------------------------------------------------
   // Repair AI-hallucinated JSX arrays
   // ----------------------------------------------------
 
   safeContent = safeContent.replace(
-    /\{\[\s*([\s\S]*?)\s*\]\.map\([\s\S]*?=>\s*\([\s\S]*?\)\)\}/g,
+    /\{\[\s*([\s\S]*?)\s*\]\.map\([\s\S]*?\)\}/g,
     (match, arrayInner) => {
       const strings = [];
 
@@ -411,16 +430,28 @@ ${strings
     }
   );
 
-
   // ====================================================
   // CHECK FOR STRUCTURAL HTML
   // ====================================================
 
+  /*
+    Admin articles can contain real HTML such as:
+
+    <p>Paragraph</p>
+    <h2>Heading</h2>
+    <h3>Subheading</h3>
+    <ul>
+      <li>Item</li>
+    </ul>
+
+    If structural HTML exists, render it directly
+    through the styled prose container.
+  */
+
   const hasStructuralHtml =
-    /<\/?(p|h[1-6]|div|ul|ol|blockquote|table|section|article)[^>]*>/i.test(
+    /<(p|h1|h2|h3|h4|h5|h6|ul|ol|li|blockquote|table|thead|tbody|tr|th|td|div|section|article|a|strong|em|br)\b[^>]*>/i.test(
       safeContent
     );
-
 
   // ====================================================
   // CONVERT BR TAGS TO NEWLINES
@@ -432,7 +463,6 @@ ${strings
       "\n"
     );
   }
-
 
   // ====================================================
   // DESCRIPTION
@@ -446,7 +476,6 @@ ${strings
 
   const finalDescription =
     idea.metaDescription || fallbackDescription;
-
 
   // ====================================================
   // JSON-LD
@@ -491,7 +520,6 @@ ${strings
     },
   };
 
-
   // ====================================================
   // PAGE
   // ====================================================
@@ -508,18 +536,15 @@ ${strings
         }}
       />
 
-
       {/* BACKGROUND */}
 
       <div className="absolute top-0 left-0 right-0 h-96 bg-white border-b border-slate-200/50 pointer-events-none z-0" />
-
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-12 relative z-10">
 
         {/* BACK TO IDEAS */}
 
         <nav className="mb-8">
-
           <Link
             href="/ideas"
             className="text-emerald-600 text-sm font-bold uppercase tracking-wider hover:text-emerald-700 transition-colors flex items-center gap-2"
@@ -530,9 +555,7 @@ ${strings
 
             Back to Quiz & Game Ideas
           </Link>
-
         </nav>
-
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
 
@@ -552,24 +575,19 @@ ${strings
 
                   {idea.category && (
                     <div className="mb-5 inline-block">
-
                       <span className="px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold uppercase tracking-widest rounded-full border border-emerald-100">
                         {idea.category}
                       </span>
-
                     </div>
                   )}
-
 
                   <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight text-slate-900 tracking-tight text-left">
                     {idea.title}
                   </h1>
 
-
                   <p className="text-lg sm:text-xl text-slate-600 font-medium leading-relaxed mb-8 max-w-3xl text-left">
                     {finalDescription}
                   </p>
-
 
                   {/* AUTHOR */}
 
@@ -586,7 +604,6 @@ ${strings
                       </p>
 
                       <time className="text-sm text-slate-500 font-medium">
-
                         {idea.createdAt
                           ? new Date(
                               idea.createdAt
@@ -606,7 +623,6 @@ ${strings
                                 year: "numeric",
                               }
                             )}
-
                       </time>
 
                     </div>
@@ -614,7 +630,6 @@ ${strings
                   </div>
 
                 </header>
-
 
                 {/* COVER IMAGE */}
 
@@ -630,12 +645,16 @@ ${strings
                   </figure>
                 )}
 
-
                 {/* CONTENT */}
 
                 <div className="w-full text-left">
 
                   {hasStructuralHtml ? (
+
+                    /*
+                      Real HTML from Admin Dashboard
+                      gets rendered here.
+                    */
 
                     <div
                       className="
@@ -645,8 +664,10 @@ ${strings
                         prose-h1:text-5xl prose-h1:font-black
                         prose-h2:text-3xl prose-h2:font-bold prose-h2:mt-12 prose-h2:mb-6
                         prose-h3:text-2xl prose-h3:font-semibold
-                        prose-ul:my-6 prose-li:my-2 prose-li:text-slate-700
+                        prose-ul:my-6 prose-ol:my-6
+                        prose-li:my-2 prose-li:text-slate-700
                         prose-a:text-emerald-600 hover:prose-a:text-emerald-700
+                        prose-strong:text-slate-900 prose-strong:font-bold
                         prose-img:rounded-3xl prose-img:shadow-xl
                         prose-blockquote:border-emerald-500 prose-blockquote:text-slate-700
                       "
@@ -670,7 +691,6 @@ ${strings
             </article>
 
           </div>
-
 
           {/* ==========================================
               RELATED IDEAS
@@ -696,7 +716,6 @@ ${strings
                   </Link>
 
                 </div>
-
 
                 {relatedIdeas &&
                 relatedIdeas.length > 0 ? (
@@ -737,7 +756,6 @@ ${strings
 
                             )}
 
-
                             {relatedIdea.category && (
                               <span className="absolute top-2 left-2 px-2 py-1 bg-white/90 backdrop-blur-sm text-slate-800 text-[9px] font-black uppercase tracking-widest rounded-md shadow-sm">
                                 {relatedIdea.category}
@@ -745,7 +763,6 @@ ${strings
                             )}
 
                           </div>
-
 
                           <div>
 
