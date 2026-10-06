@@ -26,7 +26,7 @@ export default function Header() {
     { name: "Home", path: "/" },
     { name: "Create Quiz", path: "/create" },
     { name: "Never Have I Ever", path: "/nhie" },
-    { name: "Blog", path: "/blog" },
+    { name: "Quiz & Game Ideas", path: "/ideas" },
     { name: "About", path: "/about" },
     { name: "Contact", path: "/contact" },
   ];
@@ -40,18 +40,18 @@ export default function Header() {
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-        
+
         {/* LOGO */}
-<Link href="/" className="shrink-0">
-  <Image
-    src="/favicon.ico" // your logo inside public folder
-    alt="GetKnowify"
-    width={140} // adjust size
-    height={50}
-    priority
-    className="h-12 w-auto object-contain"
-  />
-</Link>
+        <Link href="/" className="shrink-0">
+          <Image
+            src="/favicon.ico"
+            alt="GetKnowify"
+            width={140}
+            height={50}
+            priority
+            className="h-12 w-auto object-contain"
+          />
+        </Link>
 
         {/* DESKTOP NAVIGATION */}
         <nav className="hidden lg:flex items-center gap-8">
@@ -83,9 +83,6 @@ export default function Header() {
 
         {/* RIGHT SIDE */}
         <div className="hidden lg:flex items-center gap-4">
-
-          
-
           <Link
             href="/create"
             className="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-3 rounded-2xl font-bold text-sm transition-all duration-300 shadow-sm hover:shadow-md active:scale-95"
@@ -189,8 +186,8 @@ export default function Header() {
                 {/* TRUST TEXT */}
                 <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4">
                   <p className="text-sm text-slate-600 leading-relaxed">
-                    Create friendship quizzes and fun personality tests to share
-                    with friends and family.
+                    Create friendship quizzes and fun personality tests to
+                    share with friends and family.
                   </p>
                 </div>
               </div>

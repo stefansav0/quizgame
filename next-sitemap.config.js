@@ -53,21 +53,22 @@ module.exports = {
       changefreq = "daily";
     }
 
-    // Blog main page
-    else if (path === "/blog") {
+    // Quiz & Game Ideas main page
+    else if (path === "/ideas") {
       priority = 0.95;
       changefreq = "daily";
     }
 
-    // Blog posts
-    else if (path.startsWith("/blog/")) {
+    // Quiz & Game Ideas articles
+    else if (path.startsWith("/ideas/")) {
       priority = 0.9;
-      changefreq = "daily";
+      changefreq = "weekly";
     }
 
+    // Never Have I Ever pages
     else if (path.startsWith("/nhie/")) {
       priority = 0.9;
-      changefreq = "daily";
+      changefreq = "weekly";
     }
 
     // Quiz pages
@@ -77,7 +78,7 @@ module.exports = {
       path.includes("/best-friend")
     ) {
       priority = 0.9;
-      changefreq = "daily";
+      changefreq = "weekly";
     }
 
     // Important public pages
@@ -103,10 +104,10 @@ module.exports = {
     };
   },
 
-  // Additional static URLs
+  // Additional important static URLs
   additionalPaths: async (config) => [
     await config.transform(config, "/"),
-    await config.transform(config, "/blog"),
+    await config.transform(config, "/ideas"),
     await config.transform(config, "/about"),
     await config.transform(config, "/contact"),
     await config.transform(config, "/privacy"),
