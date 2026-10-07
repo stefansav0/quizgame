@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 
 // ======================================================
 // REVALIDATION
@@ -54,9 +55,7 @@ async function getIdea(slug) {
       "https://www.getknowify.com";
 
     const res = await fetch(`${baseUrl}/api/blogs/${slug}`, {
-      next: {
-        revalidate: 60,
-      },
+      cache: "no-store",
     });
 
     if (!res.ok) {
@@ -156,11 +155,16 @@ export async function generateMetadata({ params }) {
 
   const idea = await getIdea(slug);
 
+  // Draft / missing article
   if (!idea) {
     return {
       title: "Idea Not Found | GetKnowify",
       description:
         "The requested quiz or game idea could not be found.",
+      robots: {
+        index: false,
+        follow: false,
+      },
     };
   }
 
@@ -236,11 +240,11 @@ const renderContent = (content) => {
     let formattedLine = trimmed
       .replace(
         /\*\*(.*?)\*\*/g,
-        '<strong>$1</strong>'
+        "<strong>$1</strong>"
       )
       .replace(
         /\[(.*?)\]/g,
-        '<span>$1</span>'
+        "<span>$1</span>"
       );
 
     // H2
@@ -351,26 +355,13 @@ export default async function IdeaPage({ params }) {
 
   const idea = await getIdea(slug);
 
+  // ====================================================
+  // IMPORTANT:
+  // Drafts and missing articles return a real 404
+  // ====================================================
+
   if (!idea) {
-    return (
-      <div className="min-h-screen bg-slate-50 text-slate-900 flex items-center justify-center flex-col gap-4 px-6 text-center">
-        <h1 className="text-3xl font-bold text-slate-800">
-          Idea not found 😢
-        </h1>
-
-        <p className="text-slate-500">
-          The quiz or game idea you are looking for may
-          have been moved or is no longer available.
-        </p>
-
-        <Link
-          href="/ideas"
-          className="text-emerald-600 font-medium hover:underline"
-        >
-          ← Return to Quiz & Game Ideas
-        </Link>
-      </div>
-    );
+    notFound();
   }
 
   // ====================================================
@@ -715,8 +706,6 @@ export default async function IdeaPage({ params }) {
         </div>
 
       </main>
-
-      
 
     </div>
   );
