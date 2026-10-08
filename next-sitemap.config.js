@@ -1,4 +1,4 @@
-/** @type {import('next-sitemap').IConfig} */
+ /** @type {import('next-sitemap').IConfig} */
 module.exports = {
   // Main Website URL
   siteUrl: "https://www.getknowify.com",
@@ -33,11 +33,7 @@ module.exports = {
       {
         userAgent: "*",
         allow: "/",
-        disallow: [
-          "/api",
-          "/dashboard",
-          "/admin",
-        ],
+        disallow: ["/api", "/dashboard", "/admin"],
       },
     ],
   },
@@ -99,18 +95,80 @@ module.exports = {
       lastmod: config.autoLastmod
         ? new Date().toISOString()
         : undefined,
-
       alternateRefs: config.alternateRefs ?? [],
     };
   },
 
-  // Additional important static URLs
-  additionalPaths: async (config) => [
-    await config.transform(config, "/"),
-    await config.transform(config, "/ideas"),
-    await config.transform(config, "/about"),
-    await config.transform(config, "/contact"),
-    await config.transform(config, "/privacy"),
-    await config.transform(config, "/terms"),
-  ],
+  // Add dynamically generated published Quiz & Game Ideas articles
+  additionalPaths: async (config) => {
+    const staticPaths = [
+      "/",
+      "/ideas",
+      "/about",
+      "/contact",
+      "/privacy",
+      "/terms",
+    ];
+
+    const staticUrls = await Promise.all(
+      staticPaths.map((path) => config.transform(config, path))
+    );
+
+    try {
+      const response = await fetch(
+        "https://www.getknowify.com/api/blogs",
+        {
+          headers: {
+            Accept: "application/json",
+          },
+          cache: "no-store",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          `Blog API returned ${response.status} ${response.statusText}`
+        );
+      }
+
+      const data = await response.json();
+
+      const publishedBlogs = (data.blogs || []).filter(
+        (blog) =>
+          blog.status === "published" &&
+          blog.slug &&
+          typeof blog.slug === "string"
+      );
+
+      const ideaUrls = await Promise.all(
+        publishedBlogs.map(async (blog) => {
+          const path = `/ideas/${blog.slug}`;
+
+          const transformed = await config.transform(config, path);
+
+          return {
+            ...transformed,
+            lastmod:
+              blog.updatedAt ||
+              blog.createdAt ||
+              transformed.lastmod,
+          };
+        })
+      );
+
+      console.log(
+        `next-sitemap: Added ${ideaUrls.length} published Quiz & Game Ideas URLs.`
+      );
+
+      return [...staticUrls, ...ideaUrls];
+    } catch (error) {
+      console.error(
+        "next-sitemap: Failed to load published Quiz & Game Ideas:",
+        error
+      );
+
+      // Keep the build working even if the API is temporarily unavailable.
+      return staticUrls;
+    }
+  },
 };
