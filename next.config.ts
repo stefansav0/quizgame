@@ -16,6 +16,17 @@ const nextConfig: NextConfig = {
 
   async redirects() {
     return [
+
+      {
+      source: "/ideas/10-important-questions-before-making-relationship-official",
+      destination: "/ideas/questions-before-making-relationship-official",
+      permanent: true,
+    },
+    {
+      source: "/ideas/why-friendship-quizzes-are-taking-over-social-media",
+      destination: "/ideas/how-well-do-you-know-me-quiz",
+      permanent: true,
+    },
       // Old blog homepage → New ideas homepage
       {
         source: "/blog",

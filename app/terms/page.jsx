@@ -12,19 +12,23 @@ export const metadata = {
 
 export default function TermsPage() {
   return (
-    <main className="min-h-screen w-full bg-white px-4 py-8 sm:px-6 sm:py-14">
-      <div className="mx-auto w-full max-w-3xl">
+    <main className="min-h-screen w-full bg-white px-4 py-10 sm:px-6 sm:py-16">
+      <div className="mx-auto w-full max-w-4xl">
 
         {/* MAIN CARD */}
         <div
           className="
             rounded-2xl
-            bg-[#f8f7ff]
+            border
+            border-slate-200
+            bg-white
             px-6
             py-8
-            shadow-[0_6px_0_rgba(0,0,0,0.06)]
+            shadow-sm
             sm:px-10
             sm:py-10
+            md:px-12
+            md:py-12
           "
         >
 
@@ -32,51 +36,63 @@ export default function TermsPage() {
           <Link
             href="/"
             className="
-              mb-7
+              mb-8
               inline-flex
               items-center
               text-sm
               font-semibold
-              text-emerald-600
+              text-indigo-600
               transition-colors
-              hover:text-emerald-700
+              hover:text-indigo-800
             "
           >
             ← Back to Home
           </Link>
 
+
           {/* HEADER */}
-          <div className="mb-10 text-center">
-
-            <div className="mb-4 text-6xl sm:text-7xl">
-              📄
-            </div>
-
+          <div
+            className="
+              mb-12
+              border-b
+              border-slate-200
+              pb-8
+              text-center
+            "
+          >
             <h1
               className="
-                text-2xl
-                font-medium
-                uppercase
-                tracking-wide
-                text-[#c47b8c]
-                sm:text-3xl
+                text-3xl
+                font-black
+                tracking-tight
+                text-slate-900
+                sm:text-4xl
               "
             >
               Terms of Service
             </h1>
 
-            <p className="mt-3 text-sm text-gray-500">
-              Last Updated: May 2026
+            <p className="mt-3 text-sm font-medium text-slate-500">
+              Last Updated: October 2026
             </p>
-
           </div>
 
+
           {/* CONTENT */}
-          <div className="space-y-8 text-[15px] leading-7 text-gray-700 sm:text-base sm:leading-8">
+          <div
+            className="
+              space-y-10
+              text-[15px]
+              leading-7
+              text-slate-700
+              sm:text-base
+              sm:leading-8
+            "
+          >
 
             {/* Section 1 */}
             <section>
-              <h2 className="mb-3 text-lg font-bold text-gray-900 sm:text-xl">
+              <h2 className="mb-4 text-xl font-bold text-slate-900 sm:text-2xl">
                 1. Acceptance of Terms
               </h2>
 
@@ -91,21 +107,32 @@ export default function TermsPage() {
 
             {/* Section 2 */}
             <section>
-              <h2 className="mb-3 text-lg font-bold text-gray-900 sm:text-xl">
-                2. Minimum Age Requirement
+              <h2 className="mb-4 text-xl font-bold text-slate-900 sm:text-2xl">
+                2. Eligibility
               </h2>
 
               <p>
-                By using GetKnowify, you confirm that you are at least 13
-                years old or meet the minimum legal age requirement in your
-                country to use online services and social platforms.
+                You must be at least 13 years of age to use the Service. By
+                using the Service, you represent and warrant that you are at
+                least 13 years old.
+              </p>
+
+              <p className="mt-4">
+                If you are under 18, you must have permission from a parent or
+                legal guardian to use the Service. By using the Service, you
+                represent that you have obtained the required permission from
+                your parent or legal guardian.
+              </p>
+
+              <p className="mt-4">
+                If you are under 13 years of age, you may not use GetKnowify.
               </p>
             </section>
 
 
             {/* Section 3 */}
             <section>
-              <h2 className="mb-3 text-lg font-bold text-gray-900 sm:text-xl">
+              <h2 className="mb-4 text-xl font-bold text-slate-900 sm:text-2xl">
                 3. About the Platform
               </h2>
 
@@ -125,8 +152,8 @@ export default function TermsPage() {
 
             {/* Section 4 */}
             <section>
-              <h2 className="mb-3 text-lg font-bold text-gray-900 sm:text-xl">
-                4. User Content & Conduct
+              <h2 className="mb-4 text-xl font-bold text-slate-900 sm:text-2xl">
+                4. User Content &amp; Conduct
               </h2>
 
               <p>
@@ -139,7 +166,7 @@ export default function TermsPage() {
                 You agree not to use GetKnowify to:
               </p>
 
-              <ul className="mt-3 list-disc space-y-2 pl-6">
+              <ul className="mt-4 list-disc space-y-3 pl-6">
                 <li>
                   Share unlawful, harmful, abusive, threatening, hateful,
                   misleading, or inappropriate content.
@@ -175,8 +202,8 @@ export default function TermsPage() {
 
             {/* Section 5 */}
             <section>
-              <h2 className="mb-3 text-lg font-bold text-gray-900 sm:text-xl">
-                5. Public Sharing & Links
+              <h2 className="mb-4 text-xl font-bold text-slate-900 sm:text-2xl">
+                5. Public Sharing &amp; Links
               </h2>
 
               <p>
@@ -188,12 +215,18 @@ export default function TermsPage() {
                 Users should avoid sharing private or highly sensitive
                 information through publicly accessible content.
               </p>
+
+              <p className="mt-4">
+                Users are responsible for deciding what information they
+                include in content that they choose to share publicly or with
+                other people.
+              </p>
             </section>
 
 
             {/* Section 6 */}
             <section>
-              <h2 className="mb-3 text-lg font-bold text-gray-900 sm:text-xl">
+              <h2 className="mb-4 text-xl font-bold text-slate-900 sm:text-2xl">
                 6. Intellectual Property
               </h2>
 
@@ -205,21 +238,22 @@ export default function TermsPage() {
 
               <p className="mt-4">
                 Users retain ownership of the content they create but grant
-                GetKnowify permission to display and process that content as
-                necessary for platform functionality.
+                GetKnowify permission to display, store, process, and transmit
+                that content as necessary to provide and operate the platform
+                and its features.
               </p>
             </section>
 
 
             {/* Section 7 */}
             <section>
-              <h2 className="mb-3 text-lg font-bold text-gray-900 sm:text-xl">
+              <h2 className="mb-4 text-xl font-bold text-slate-900 sm:text-2xl">
                 7. Disclaimer
               </h2>
 
               <p>
-                GetKnowify is provided on an “as available” basis for
-                entertainment and social interaction purposes.
+                GetKnowify is provided on an &ldquo;as available&rdquo; basis
+                for entertainment and social interaction purposes.
               </p>
 
               <p className="mt-4">
@@ -232,23 +266,44 @@ export default function TermsPage() {
 
             {/* Section 8 */}
             <section>
-              <h2 className="mb-3 text-lg font-bold text-gray-900 sm:text-xl">
+              <h2 className="mb-4 text-xl font-bold text-slate-900 sm:text-2xl">
                 8. Limitation of Liability
               </h2>
 
               <p>
-                To the maximum extent permitted by law, GetKnowify shall not
-                be responsible for indirect, incidental, or consequential
-                damages arising from the use of the platform or shared
-                user-generated content.
+                To the maximum extent permitted by applicable law, GetKnowify
+                shall not be responsible for indirect, incidental, special, or
+                consequential damages arising from the use of the platform or
+                shared user-generated content.
               </p>
             </section>
 
 
             {/* Section 9 */}
             <section>
-              <h2 className="mb-3 text-lg font-bold text-gray-900 sm:text-xl">
-                9. Updates to These Terms
+              <h2 className="mb-4 text-xl font-bold text-slate-900 sm:text-2xl">
+                9. Suspension or Termination
+              </h2>
+
+              <p>
+                We may suspend, restrict, or terminate access to GetKnowify if
+                we reasonably believe that a user has violated these Terms of
+                Service, misused the platform, created a security risk, or
+                engaged in unlawful or harmful activity.
+              </p>
+
+              <p className="mt-4">
+                We may also restrict access to content or features when
+                reasonably necessary to protect users, the platform, or the
+                operation of the Service.
+              </p>
+            </section>
+
+
+            {/* Section 10 */}
+            <section>
+              <h2 className="mb-4 text-xl font-bold text-slate-900 sm:text-2xl">
+                10. Updates to These Terms
               </h2>
 
               <p>
@@ -258,16 +313,22 @@ export default function TermsPage() {
               </p>
 
               <p className="mt-4">
-                Continued use of the platform after updates means you accept
-                the revised terms.
+                When updates are made, the revised version will be published
+                on this page with an updated &ldquo;Last Updated&rdquo; date.
+              </p>
+
+              <p className="mt-4">
+                Continued use of the platform after updated terms are
+                published means that you acknowledge and accept the revised
+                terms, to the extent permitted by applicable law.
               </p>
             </section>
 
 
-            {/* Section 10 */}
+            {/* Section 11 */}
             <section>
-              <h2 className="mb-3 text-lg font-bold text-gray-900 sm:text-xl">
-                10. Contact
+              <h2 className="mb-4 text-xl font-bold text-slate-900 sm:text-2xl">
+                11. Contact
               </h2>
 
               <p>
@@ -277,11 +338,11 @@ export default function TermsPage() {
                   href="/contact"
                   className="
                     font-semibold
-                    text-emerald-600
+                    text-indigo-600
                     underline
                     underline-offset-4
                     transition-colors
-                    hover:text-emerald-700
+                    hover:text-indigo-800
                   "
                 >
                   Contact Us
@@ -292,16 +353,16 @@ export default function TermsPage() {
 
           </div>
 
-          {/* BOTTOM */}
-          <div className="mt-10 border-t border-gray-200 pt-6 text-center">
-            <p className="text-xs leading-5 text-gray-500 sm:text-sm">
+
+          {/* BOTTOM NOTE */}
+          <div className="mt-12 border-t border-slate-200 pt-8 text-center">
+            <p className="text-sm leading-6 text-slate-500">
               By using GetKnowify, you acknowledge that you have read and
               understood these Terms of Service.
             </p>
           </div>
 
         </div>
-
       </div>
     </main>
   );

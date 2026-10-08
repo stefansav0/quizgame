@@ -11,13 +11,25 @@ export default function LatestBlogs() {
     const fetchBlogs = async () => {
       try {
         const res = await fetch("/api/blogs");
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch ideas");
+        }
+
         const data = await res.json();
 
-        console.log("Blogs:", data.blogs);
+        console.log("Published ideas:", data.blogs);
 
-        setBlogs((data.blogs || []).slice(0, 6));
+        // Only show published articles.
+        // Draft articles must never appear on the public homepage.
+        const publishedBlogs = (data.blogs || [])
+          .filter((blog) => blog.status === "published")
+          .slice(0, 6);
+
+        setBlogs(publishedBlogs);
       } catch (error) {
-        console.error("Error fetching blogs:", error);
+        console.error("Error fetching quiz & game ideas:", error);
+        setBlogs([]);
       } finally {
         setLoading(false);
       }
@@ -28,38 +40,46 @@ export default function LatestBlogs() {
 
   if (loading) {
     return (
-      <section className="w-full max-w-6xl mx-auto mb-24">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-black">
-            Latest Blogs
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="w-full max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3, 4, 5, 6].map((item) => (
             <div
               key={item}
-              className="h-[420px] rounded-3xl bg-slate-100 animate-pulse"
+              className="h-[420px] rounded-3xl border border-slate-200 bg-slate-100 animate-pulse"
+              aria-hidden="true"
             />
           ))}
         </div>
-      </section>
+      </div>
+    );
+  }
+
+  if (blogs.length === 0) {
+    return (
+      <div className="w-full max-w-6xl mx-auto">
+        <div className="rounded-3xl border border-slate-200 bg-white p-10 text-center">
+          <h3 className="text-xl font-bold text-slate-900">
+            Quiz &amp; Game Ideas
+          </h3>
+
+          <p className="mt-3 text-slate-600">
+            New quiz and game ideas are coming soon.
+          </p>
+
+          <Link
+            href="/ideas"
+            className="mt-6 inline-flex rounded-2xl bg-indigo-600 px-6 py-3 font-bold text-white transition hover:bg-indigo-700"
+          >
+            Explore Ideas →
+          </Link>
+        </div>
+      </div>
     );
   }
 
   return (
-    <section className="w-full max-w-6xl mx-auto mb-24">
-     <div className="text-center mb-12">
-  <h2 className="text-4xl md:text-5xl font-black text-slate-900">
-    Latest Blogs
-  </h2>
-
-  <p className="text-slate-600 mt-4 text-lg">
-    Read the latest articles on friendships, relationships, social games, quizzes, and meaningful conversations.
-  </p>
-</div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <div className="w-full max-w-6xl mx-auto">
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
         {blogs.map((blog) => {
           const image =
             blog.image ||
@@ -68,56 +88,75 @@ export default function LatestBlogs() {
             blog.thumbnail ||
             "https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg";
 
+          const category = blog.category || "Quiz & Game Ideas";
+
+          const formattedDate = blog.createdAt
+            ? new Date(blog.createdAt).toLocaleDateString("en-IN", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+              })
+            : null;
+
           return (
             <Link
-              key={blog._id}
-              href={`/blog/${blog.slug}`}
-              className="group"
+              key={blog._id || blog.slug}
+              href={`/ideas/${blog.slug}`}
+              className="group block h-full"
             >
-              <article className="bg-white rounded-3xl overflow-hidden border border-slate-200 hover:border-indigo-300 hover:shadow-2xl transition-all duration-300 h-full">
-
+              <article className="flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-indigo-300 hover:shadow-xl">
+                {/* IMAGE */}
                 <div className="overflow-hidden">
                   <img
                     src={image}
-                    alt={blog.title}
-                    className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500"
+                    alt={blog.title || "Quiz and game idea"}
+                    className="h-56 w-full object-cover transition-transform duration-500 group-hover:scale-105"
                     loading="lazy"
                   />
                 </div>
 
-                <div className="p-6">
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className="text-xs font-semibold bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full">
-                      Blog
+                {/* CONTENT */}
+                <div className="flex flex-1 flex-col p-6">
+                  {/* CATEGORY + DATE */}
+                  <div className="mb-4 flex flex-wrap items-center gap-3">
+                    <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-600">
+                      {category}
                     </span>
 
-                    {blog.createdAt && (
-                      <span className="text-sm text-slate-500">
-                        {new Date(blog.createdAt).toLocaleDateString()}
+                    {formattedDate && (
+                      <span className="text-xs text-slate-500">
+                        {formattedDate}
                       </span>
                     )}
                   </div>
 
-                  <h3 className="text-xl font-bold text-slate-900 mb-3 line-clamp-2">
+                  {/* TITLE */}
+                  <h3 className="mb-3 line-clamp-2 text-xl font-bold leading-7 text-slate-900 transition-colors group-hover:text-indigo-700">
                     {blog.title}
                   </h3>
 
-                  <p className="text-slate-600 line-clamp-3 mb-5">
+                  {/* DESCRIPTION */}
+                  <p className="mb-6 line-clamp-3 text-sm leading-7 text-slate-600">
                     {blog.excerpt ||
                       blog.description ||
-                      "Read this detailed friendship quiz guide."}
+                      "Explore this useful quiz or game idea from the GetKnowify Team."}
                   </p>
 
-                  <span className="text-indigo-600 font-semibold">
-                    Read More →
-                  </span>
+                  {/* READ MORE */}
+                  <div className="mt-auto">
+                    <span className="inline-flex items-center font-semibold text-indigo-600 transition group-hover:gap-2 group-hover:text-indigo-700">
+                      Read the idea
+                      <span className="ml-1 transition-transform group-hover:translate-x-1">
+                        →
+                      </span>
+                    </span>
+                  </div>
                 </div>
-
               </article>
             </Link>
           );
         })}
       </div>
-    </section>
+    </div>
   );
 }
