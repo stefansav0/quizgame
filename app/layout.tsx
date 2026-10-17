@@ -69,46 +69,36 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        {/* Google AdSense */}
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        {/* Load Google AdSense after the page becomes interactive. */}
         <Script
           id="google-adsense"
           src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_ID}`}
           strategy="afterInteractive"
-          async
           crossOrigin="anonymous"
         />
 
-        {/* Google Analytics GA4 */}
+        {/* Load GA4 without blocking initial HTML rendering. */}
         <Script
-          id="google-analytics-script"
+          id="google-analytics"
           src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
           strategy="afterInteractive"
         />
 
-        <Script
-          id="google-analytics"
-          strategy="afterInteractive"
-        >
+        <Script id="google-analytics-init" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
+            window.gtag = window.gtag || function() {
+              window.dataLayer.push(arguments);
+            };
 
-            function gtag() {
-              dataLayer.push(arguments);
-            }
-
-            gtag("js", new Date());
-
-            gtag("config", "${GA_ID}", {
-              page_path: window.location.pathname,
-            });
+            window.gtag("js", new Date());
+            window.gtag("config", "${GA_ID}");
           `}
         </Script>
-      </head>
 
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
         <Header />
 
         <main id="main-content">{children}</main>

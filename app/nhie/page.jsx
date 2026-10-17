@@ -1,17 +1,77 @@
-
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
 import NHIECreatorPage from "./NHIECreatorPage";
 
+// ======================================================
+// SITE CONFIG
+// ======================================================
+
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://www.getknowify.com";
+
+const PAGE_URL = `${SITE_URL}/nhie`;
+
+// ======================================================
+// SEO METADATA
+// ======================================================
+
 export const metadata = {
   title: "Never Have I Ever Online | GetKnowify",
   description:
-    "Create a 10-question Never Have I Ever challenge, share it with your friends and discover who knows you best.",
+    "Create a 10-question Never Have I Ever challenge, share it with your friends, and discover who knows you best. Free, no sign-up required.",
+  keywords: [
+    "never have I ever",
+    "never have I ever online",
+    "never have I ever game",
+    "friendship quiz",
+    "online party game",
+    "question game for friends",
+    "who knows me best",
+  ],
   alternates: {
-    canonical: "https://getknowify.com/nhie",
+    canonical: PAGE_URL,
+  },
+  openGraph: {
+    title: "Never Have I Ever Online | GetKnowify",
+    description:
+      "Create a 10-question Never Have I Ever challenge and share it with your friends. Discover who knows you best.",
+    url: PAGE_URL,
+    siteName: "GetKnowify",
+    images: [
+      {
+        url: `${SITE_URL}/never-removebg-preview.png`,
+        width: 1200,
+        height: 630,
+        alt: "Never Have I Ever online game",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Never Have I Ever Online | GetKnowify",
+    description:
+      "Create a 10-question Never Have I Ever challenge and share it with your friends.",
+    images: [`${SITE_URL}/never-removebg-preview.png`],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
 };
+
+// ======================================================
+// CONTENT DATA
+// ======================================================
 
 const steps = [
   {
@@ -41,38 +101,32 @@ const examples = [
   {
     icon: "😂",
     category: "Funny moments",
-    question:
-      "Never have I ever laughed so hard that I cried.",
+    question: "Never have I ever laughed so hard that I cried.",
   },
   {
     icon: "📱",
     category: "Social media",
-    question:
-      "Never have I ever accidentally liked an old social media post.",
+    question: "Never have I ever accidentally liked an old social media post.",
   },
   {
     icon: "🍕",
     category: "Food",
-    question:
-      "Never have I ever eaten an entire pizza by myself.",
+    question: "Never have I ever eaten an entire pizza by myself.",
   },
   {
     icon: "🎤",
     category: "Embarrassing moments",
-    question:
-      "Never have I ever sung in public.",
+    question: "Never have I ever sung in public.",
   },
   {
     icon: "✈️",
     category: "Travel",
-    question:
-      "Never have I ever missed a train or flight.",
+    question: "Never have I ever missed a train or flight.",
   },
   {
     icon: "💬",
     category: "Friendship",
-    question:
-      "Never have I ever sent a message to the wrong person.",
+    question: "Never have I ever sent a message to the wrong person.",
   },
 ];
 
@@ -107,40 +161,45 @@ const faqs = [
   {
     question: "What is Never Have I Ever?",
     answer:
-      "Never Have I Ever is a social game where people respond to statements about experiences they may or may not have had.",
+      "Never Have I Ever is a social game where people respond to statements about experiences they may or may not have had. It is commonly played in groups as a way to share stories and learn more about each other.",
   },
   {
     question: "How does the online version work?",
     answer:
-      "You answer ten questions about yourself, create a game link and share it with friends. They try to guess your answers and earn points for correct guesses.",
+      "You answer ten questions about yourself, create a game link, and share it with friends. They try to guess your answers and earn a point for each correct guess.",
   },
   {
     question: "Can I play with friends in another city?",
     answer:
-      "Yes. You can share your game link through a messaging app so friends can participate from their own devices.",
+      "Yes. You can share your game link through any messaging app, so friends can participate from their own devices regardless of where they are.",
   },
   {
     question: "Can I choose different questions?",
     answer:
-      "The creator includes a question bank that lets you replace questions while setting up your challenge.",
+      "The creator includes a question bank that lets you browse and pick from a set of statements while setting up your challenge.",
   },
   {
     question: "Can I create another game?",
     answer:
-      "You can create another game after deleting your current challenge using the option on your share screen.",
+      "Yes. You can delete your current challenge from the share screen and then create a new one.",
   },
   {
     question: "Are my answers private?",
     answer:
-      "Only include information you're comfortable sharing. A game link may be forwarded to other people, so avoid sensitive personal information.",
+      "Your game is not listed publicly and is not password protected. Anyone who obtains the game link may be able to open it or forward it to others. Only include information you are comfortable sharing, and avoid sensitive personal details such as passwords, financial information, or government ID numbers.",
+  },
+  {
+    question: "Is Never Have I Ever free to play?",
+    answer:
+      "Yes. Creating a challenge, sharing it, and playing with friends is completely free. The site is supported by advertising.",
   },
 ];
 
-function SectionHeading({
-  eyebrow,
-  title,
-  description,
-}) {
+// ======================================================
+// SMALL UI COMPONENTS
+// ======================================================
+
+function SectionHeading({ eyebrow, title, description }) {
   return (
     <div className="mx-auto mb-10 max-w-2xl text-center">
       <span className="inline-block rounded-full bg-emerald-50 px-4 py-1.5 text-xs font-extrabold uppercase tracking-widest text-emerald-700">
@@ -152,18 +211,13 @@ function SectionHeading({
       </h2>
 
       {description && (
-        <p className="mt-4 leading-7 text-slate-600">
-          {description}
-        </p>
+        <p className="mt-4 leading-7 text-slate-600">{description}</p>
       )}
     </div>
   );
 }
 
-function CreateButton({
-  children = "Create Your Game →",
-  light = false,
-}) {
+function CreateButton({ children = "Create Your Game →", light = false }) {
   return (
     <Link
       href="/nhie?create=1"
@@ -178,9 +232,73 @@ function CreateButton({
   );
 }
 
+// ======================================================
+// STRUCTURED DATA (JSON-LD)
+// ======================================================
+
+function StructuredData() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": `${PAGE_URL}/#webpage`,
+        url: PAGE_URL,
+        name: "Never Have I Ever Online | GetKnowify",
+        description:
+          "Create a 10-question Never Have I Ever challenge, share it with your friends, and discover who knows you best.",
+        inLanguage: "en-US",
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": `${PAGE_URL}/#breadcrumb`,
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: SITE_URL,
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Never Have I Ever Online",
+            item: PAGE_URL,
+          },
+        ],
+      },
+      {
+        "@type": "FAQPage",
+        "@id": `${PAGE_URL}/#faq`,
+        mainEntity: faqs.map((faq) => ({
+          "@type": "Question",
+          name: faq.question,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: faq.answer,
+          },
+        })),
+      },
+    ],
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
+  );
+}
+
+// ======================================================
+// LANDING PAGE
+// ======================================================
+
 function NHIELanding() {
   return (
     <main className="min-h-screen overflow-hidden bg-slate-50 text-slate-900">
+      <StructuredData />
+
       {/* HERO */}
       <section className="relative overflow-hidden bg-gradient-to-b from-emerald-50 via-white to-slate-50">
         <div
@@ -201,17 +319,13 @@ function NHIELanding() {
 
             <h1 className="mt-6 text-4xl font-black leading-tight tracking-tight sm:text-5xl lg:text-6xl">
               Never Have I Ever
-              <span className="mt-2 block text-emerald-600">
-                Online
-              </span>
+              <span className="mt-2 block text-emerald-600">Online</span>
             </h1>
 
             <p className="mx-auto mt-6 max-w-xl text-base leading-8 text-slate-600 sm:text-lg lg:mx-0">
-              Think your friends know everything
-              about you? Create a fun 10-question
-              challenge, share it with your group,
-              and discover who can guess your
-              experiences correctly.
+              Think your friends know everything about you? Create a fun
+              10-question challenge, share it with your group, and discover who
+              can guess your experiences correctly.
             </p>
 
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
@@ -239,10 +353,11 @@ function NHIELanding() {
             <div className="relative rounded-[2rem] border border-emerald-100 bg-white/90 p-8 shadow-xl shadow-emerald-900/5 sm:p-12">
               <Image
                 src="/never-removebg-preview.png"
-                alt="Never Have I Ever game"
+                alt="Never Have I Ever online game illustration"
                 width={420}
                 height={420}
                 priority
+                sizes="(max-width: 768px) 80vw, 320px"
                 className="mx-auto h-auto w-full max-w-[320px] object-contain"
               />
 
@@ -278,7 +393,10 @@ function NHIELanding() {
                 key={item.number}
                 className="relative rounded-3xl border border-slate-200 bg-white p-7 shadow-sm"
               >
-                <span className="absolute right-6 top-6 text-4xl font-black text-emerald-100">
+                <span
+                  aria-hidden="true"
+                  className="absolute right-6 top-6 text-4xl font-black text-emerald-100"
+                >
                   {item.number}
                 </span>
 
@@ -286,9 +404,7 @@ function NHIELanding() {
                   {item.icon}
                 </div>
 
-                <h3 className="mb-3 text-xl font-black">
-                  {item.title}
-                </h3>
+                <h3 className="mb-3 text-xl font-black">{item.title}</h3>
 
                 <p className="text-sm leading-7 text-slate-600">
                   {item.description}
@@ -312,28 +428,21 @@ function NHIELanding() {
             </h2>
 
             <p className="mt-5 leading-8 text-slate-600">
-              Never Have I Ever is a classic social
-              game where people respond to
-              statements about experiences they
-              may or may not have had. It often
-              leads to funny stories, surprising
-              discoveries, and memorable
-              conversations.
+              Never Have I Ever is a classic social game where people respond
+              to statements about experiences they may or may not have had. It
+              often leads to funny stories, surprising discoveries, and
+              memorable conversations.
             </p>
 
             <p className="mt-4 leading-8 text-slate-600">
-              On GetKnowify, you create a challenge
-              by answering ten questions about
-              yourself. Your friends then try to
-              guess your answers. Each correct
-              guess earns them a point.
+              On GetKnowify, you create a challenge by answering ten questions
+              about yourself. Your friends then try to guess your answers. Each
+              correct guess earns them a point.
             </p>
 
             <p className="mt-4 leading-8 text-slate-600">
-              You can use it to reconnect with old
-              friends, entertain your group chat,
-              or find out who remembers your
-              funniest experiences.
+              You can use it to reconnect with old friends, entertain your
+              group chat, or find out who remembers your funniest experiences.
             </p>
           </div>
 
@@ -344,13 +453,12 @@ function NHIELanding() {
               </p>
 
               <h3 className="mt-4 text-xl font-black leading-relaxed">
-                Never have I ever fallen asleep
-                during a movie.
+                Never have I ever fallen asleep during a movie.
               </h3>
 
               <div className="mt-6 grid grid-cols-2 gap-3">
                 <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-center">
-                  <span className="block text-2xl">
+                  <span className="block text-2xl" aria-hidden="true">
                     🙋
                   </span>
                   <span className="mt-2 block font-bold text-emerald-800">
@@ -359,7 +467,7 @@ function NHIELanding() {
                 </div>
 
                 <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-center">
-                  <span className="block text-2xl">
+                  <span className="block text-2xl" aria-hidden="true">
                     🙅
                   </span>
                   <span className="mt-2 block font-bold text-slate-700">
@@ -407,14 +515,11 @@ function NHIELanding() {
           </div>
 
           <p className="mt-6 text-center text-sm text-slate-500">
-            These are examples. Your generated
-            questions may be different.
+            These are examples. Your generated questions may be different.
           </p>
 
           <div className="mt-8 text-center">
-            <CreateButton>
-              Create My Game →
-            </CreateButton>
+            <CreateButton>Create My Game →</CreateButton>
           </div>
         </div>
       </section>
@@ -434,16 +539,11 @@ function NHIELanding() {
                 key={item.title}
                 className="rounded-3xl border border-slate-200 bg-slate-50 p-6"
               >
-                <span
-                  className="text-4xl"
-                  aria-hidden="true"
-                >
+                <span className="text-4xl" aria-hidden="true">
                   {item.icon}
                 </span>
 
-                <h3 className="mt-5 text-lg font-black">
-                  {item.title}
-                </h3>
+                <h3 className="mt-5 text-lg font-black">{item.title}</h3>
 
                 <p className="mt-3 text-sm leading-7 text-slate-600">
                   {item.description}
@@ -457,17 +557,15 @@ function NHIELanding() {
       {/* SAFETY */}
       <section className="px-5 py-14">
         <div className="mx-auto max-w-4xl rounded-[2rem] border border-emerald-200 bg-emerald-50 p-7 sm:p-10">
-          <h2 className="text-2xl font-black">
-            💚 Keep It Fun for Everyone
-          </h2>
+          <h2 className="text-2xl font-black">💚 Keep It Fun for Everyone</h2>
 
           <p className="mt-4 leading-8 text-slate-700">
-            Choose questions that suit your group.
-            Only share experiences you're
-            comfortable discussing, and respect
-            your friends' boundaries. Remember
-            that a shared game link can be
-            forwarded to other people.
+            Choose questions that suit your group. Only share experiences you
+            are comfortable discussing, and respect your friends&apos;
+            boundaries. Keep in mind that a shared game link can be opened and
+            forwarded by anyone who receives it, so avoid including sensitive
+            personal information such as passwords, financial details, or
+            government ID numbers.
           </p>
         </div>
       </section>
@@ -510,10 +608,7 @@ function NHIELanding() {
       {/* FINAL CTA */}
       <section className="px-5 py-16 sm:py-20">
         <div className="mx-auto max-w-5xl rounded-[2rem] bg-gradient-to-br from-emerald-600 to-teal-700 px-6 py-14 text-center text-white shadow-xl sm:px-12 sm:py-16">
-          <span
-            className="text-5xl"
-            aria-hidden="true"
-          >
+          <span className="text-5xl" aria-hidden="true">
             🎉
           </span>
 
@@ -522,14 +617,12 @@ function NHIELanding() {
           </h2>
 
           <p className="mx-auto mt-5 max-w-xl leading-8 text-emerald-50">
-            Create your Never Have I Ever
-            challenge and share it with your friends.
+            Create your Never Have I Ever challenge and share it with your
+            friends.
           </p>
 
           <div className="mt-8">
-            <CreateButton light>
-              Start Your Game →
-            </CreateButton>
+            <CreateButton light>Start Your Game →</CreateButton>
           </div>
         </div>
       </section>
@@ -537,9 +630,11 @@ function NHIELanding() {
   );
 }
 
-export default async function NHIEPage({
-  searchParams,
-}) {
+// ======================================================
+// PAGE ENTRY
+// ======================================================
+
+export default async function NHIEPage({ searchParams }) {
   const params = await searchParams;
 
   if (params?.create === "1") {

@@ -5,6 +5,11 @@ import Image from "next/image";
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || "https://www.getknowify.com";
 
+// Tiny 1x1 transparent blur placeholder (base64). Replace with a real
+// low-res version of your fallback if you want a nicer blur effect.
+const BLUR_DATA_URL =
+  "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSI5Ij48cmVjdCB3aWR0aD0iMTYiIGhlaWdodD0iOSIgZmlsbD0iI2UyZThmMCIvPjwvc3ZnPg==";
+
 export const metadata = {
   title: {
     default: "Quiz & Game Ideas | GetKnowify",
@@ -90,6 +95,55 @@ async function getPublishedBlogs() {
   }
 }
 
+// --- HELPERS ---
+
+function getCoverImage(blog) {
+  const candidates = [
+    blog?.coverImage,
+    blog?.image,
+    blog?.featuredImage,
+  ];
+
+  const found = candidates.find(
+    (value) => typeof value === "string" && value.trim().length > 0
+  );
+
+  return found || "/fallback-blog.jpg";
+}
+
+function getFormattedDate(value) {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function getExcerpt(blog, length = 150) {
+  const raw =
+    typeof blog?.excerpt === "string" && blog.excerpt.trim()
+      ? blog.excerpt
+      : typeof blog?.content === "string"
+        ? blog.content
+        : "";
+
+  const plain = raw.replace(/<[^>]+>/g, "").trim();
+
+  if (!plain) {
+    return "Explore this quiz or game idea on GetKnowify.";
+  }
+
+  return plain.length > length
+    ? `${plain.slice(0, length).trimEnd()}...`
+    : plain;
+}
+
 export default async function IdeasPage() {
   const blogs = await getPublishedBlogs();
 
@@ -153,7 +207,6 @@ export default async function IdeasPage() {
       <div className="absolute top-0 left-0 right-0 h-96 bg-gradient-to-b from-white to-slate-50 border-b border-slate-200/50 pointer-events-none" />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 relative z-10">
-
         {/* BREADCRUMBS */}
         <nav
           className="flex mb-8 text-sm font-medium text-slate-500 uppercase tracking-wider"
@@ -169,14 +222,14 @@ export default async function IdeasPage() {
           <span className="mx-3 text-slate-300">/</span>
 
           <span className="text-slate-800 font-semibold">
-            Quiz & Game Ideas
+            Quiz &amp; Game Ideas
           </span>
         </nav>
 
         {/* PAGE HEADER */}
         <header className="mb-16 max-w-3xl">
           <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-5">
-            Quiz & Game{" "}
+            Quiz &amp; Game{" "}
             <span className="text-emerald-600">Ideas</span>
           </h1>
 
@@ -208,99 +261,94 @@ export default async function IdeasPage() {
             </h3>
 
             <p className="text-slate-500 font-medium">
-              We're preparing useful quiz and game ideas for you.
+              We&apos;re preparing useful quiz and game ideas for you.
             </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {blogs.map((blog) => (
-              <Link
-                key={blog._id}
-                href={`/ideas/${blog.slug}`}
-                className="group flex h-full"
-              >
-                <article className="flex flex-col w-full bg-white border border-slate-200 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/5 hover:-translate-y-1">
+            {blogs.map((blog, index) => {
+              // Prioritize the first row (3 cards on desktop) so the LCP
+              // image loads immediately instead of lazily.
+              const isAboveTheFold = index < 3;
 
-                  {/* IMAGE */}
-                  <div className="h-52 w-full relative overflow-hidden bg-gradient-to-br from-emerald-50 via-slate-100 to-slate-200">
-                    <Image
-                      src={
-                        blog.coverImage ||
-                        blog.image ||
-                        blog.featuredImage ||
-                        "/fallback-blog.jpg"
-                      }
-                      alt={blog.title}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-700 ease-in-out"
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                      unoptimized
-                    />
+              return (
+                <Link
+                  key={blog._id || blog.slug}
+                  href={`/ideas/${blog.slug}`}
+                  className="group flex h-full"
+                >
+                  <article className="flex flex-col w-full bg-white border border-slate-200 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/5 hover:-translate-y-1">
+                    {/* IMAGE */}
+                    <div className="relative h-52 w-full overflow-hidden bg-gradient-to-br from-emerald-50 via-slate-100 to-slate-200">
+                      <Image
+                        src={getCoverImage(blog)}
+                        alt={blog.title || "Quiz and game idea cover"}
+                        fill
+                        // Do NOT use `unoptimized` — it disables WebP/AVIF,
+                        // resizing, and lazy loading handled by Next.js.
+                        priority={isAboveTheFold}
+                        loading={isAboveTheFold ? "eager" : "lazy"}
+                        placeholder="blur"
+                        blurDataURL={BLUR_DATA_URL}
+                        className="object-cover group-hover:scale-105 transition-transform duration-700 ease-in-out"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      />
 
-                    <div className="absolute inset-0 bg-black/5 group-hover:bg-black/0 transition-all duration-500" />
-                  </div>
-
-                  {/* CONTENT */}
-                  <div className="p-6 sm:p-8 flex flex-col flex-grow">
-
-                    {/* META */}
-                    <div className="flex items-center gap-3 mb-4">
-                      <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold uppercase tracking-wider">
-                        {blog.category || "Quiz & Game Ideas"}
-                      </span>
-
-                      <time className="text-xs text-slate-500 font-medium uppercase tracking-wide">
-                        {new Date(blog.createdAt).toLocaleDateString(
-                          "en-US",
-                          {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          }
-                        )}
-                      </time>
+                      <div className="absolute inset-0 bg-black/5 group-hover:bg-black/0 transition-all duration-500 pointer-events-none" />
                     </div>
 
-                    {/* TITLE */}
-                    <h2 className="text-2xl font-bold text-slate-900 mb-3 group-hover:text-emerald-600 transition-colors duration-300 line-clamp-2 leading-snug">
-                      {blog.title}
-                    </h2>
+                    {/* CONTENT */}
+                    <div className="p-6 sm:p-8 flex flex-col flex-grow">
+                      {/* META */}
+                      <div className="flex items-center gap-3 mb-4">
+                        <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold uppercase tracking-wider">
+                          {blog.category || "Quiz & Game Ideas"}
+                        </span>
 
-                    {/* EXCERPT */}
-                    <p className="text-slate-600 text-base leading-relaxed mb-6 line-clamp-3">
-                      {blog.content
-                        ?.replace(/<[^>]+>/g, "")
-                        .substring(0, 150) ||
-                        "Explore this quiz or game idea on GetKnowify."}
-                      ...
-                    </p>
+                        {getFormattedDate(blog.createdAt) && (
+                          <time
+                            dateTime={blog.createdAt}
+                            className="text-xs text-slate-500 font-medium uppercase tracking-wide"
+                          >
+                            {getFormattedDate(blog.createdAt)}
+                          </time>
+                        )}
+                      </div>
 
-                    {/* FOOTER */}
-                    <div className="mt-auto pt-5 border-t border-slate-100 flex justify-between items-center">
-                      <div className="flex items-center gap-2">
+                      {/* TITLE */}
+                      <h2 className="text-2xl font-bold text-slate-900 mb-3 group-hover:text-emerald-600 transition-colors duration-300 line-clamp-2 leading-snug">
+                        {blog.title}
+                      </h2>
 
-                        <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 text-xs font-bold">
-                          {blog.author?.charAt(0) || "G"}
+                      {/* EXCERPT */}
+                      <p className="text-slate-600 text-base leading-relaxed mb-6 line-clamp-3">
+                        {getExcerpt(blog)}
+                      </p>
+
+                      {/* FOOTER */}
+                      <div className="mt-auto pt-5 border-t border-slate-100 flex justify-between items-center">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 text-xs font-bold">
+                            {blog.author?.charAt(0) || "G"}
+                          </div>
+
+                          <span className="text-sm font-medium text-slate-700">
+                            {blog.author || "GetKnowify Team"}
+                          </span>
                         </div>
 
-                        <span className="text-sm font-medium text-slate-700">
-                          {blog.author || "GetKnowify Team"}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center gap-1 text-emerald-600 text-sm font-bold group-hover:gap-2 transition-all">
-                        Explore
-                        <span aria-hidden="true">&rarr;</span>
+                        <div className="flex items-center gap-1 text-emerald-600 text-sm font-bold group-hover:gap-2 transition-all">
+                          Explore
+                          <span aria-hidden="true">&rarr;</span>
+                        </div>
                       </div>
                     </div>
-
-                  </div>
-                </article>
-              </Link>
-            ))}
+                  </article>
+                </Link>
+              );
+            })}
           </div>
         )}
-
       </main>
     </div>
   );

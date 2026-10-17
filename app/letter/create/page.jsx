@@ -29,61 +29,38 @@ function getErrorMessage(error, fallback) {
 }
 
 export default function CreateLetter() {
-  // 0 = Letter wizard, 1 = Active letter
   const [step, setStep] = useState(0);
-
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isCheckingDevice, setIsCheckingDevice] =
-    useState(true);
+  const [isCheckingDevice, setIsCheckingDevice] = useState(true);
 
-  const [createdLetterId, setCreatedLetterId] =
-    useState(null);
-
-  const [recipientNameDisplay, setRecipientNameDisplay] =
-    useState("");
-
-  const [activeTemplate, setActiveTemplate] =
-    useState("");
-
-  const [activeTheme, setActiveTheme] =
-    useState(DEFAULT_THEME);
-
-  const [letterData, setLetterData] =
-    useState(EMPTY_LETTER);
-
+  const [createdLetterId, setCreatedLetterId] = useState(null);
+  const [recipientNameDisplay, setRecipientNameDisplay] = useState("");
+  const [activeTemplate, setActiveTemplate] = useState("");
+  const [activeTheme, setActiveTheme] = useState(DEFAULT_THEME);
+  const [letterData, setLetterData] = useState(EMPTY_LETTER);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
 
-  // Guards against rapid duplicate clicks.
   const submittingRef = useRef(false);
   const deletingRef = useRef(false);
 
-  // -----------------------------------------
-  // 1. RESTORE ACTIVE LETTER OR SAVED DRAFT
-  // -----------------------------------------
-
+  // Restore active letter or saved draft.
   useEffect(() => {
     try {
-      const activeLetterId =
-        localStorage.getItem(LETTER_ID_KEY);
-
-      const activeLetterRecipient =
-        localStorage.getItem(RECIPIENT_KEY);
+      const activeLetterId = localStorage.getItem(LETTER_ID_KEY);
+      const activeLetterRecipient = localStorage.getItem(RECIPIENT_KEY);
 
       if (activeLetterId) {
         setCreatedLetterId(activeLetterId);
-
         setRecipientNameDisplay(
           activeLetterRecipient || "your recipient"
         );
-
         setStep(1);
         return;
       }
 
-      const savedDraft =
-        localStorage.getItem(DRAFT_KEY);
+      const savedDraft = localStorage.getItem(DRAFT_KEY);
 
       if (!savedDraft) {
         setStep(0);
@@ -98,17 +75,13 @@ export default function CreateLetter() {
 
       setLetterData({
         recipientName:
-          typeof draft.letterData?.recipientName ===
-          "string"
+          typeof draft.letterData?.recipientName === "string"
             ? draft.letterData.recipientName
             : "",
-
         senderName:
-          typeof draft.letterData?.senderName ===
-          "string"
+          typeof draft.letterData?.senderName === "string"
             ? draft.letterData.senderName
             : "",
-
         message:
           typeof draft.letterData?.message === "string"
             ? draft.letterData.message
@@ -119,22 +92,15 @@ export default function CreateLetter() {
         (theme) => theme.id === draft.themeId
       );
 
-      if (savedTheme) {
-        setActiveTheme(savedTheme);
-      }
+      if (savedTheme) setActiveTheme(savedTheme);
 
       if (typeof draft.activeTemplate === "string") {
         setActiveTemplate(draft.activeTemplate);
       }
 
-      setNotice(
-        "Your unfinished letter has been restored."
-      );
+      setNotice("Your unfinished letter has been restored.");
     } catch (err) {
-      console.error(
-        "Failed to restore letter:",
-        err
-      );
+      console.error("Failed to restore letter:", err);
 
       try {
         localStorage.removeItem(DRAFT_KEY);
@@ -146,18 +112,9 @@ export default function CreateLetter() {
     }
   }, []);
 
-  // -----------------------------------------
-  // 2. AUTOMATICALLY SAVE UNFINISHED LETTER
-  // -----------------------------------------
-
+  // Save unfinished drafts locally.
   useEffect(() => {
-    if (
-      isCheckingDevice ||
-      createdLetterId ||
-      step !== 0
-    ) {
-      return;
-    }
+    if (isCheckingDevice || createdLetterId || step !== 0) return;
 
     try {
       const isEmpty =
@@ -180,10 +137,7 @@ export default function CreateLetter() {
         })
       );
     } catch (err) {
-      console.warn(
-        "Unable to save letter draft:",
-        err
-      );
+      console.warn("Unable to save letter draft:", err);
     }
   }, [
     isCheckingDevice,
@@ -194,20 +148,10 @@ export default function CreateLetter() {
     activeTheme,
   ]);
 
-  // -----------------------------------------
-  // 3. UPDATE LETTER FIELDS
-  // -----------------------------------------
-
   const handleChange = (event) => {
     const { name, value } = event.target;
 
-    if (
-      ![
-        "recipientName",
-        "senderName",
-        "message",
-      ].includes(name)
-    ) {
+    if (!["recipientName", "senderName", "message"].includes(name)) {
       return;
     }
 
@@ -216,18 +160,11 @@ export default function CreateLetter() {
       [name]: value,
     }));
 
-    if (error) {
-      setError("");
-    }
+    if (error) setError("");
   };
 
-  // -----------------------------------------
-  // 4. APPLY LETTER TEMPLATE
-  // -----------------------------------------
-
   const applyTemplate = (templateId, themeKey) => {
-    const selectedTheme =
-      THEMES[themeKey] || DEFAULT_THEME;
+    const selectedTheme = THEMES[themeKey] || DEFAULT_THEME;
 
     try {
       const generatedText = getTemplateText(
@@ -249,20 +186,12 @@ export default function CreateLetter() {
 
       setError("");
     } catch (err) {
-      console.error(
-        "Failed to apply template:",
-        err
-      );
-
+      console.error("Failed to apply template:", err);
       setError(
         "This template could not be loaded. Please choose another one."
       );
     }
   };
-
-  // -----------------------------------------
-  // 5. CREATE AND SEAL LETTER
-  // -----------------------------------------
 
   const handleSealEnvelope = async () => {
     if (submittingRef.current) return;
@@ -270,33 +199,22 @@ export default function CreateLetter() {
     setError("");
     setNotice("");
 
-    const recipientName =
-      letterData.recipientName.trim();
-
-    const senderName =
-      letterData.senderName.trim();
-
-    const message =
-      letterData.message.trim();
+    const recipientName = letterData.recipientName.trim();
+    const senderName = letterData.senderName.trim();
+    const message = letterData.message.trim();
 
     if (!recipientName) {
-      setError(
-        "Please enter the recipient's name."
-      );
+      setError("Please enter the recipient's name.");
       return;
     }
 
     if (!senderName) {
-      setError(
-        "Please enter your name."
-      );
+      setError("Please enter your name.");
       return;
     }
 
     if (!message) {
-      setError(
-        "Please write a message before sealing your letter."
-      );
+      setError("Please write a message before sealing your letter.");
       return;
     }
 
@@ -304,21 +222,18 @@ export default function CreateLetter() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(
-        "/api/letter/create",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            recipientName,
-            senderName,
-            message,
-            theme: activeTheme?.id || "purple",
-          }),
-        }
-      );
+      const response = await fetch("/api/letter/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          recipientName,
+          senderName,
+          message,
+          theme: activeTheme?.id || "purple",
+        }),
+      });
 
       let data = {};
 
@@ -340,26 +255,14 @@ export default function CreateLetter() {
         typeof data?.letterId !== "string" ||
         !data.letterId.trim()
       ) {
-        throw new Error(
-          "The server did not return a valid letter ID."
-        );
+        throw new Error("The server did not return a valid letter ID.");
       }
 
       const finalId = data.letterId.trim();
 
-      // The current session can continue even
-      // if browser storage is unavailable.
       try {
-        localStorage.setItem(
-          LETTER_ID_KEY,
-          finalId
-        );
-
-        localStorage.setItem(
-          RECIPIENT_KEY,
-          recipientName
-        );
-
+        localStorage.setItem(LETTER_ID_KEY, finalId);
+        localStorage.setItem(RECIPIENT_KEY, recipientName);
         localStorage.removeItem(DRAFT_KEY);
       } catch (storageError) {
         console.warn(
@@ -372,20 +275,12 @@ export default function CreateLetter() {
         );
       }
 
-      setLetterData({
-        recipientName,
-        senderName,
-        message,
-      });
-
+      setLetterData({ recipientName, senderName, message });
       setCreatedLetterId(finalId);
       setRecipientNameDisplay(recipientName);
       setStep(1);
     } catch (err) {
-      console.error(
-        "Failed to seal letter:",
-        err
-      );
+      console.error("Failed to seal letter:", err);
 
       setError(
         getErrorMessage(
@@ -399,17 +294,11 @@ export default function CreateLetter() {
     }
   };
 
-  // -----------------------------------------
-  // 6. DELETE ACTIVE LETTER
-  // -----------------------------------------
-
   const handleDeleteLetter = async () => {
     if (deletingRef.current) return;
 
     if (!createdLetterId) {
-      setError(
-        "No active letter was found."
-      );
+      setError("No active letter was found.");
       return;
     }
 
@@ -426,12 +315,8 @@ export default function CreateLetter() {
 
     try {
       const response = await fetch(
-        `/api/letter/${encodeURIComponent(
-          createdLetterId
-        )}`,
-        {
-          method: "DELETE",
-        }
+        `/api/letter/${encodeURIComponent(createdLetterId)}`,
+        { method: "DELETE" }
       );
 
       let data = {};
@@ -450,17 +335,9 @@ export default function CreateLetter() {
         );
       }
 
-      // Clear browser data only after the
-      // server confirms successful deletion.
       try {
-        localStorage.removeItem(
-          LETTER_ID_KEY
-        );
-
-        localStorage.removeItem(
-          RECIPIENT_KEY
-        );
-
+        localStorage.removeItem(LETTER_ID_KEY);
+        localStorage.removeItem(RECIPIENT_KEY);
         localStorage.removeItem(DRAFT_KEY);
       } catch (storageError) {
         console.warn(
@@ -480,10 +357,7 @@ export default function CreateLetter() {
         "Your letter has been deleted. You can now create a new one."
       );
     } catch (err) {
-      console.error(
-        "Server delete failed:",
-        err
-      );
+      console.error("Server delete failed:", err);
 
       setError(
         getErrorMessage(
@@ -497,10 +371,6 @@ export default function CreateLetter() {
     }
   };
 
-  // -----------------------------------------
-  // 7. INITIAL LOADING SCREEN
-  // -----------------------------------------
-
   if (isCheckingDevice) {
     return (
       <div
@@ -513,7 +383,6 @@ export default function CreateLetter() {
             className="h-12 w-12 animate-spin rounded-full border-4 border-purple-400/20 border-t-purple-400"
             aria-hidden="true"
           />
-
           <p className="text-sm font-semibold text-slate-300">
             Loading your letter...
           </p>
@@ -522,15 +391,9 @@ export default function CreateLetter() {
     );
   }
 
-  // -----------------------------------------
-  // 8. MAIN LETTER CREATOR
-  // -----------------------------------------
-
   return (
     <FloatingLayout activeTheme={activeTheme}>
       <div className="relative z-20 w-full max-w-xl">
-
-        {/* Navigation */}
         {step === 0 && (
           <Link
             href="/"
@@ -541,7 +404,6 @@ export default function CreateLetter() {
           </Link>
         )}
 
-        {/* Error message */}
         {error && (
           <div
             role="alert"
@@ -549,7 +411,6 @@ export default function CreateLetter() {
           >
             <div className="flex items-start justify-between gap-3">
               <p>{error}</p>
-
               <button
                 type="button"
                 onClick={() => setError("")}
@@ -562,7 +423,6 @@ export default function CreateLetter() {
           </div>
         )}
 
-        {/* Success and information message */}
         {notice && (
           <div
             role="status"
@@ -570,7 +430,6 @@ export default function CreateLetter() {
           >
             <div className="flex items-start justify-between gap-3">
               <p>{notice}</p>
-
               <button
                 type="button"
                 onClick={() => setNotice("")}
@@ -592,9 +451,7 @@ export default function CreateLetter() {
                 activeTheme={activeTheme}
                 activeTemplate={activeTemplate}
                 applyTemplate={applyTemplate}
-                handleSealEnvelope={
-                  handleSealEnvelope
-                }
+                handleSealEnvelope={handleSealEnvelope}
                 isSubmitting={isSubmitting}
               />
             </div>
@@ -602,20 +459,30 @@ export default function CreateLetter() {
             <div key="active-letter">
               <ActiveLetter
                 activeTheme={activeTheme}
-                recipientNameDisplay={
-                  recipientNameDisplay
-                }
-                createdLetterId={
-                  createdLetterId
-                }
-                handleDeleteLetter={
-                  handleDeleteLetter
-                }
+                recipientNameDisplay={recipientNameDisplay}
+                createdLetterId={createdLetterId}
+                handleDeleteLetter={handleDeleteLetter}
                 isDeleting={isDeleting}
               />
             </div>
           )}
         </AnimatePresence>
+
+        {/* Ads are disabled until AdSense approval and ad-slot setup. */}
+
+        <footer className="mt-8 text-center text-xs text-slate-400">
+          <Link href="/privacy" className="hover:text-white">
+            Privacy Policy
+          </Link>
+          <span className="mx-2">•</span>
+          <Link href="/terms" className="hover:text-white">
+            Terms
+          </Link>
+          <span className="mx-2">•</span>
+          <Link href="/contact" className="hover:text-white">
+            Contact
+          </Link>
+        </footer>
       </div>
     </FloatingLayout>
   );

@@ -1,6 +1,4 @@
-"use client";
 
-import { motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import LatestBlogs from "@/components/LatestBlogs";
 
@@ -107,27 +105,9 @@ const faqs = [
 ];
 
 export default function HomeClient() {
-  const reduceMotion = useReducedMotion();
-
-  const reveal = reduceMotion
-    ? {}
-    : {
-        initial: { opacity: 0, y: 20 },
-        whileInView: { opacity: 1, y: 0 },
-        viewport: {
-          once: true,
-          amount: 0.15,
-        },
-        transition: {
-          duration: 0.45,
-        },
-      };
-
   return (
-    <main className="min-h-screen overflow-x-hidden bg-slate-50 text-slate-900">
-      {/* =========================================================
-          HERO
-      ========================================================= */}
+    <div className="min-h-screen overflow-x-hidden bg-slate-50 text-slate-900">
+      {/* HERO */}
       <section className="relative isolate overflow-hidden bg-gradient-to-b from-indigo-50 via-white to-slate-50">
         <div
           aria-hidden="true"
@@ -140,7 +120,7 @@ export default function HomeClient() {
         />
 
         <div className="mx-auto max-w-7xl px-4 pb-16 pt-14 text-center sm:px-6 md:pb-24 md:pt-20 lg:px-8">
-          <motion.div {...reveal} className="mx-auto max-w-4xl">
+          <div className="mx-auto max-w-4xl">
             <span className="inline-flex rounded-full border border-indigo-200 bg-white px-4 py-2 text-sm font-bold text-indigo-700 shadow-sm">
               Fun quizzes &amp; games for people who know each other
             </span>
@@ -176,23 +156,18 @@ export default function HomeClient() {
             <p className="mt-5 text-sm text-slate-500">
               Personalize questions · Share a link · Compare results
             </p>
-          </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* =========================================================
-          GAMES
-      ========================================================= */}
+      {/* GAMES */}
       <section
         id="explore-games"
         aria-labelledby="games-heading"
         className="scroll-mt-20 border-y border-slate-200 bg-white"
       >
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 md:py-20 lg:px-8">
-          <motion.div
-            {...reveal}
-            className="mx-auto max-w-3xl text-center"
-          >
+          <div className="mx-auto max-w-3xl text-center">
             <span className="text-sm font-bold uppercase tracking-wider text-indigo-600">
               Choose your experience
             </span>
@@ -208,7 +183,7 @@ export default function HomeClient() {
               Create something personal, start a group conversation or send a
               meaningful message.
             </p>
-          </motion.div>
+          </div>
 
           <div className="mt-10 grid gap-5 md:grid-cols-3">
             {games.map((game) => (
@@ -236,15 +211,13 @@ export default function HomeClient() {
         </div>
       </section>
 
-      {/* =========================================================
-          HOW IT WORKS
-      ========================================================= */}
+      {/* HOW IT WORKS */}
       <section
         id="how-it-works"
         aria-labelledby="steps-heading"
         className="scroll-mt-20 mx-auto max-w-7xl px-4 py-14 sm:px-6 md:py-20 lg:px-8"
       >
-        <motion.div {...reveal} className="mx-auto max-w-3xl text-center">
+        <div className="mx-auto max-w-3xl text-center">
           <span className="text-sm font-bold uppercase tracking-wider text-indigo-600">
             Four simple steps
           </span>
@@ -259,7 +232,7 @@ export default function HomeClient() {
           <p className="mt-4 text-base leading-7 text-slate-600">
             You can personalize every question before sharing your quiz.
           </p>
-        </motion.div>
+        </div>
 
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {steps.map((step) => (
@@ -290,15 +263,13 @@ export default function HomeClient() {
         </div>
       </section>
 
-      {/* =========================================================
-          ABOUT GETKNOWIFY
-      ========================================================= */}
+      {/* ABOUT GETKNOWIFY */}
       <section
         aria-labelledby="about-heading"
         className="border-y border-slate-200 bg-white"
       >
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-14 sm:px-6 md:py-20 lg:grid-cols-2 lg:items-center lg:gap-14 lg:px-8">
-          <motion.div {...reveal}>
+          <div>
             <span className="text-sm font-bold uppercase tracking-wider text-indigo-600">
               About GetKnowify
             </span>
@@ -337,7 +308,7 @@ export default function HomeClient() {
                 Explore Quiz &amp; Game Ideas
               </Link>
             </div>
-          </motion.div>
+          </div>
 
           <div className="rounded-3xl border border-indigo-100 bg-indigo-50 p-6 sm:p-8">
             <h3 className="text-xl font-black">What could you ask?</h3>
@@ -361,10 +332,7 @@ export default function HomeClient() {
         </div>
       </section>
 
-      {/* =========================================================
-          QUIZ & GAME IDEAS
-          ONE CONTENT SECTION ONLY
-      ========================================================= */}
+      {/* QUIZ & GAME IDEAS */}
       <section
         aria-labelledby="ideas-heading"
         className="mx-auto max-w-7xl px-4 py-14 sm:px-6 md:py-20 lg:px-8"
@@ -399,9 +367,7 @@ export default function HomeClient() {
         </div>
       </section>
 
-      {/* =========================================================
-          FAQ
-      ========================================================= */}
+      {/* FAQ */}
       <section
         id="faq"
         aria-labelledby="faq-heading"
@@ -453,9 +419,7 @@ export default function HomeClient() {
         </div>
       </section>
 
-      {/* =========================================================
-          FINAL CTA
-      ========================================================= */}
+      {/* FINAL CTA */}
       <section className="px-4 py-14 sm:px-6 md:py-20 lg:px-8">
         <div className="mx-auto max-w-6xl rounded-[2rem] bg-slate-950 px-6 py-12 text-center shadow-xl sm:px-12 md:py-16">
           <span className="text-sm font-bold uppercase tracking-wider text-indigo-300">
@@ -488,6 +452,6 @@ export default function HomeClient() {
           </div>
         </div>
       </section>
-    </main>
+    </div>
   );
 }
