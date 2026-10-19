@@ -2,8 +2,10 @@ import Link from "next/link";
 import Image from "next/image";
 
 // --- SEO CONFIGURATION ---
-const SITE_URL =
+const RAW_SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || "https://www.getknowify.com";
+// Strip trailing slash so `${SITE_URL}/api/blogs` never becomes `//api/blogs`.
+const SITE_URL = RAW_SITE_URL.replace(/\/+$/, "");
 
 // Tiny 1x1 transparent blur placeholder (base64). Replace with a real
 // low-res version of your fallback if you want a nicer blur effect.
@@ -11,6 +13,8 @@ const BLUR_DATA_URL =
   "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSI5Ij48cmVjdCB3aWR0aD0iMTYiIGhlaWdodD0iOSIgZmlsbD0iI2UyZThmMCIvPjwvc3ZnPg==";
 
 export const metadata = {
+  metadataBase: new URL(SITE_URL),
+
   title: {
     default: "Quiz & Game Ideas | GetKnowify",
     template: "%s | GetKnowify",
@@ -47,6 +51,7 @@ export const metadata = {
         url: `${SITE_URL}/og-blog-cover.jpg`,
         width: 1200,
         height: 630,
+        alt: "Quiz & Game Ideas on GetKnowify",
       },
     ],
     type: "website",
@@ -98,17 +103,30 @@ async function getPublishedBlogs() {
 // --- HELPERS ---
 
 function getCoverImage(blog) {
-  const candidates = [
-    blog?.coverImage,
-    blog?.image,
-    blog?.featuredImage,
-  ];
+  const candidates = [blog?.coverImage, blog?.image, blog?.featuredImage];
 
-  const found = candidates.find(
-    (value) => typeof value === "string" && value.trim().length > 0
-  );
+  for (const value of candidates) {
+    if (typeof value === "string" && value.trim()) {
+      return value.trim();
+    }
+    // Support common CMS shapes such as `{ url, width, height }`.
+    if (
+      value &&
+      typeof value === "object" &&
+      typeof value.url === "string" &&
+      value.url.trim()
+    ) {
+      return value.url.trim();
+    }
+  }
 
-  return found || "/fallback-blog.jpg";
+  return "/fallback-blog.jpg";
+}
+
+function toAbsoluteUrl(url) {
+  if (!url) return `${SITE_URL}/og-blog-cover.jpg`;
+  if (/^https?:\/\//i.test(url)) return url;
+  return `${SITE_URL}${url.startsWith("/") ? url : `/${url}`}`;
 }
 
 function getFormattedDate(value) {
@@ -125,6 +143,41 @@ function getFormattedDate(value) {
   });
 }
 
+function decodeHtmlEntities(value) {
+  const namedEntities = {
+    amp: "&",
+    lt: "<",
+    gt: ">",
+    quot: '"',
+    apos: "'",
+    nbsp: " ",
+    "#39": "'",
+  };
+
+  return value.replace(
+    /&(#x[\da-f]+|#\d+|amp|lt|gt|quot|apos|nbsp|#39);/gi,
+    (entity, match) => {
+      const key = match.toLowerCase();
+
+      if (key.startsWith("#x")) {
+        const codePoint = Number.parseInt(key.slice(2), 16);
+        return Number.isFinite(codePoint) && codePoint >= 0 && codePoint <= 0x10ffff
+          ? String.fromCodePoint(codePoint)
+          : " ";
+      }
+
+      if (key.startsWith("#")) {
+        const codePoint = Number.parseInt(key.slice(1), 10);
+        return Number.isFinite(codePoint) && codePoint >= 0 && codePoint <= 0x10ffff
+          ? String.fromCodePoint(codePoint)
+          : " ";
+      }
+
+      return namedEntities[key] ?? entity;
+    }
+  );
+}
+
 function getExcerpt(blog, length = 150) {
   const raw =
     typeof blog?.excerpt === "string" && blog.excerpt.trim()
@@ -133,7 +186,27 @@ function getExcerpt(blog, length = 150) {
         ? blog.content
         : "";
 
-  const plain = raw.replace(/<[^>]+>/g, "").trim();
+  if (!raw.trim()) {
+    return "Explore this quiz or game idea on GetKnowify.";
+  }
+
+  // Decode escaped HTML first so strings such as "&lt;p&gt;" do not
+  // appear literally in the preview. Repeat twice for double-escaped content.
+  let plain = raw;
+  for (let i = 0; i < 2; i += 1) {
+    const decoded = decodeHtmlEntities(plain);
+    if (decoded === plain) break;
+    plain = decoded;
+  }
+
+  // Remove non-visible content and HTML tags without rendering HTML.
+  plain = plain
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, " ")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\[[^\]]*\]\([^)]*\)/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 
   if (!plain) {
     return "Explore this quiz or game idea on GetKnowify.";
@@ -144,54 +217,79 @@ function getExcerpt(blog, length = 150) {
     : plain;
 }
 
+function getAuthorInitial(author) {
+  if (typeof author !== "string") return "G";
+  const initial = author.trim().charAt(0);
+  return initial ? initial.toUpperCase() : "G";
+}
+
 export default async function IdeasPage() {
   const blogs = await getPublishedBlogs();
 
   // --- STRUCTURED DATA ---
+  const jsonLdGraph = [
+    {
+      "@type": "CollectionPage",
+      "@id": `${SITE_URL}/ideas/#webpage`,
+      url: `${SITE_URL}/ideas`,
+      name: "Quiz & Game Ideas - GetKnowify",
+      description:
+        "Useful quiz questions, friendship games, challenges, and conversation ideas for friends, couples, and family.",
+      isPartOf: {
+        "@type": "WebSite",
+        "@id": `${SITE_URL}/#website`,
+        url: SITE_URL,
+        name: "GetKnowify",
+      },
+      breadcrumb: {
+        "@id": `${SITE_URL}/ideas/#breadcrumb`,
+      },
+    },
+
+    {
+      "@type": "BreadcrumbList",
+      "@id": `${SITE_URL}/ideas/#breadcrumb`,
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Home",
+          item: SITE_URL,
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "Quiz & Game Ideas",
+          item: `${SITE_URL}/ideas`,
+        },
+      ],
+    },
+  ];
+
+  if (blogs.length > 0) {
+    jsonLdGraph.push({
+      "@type": "ItemList",
+      itemListElement: blogs.map((blog, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        item: {
+          "@type": "BlogPosting",
+          url: `${SITE_URL}/ideas/${blog.slug}`,
+          headline: blog.title,
+          image: toAbsoluteUrl(getCoverImage(blog)),
+          datePublished: blog.createdAt || undefined,
+          author: {
+            "@type": "Person",
+            name: blog.author || "GetKnowify Team",
+          },
+        },
+      })),
+    });
+  }
+
   const jsonLd = {
     "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "CollectionPage",
-        "@id": `${SITE_URL}/ideas/#webpage`,
-        url: `${SITE_URL}/ideas`,
-        name: "Quiz & Game Ideas - GetKnowify",
-        description:
-          "Useful quiz questions, friendship games, challenges, and conversation ideas for friends, couples, and family.",
-        breadcrumb: {
-          "@id": `${SITE_URL}/ideas/#breadcrumb`,
-        },
-      },
-
-      {
-        "@type": "BreadcrumbList",
-        "@id": `${SITE_URL}/ideas/#breadcrumb`,
-        itemListElement: [
-          {
-            "@type": "ListItem",
-            position: 1,
-            name: "Home",
-            item: SITE_URL,
-          },
-          {
-            "@type": "ListItem",
-            position: 2,
-            name: "Quiz & Game Ideas",
-            item: `${SITE_URL}/ideas`,
-          },
-        ],
-      },
-
-      {
-        "@type": "ItemList",
-        itemListElement: blogs.map((blog, index) => ({
-          "@type": "ListItem",
-          position: index + 1,
-          url: `${SITE_URL}/ideas/${blog.slug}`,
-          name: blog.title,
-        })),
-      },
-    ],
+    "@graph": jsonLdGraph,
   };
 
   return (
@@ -212,10 +310,7 @@ export default async function IdeasPage() {
           className="flex mb-8 text-sm font-medium text-slate-500 uppercase tracking-wider"
           aria-label="Breadcrumb"
         >
-          <Link
-            href="/"
-            className="hover:text-emerald-600 transition-colors"
-          >
+          <Link href="/" className="hover:text-emerald-600 transition-colors">
             Home
           </Link>
 
@@ -229,8 +324,7 @@ export default async function IdeasPage() {
         {/* PAGE HEADER */}
         <header className="mb-16 max-w-3xl">
           <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-5">
-            Quiz &amp; Game{" "}
-            <span className="text-emerald-600">Ideas</span>
+            Quiz &amp; Game <span className="text-emerald-600">Ideas</span>
           </h1>
 
           <p className="text-lg text-slate-600 leading-relaxed">
@@ -270,10 +364,12 @@ export default async function IdeasPage() {
               // Prioritize the first row (3 cards on desktop) so the LCP
               // image loads immediately instead of lazily.
               const isAboveTheFold = index < 3;
+              const formattedDate = getFormattedDate(blog.createdAt);
+              const authorName = blog.author || "GetKnowify Team";
 
               return (
                 <Link
-                  key={blog._id || blog.slug}
+                  key={blog._id || blog.slug || `blog-${index}`}
                   href={`/ideas/${blog.slug}`}
                   className="group flex h-full"
                 >
@@ -286,8 +382,9 @@ export default async function IdeasPage() {
                         fill
                         // Do NOT use `unoptimized` — it disables WebP/AVIF,
                         // resizing, and lazy loading handled by Next.js.
+                        // `priority` implies eager loading for LCP; the
+                        // default for the rest is lazy.
                         priority={isAboveTheFold}
-                        loading={isAboveTheFold ? "eager" : "lazy"}
                         placeholder="blur"
                         blurDataURL={BLUR_DATA_URL}
                         className="object-cover group-hover:scale-105 transition-transform duration-700 ease-in-out"
@@ -305,12 +402,12 @@ export default async function IdeasPage() {
                           {blog.category || "Quiz & Game Ideas"}
                         </span>
 
-                        {getFormattedDate(blog.createdAt) && (
+                        {formattedDate && (
                           <time
                             dateTime={blog.createdAt}
                             className="text-xs text-slate-500 font-medium uppercase tracking-wide"
                           >
-                            {getFormattedDate(blog.createdAt)}
+                            {formattedDate}
                           </time>
                         )}
                       </div>
@@ -329,11 +426,11 @@ export default async function IdeasPage() {
                       <div className="mt-auto pt-5 border-t border-slate-100 flex justify-between items-center">
                         <div className="flex items-center gap-2">
                           <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 text-xs font-bold">
-                            {blog.author?.charAt(0) || "G"}
+                            {getAuthorInitial(authorName)}
                           </div>
 
                           <span className="text-sm font-medium text-slate-700">
-                            {blog.author || "GetKnowify Team"}
+                            {authorName}
                           </span>
                         </div>
 
