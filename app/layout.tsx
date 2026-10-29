@@ -1,4 +1,3 @@
-
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
@@ -72,7 +71,16 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {/* Load Google AdSense after the page becomes interactive. */}
+        {/* Mediavine Journey ad script */}
+        <Script
+          id="mediavine-journey"
+          src="https://scripts.scriptwrapper.com/tags/4e13d665-392f-4c84-a5e0-3e7902fb9991.js"
+          strategy="afterInteractive"
+          data-noptimize="1"
+          data-cfasync="false"
+        />
+
+        {/* Existing Google AdSense script */}
         <Script
           id="google-adsense"
           src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_ID}`}
@@ -80,7 +88,7 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
 
-        {/* Load GA4 without blocking initial HTML rendering. */}
+        {/* Google Analytics 4 */}
         <Script
           id="google-analytics"
           src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
