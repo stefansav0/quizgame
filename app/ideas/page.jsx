@@ -82,7 +82,7 @@ export const metadata = {
 async function getPublishedBlogs() {
   try {
     const res = await fetch(`${SITE_URL}/api/blogs`, {
-      next: { revalidate: 60 },
+      next: { revalidate: 3600 },
     });
 
     if (!res.ok) return [];

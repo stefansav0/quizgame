@@ -9,7 +9,7 @@ import { notFound } from "next/navigation";
 // here — it would override this and disable static caching.
 // ======================================================
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 // ======================================================
 // CONSTANTS
@@ -78,7 +78,7 @@ function getCoverImage(idea) {
 export async function generateStaticParams() {
   try {
     const res = await fetch(`${SITE_URL}/api/blogs`, {
-      next: { revalidate: 300 },
+      next: { revalidate: 3600 },
     });
 
     if (!res.ok) {
@@ -105,7 +105,7 @@ export async function generateStaticParams() {
 async function getIdea(slug) {
   try {
     const res = await fetch(`${SITE_URL}/api/blogs/${slug}`, {
-      next: { revalidate: 60 },
+      next: { revalidate: 3600 },
     });
 
     if (!res.ok) {
@@ -135,7 +135,7 @@ async function getIdea(slug) {
 async function getRelatedIdeas(currentSlug, currentCategory) {
   try {
     const res = await fetch(`${SITE_URL}/api/blogs`, {
-      next: { revalidate: 120 },
+      next: { revalidate: 3600 },
     });
 
     if (!res.ok) return [];

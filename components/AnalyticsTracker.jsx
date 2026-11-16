@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useRef } from "react";
@@ -5,71 +6,100 @@ import { usePathname } from "next/navigation";
 
 export default function AnalyticsTracker() {
   const pathname = usePathname();
-  // We use a ref so the cleanup function can instantly access the country
-  const countryRef = useRef("Unknown"); 
+  const countryRef = useRef("Unknown");
 
   useEffect(() => {
-    // 1. Record the exact time the user landed
+    if (!pathname) return;
+
     const startTime = Date.now();
-    
-    // 2. Generate Session ID
+    const pageTitle = document.title;
+
+    // Prevent multiple submissions for this page visit
+    let hasSent = false;
+
+    // Reuse session ID across page navigation
     let sessionId = sessionStorage.getItem("tracker_session");
+
     if (!sessionId) {
-      sessionId = Math.random().toString(36).substring(2, 15);
+      sessionId = crypto.randomUUID();
       sessionStorage.setItem("tracker_session", sessionId);
     }
 
-    // 3. Fetch Country IMMEDIATELY on load (not on exit)
-    const initCountry = async () => {
-      let cachedCountry = sessionStorage.getItem("user_country");
-      if (!cachedCountry) {
-        try {
-          const res = await fetch("https://ipapi.co/json/");
-          const data = await res.json();
-          cachedCountry = data.country_name || "Unknown";
-          sessionStorage.setItem("user_country", cachedCountry);
-        } catch (error) {
-          cachedCountry = "Unknown";
-        }
-      }
-      countryRef.current = cachedCountry;
-    };
-    
-    initCountry();
+    // Get country once per browser session
+    const cachedCountry = sessionStorage.getItem("user_country");
 
-    // 4. Send Data (Notice this is NO LONGER async!)
+    countryRef.current = cachedCountry || "Unknown";
+
+    if (!cachedCountry) {
+      fetch("https://ipapi.co/json/")
+        .then((res) => {
+          if (!res.ok) throw new Error("Country lookup failed");
+          return res.json();
+        })
+        .then((data) => {
+          const country = data.country_name || "Unknown";
+          countryRef.current = country;
+          sessionStorage.setItem("user_country", country);
+        })
+        .catch(() => {
+          countryRef.current = "Unknown";
+        });
+    }
+
     const sendVisitData = () => {
-      const endTime = Date.now();
-      const timeSpent = Math.round((endTime - startTime) / 1000); 
+      if (hasSent) return;
+
+      hasSent = true;
+
+      const timeSpent = Math.max(
+        0,
+        Math.round((Date.now() - startTime) / 1000)
+      );
 
       const payload = {
         pagePath: pathname,
-        pageTitle: document.title,
+        pageTitle,
         timeSpent,
-        country: countryRef.current, // Grab the instantly available ref
-        sessionId
+        country: countryRef.current,
+        sessionId,
       };
 
-      // 5. Use fetch with keepalive instead of sendBeacon
+      const body = JSON.stringify(payload);
+
+      // Reliable submission on tab close or page exit
+      if (typeof navigator.sendBeacon === "function") {
+        const blob = new Blob([body], {
+          type: "application/json",
+        });
+
+        const queued = navigator.sendBeacon(
+          "/api/visit",
+          blob
+        );
+
+        if (queued) return;
+      }
+
+      // Fallback for browsers without sendBeacon
       fetch("/api/visit", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload),
-        keepalive: true, // Tells the browser to finish this even if the tab closes
-      }).catch((err) => console.error("Tracking failed", err));
+        body,
+        keepalive: true,
+      }).catch((error) => {
+        console.error("Visit tracking failed:", error);
+      });
     };
 
-    // 6. Trigger on tab close
-    window.addEventListener("beforeunload", sendVisitData);
+    window.addEventListener("pagehide", sendVisitData);
 
-    // 7. Trigger on Next.js page change
     return () => {
-      window.removeEventListener("beforeunload", sendVisitData);
+      window.removeEventListener("pagehide", sendVisitData);
       sendVisitData();
     };
   }, [pathname]);
 
-  return null; 
+  return null;
 }
