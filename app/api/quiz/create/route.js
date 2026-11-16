@@ -2,6 +2,22 @@
 import { connectDB } from "@/lib/mongodb";
 import Quiz from "@/models/Quiz";
 import { NextResponse } from "next/server";
+import { randomBytes, createHash } from "node:crypto";
+
+export const runtime = "nodejs";
+
+function hashToken(token) {
+  return createHash("sha256")
+    .update(token)
+    .digest("hex");
+}
+
+function isValidOwnerId(value) {
+  return (
+    typeof value === "string" &&
+    /^[a-f0-9]{32,128}$/i.test(value)
+  );
+}
 
 export async function POST(req) {
   try {
@@ -27,12 +43,33 @@ export async function POST(req) {
         ? body.language.trim()
         : "en";
 
+    // Optional installation ID.
+    // Existing website clients can omit it.
+    const hasOwnerId =
+      body.ownerId !== undefined &&
+      body.ownerId !== null;
+
+    const ownerId = hasOwnerId ? body.ownerId : null;
+
+    if (hasOwnerId && !isValidOwnerId(ownerId)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Invalid installation ID",
+        },
+        { status: 400 }
+      );
+    }
+
     if (
       creatorName.length < 1 ||
       creatorName.length > 40
     ) {
       return NextResponse.json(
-        { success: false, error: "Invalid creator name" },
+        {
+          success: false,
+          error: "Invalid creator name",
+        },
         { status: 400 }
       );
     }
@@ -43,7 +80,10 @@ export async function POST(req) {
       language.length > 20
     ) {
       return NextResponse.json(
-        { success: false, error: "Invalid quiz details" },
+        {
+          success: false,
+          error: "Invalid quiz details",
+        },
         { status: 400 }
       );
     }
@@ -109,36 +149,89 @@ export async function POST(req) {
       );
     }
 
-    const questions = body.questions.map((q, index) => ({
-      id: index + 1,
-      question: q.question.trim(),
-      options: q.options.map((option) => option.trim()),
-      correctAnswer: q.correctAnswer,
-      bgColor:
-        typeof q.bgColor === "string" &&
-        /^#[0-9a-fA-F]{6}$/.test(q.bgColor)
-          ? q.bgColor
-          : "#7C3AED",
-    }));
+    const questions = body.questions.map(
+      (q, index) => ({
+        id: index + 1,
+        question: q.question.trim(),
+        options: q.options.map((option) =>
+          option.trim()
+        ),
+        correctAnswer: q.correctAnswer,
+        bgColor:
+          typeof q.bgColor === "string" &&
+          /^#[0-9a-fA-F]{6}$/.test(q.bgColor)
+            ? q.bgColor
+            : "#7C3AED",
+      })
+    );
 
     await connectDB();
 
-    const quiz = await Quiz.create({
+    // If this installation already has a quiz,
+    // do not allow another.
+    if (ownerId) {
+      const existingQuiz = await Quiz.findOne({
+        ownerId,
+      }).select("_id");
+
+      if (existingQuiz) {
+        return NextResponse.json(
+          {
+            success: false,
+            code: "QUIZ_ALREADY_EXISTS",
+            error:
+              "You already have an active quiz. Delete it before creating another.",
+            quizId: existingQuiz._id.toString(),
+          },
+          { status: 409 }
+        );
+      }
+    }
+
+    // Create a secret token for quiz management.
+    // The original token is returned only once.
+    const ownerToken = ownerId
+      ? randomBytes(32).toString("hex")
+      : null;
+
+    const quizData = {
       creatorName,
       quizTitle,
       location,
       language,
       questions,
-    });
+    };
+
+    if (ownerId) {
+      quizData.ownerId = ownerId;
+      quizData.ownerTokenHash = hashToken(ownerToken);
+    }
+
+    const quiz = await Quiz.create(quizData);
 
     return NextResponse.json(
       {
         success: true,
         quizId: quiz._id.toString(),
+        ...(ownerToken ? { ownerToken } : {}),
       },
       { status: 201 }
     );
   } catch (error) {
+    // The unique ownerId index protects against
+    // simultaneous creation requests.
+    if (error?.code === 11000) {
+      return NextResponse.json(
+        {
+          success: false,
+          code: "QUIZ_ALREADY_EXISTS",
+          error:
+            "An active quiz already exists for this installation.",
+        },
+        { status: 409 }
+      );
+    }
+
     console.error("Create quiz error:", error);
 
     return NextResponse.json(
