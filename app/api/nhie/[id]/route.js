@@ -1,59 +1,139 @@
+
 import { NextResponse } from "next/server";
+import mongoose from "mongoose";
+import {
+  createHash,
+  timingSafeEqual,
+} from "node:crypto";
+
 import { connectDB } from "@/lib/mongodb";
 import NhieQuiz from "@/models/NhieQuiz";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+function json(data, status = 200) {
+  return NextResponse.json(data, {
+    status,
+    headers: {
+      "Cache-Control": "no-store",
+    },
+  });
+}
+
+function validToken(token, storedHash) {
+  if (
+    typeof token !== "string" ||
+    !/^[a-f0-9]{64}$/i.test(token) ||
+    typeof storedHash !== "string" ||
+    !/^[a-f0-9]{64}$/i.test(storedHash)
+  ) {
+    return false;
+  }
+
+  const calculated = createHash("sha256")
+    .update(token)
+    .digest();
+
+  const expected = Buffer.from(storedHash, "hex");
+
+  return timingSafeEqual(calculated, expected);
+}
+
 export async function GET(req, { params }) {
   try {
+    const { id } = await params;
+
+    if (!mongoose.isValidObjectId(id)) {
+      return json({ error: "Invalid game ID." }, 400);
+    }
+
     await connectDB();
-    
-    // Await params for Next.js 15+ compatibility
-    const resolvedParams = await params;
-    const id = resolvedParams.id;
 
-    if (!id) return NextResponse.json({ error: "Missing game ID parameter" }, { status: 400 });
+    const quiz = await NhieQuiz.findById(id)
+      .select(
+        "_id creatorName quizTitle questions.id questions.statement questions.bgColor createdAt"
+      )
+      .lean();
 
-    const quiz = await NhieQuiz.findById(id);
-    if (!quiz) return NextResponse.json({ error: "Game not found" }, { status: 404 });
-    
-    // 🚨 FIX: We hide 'creatorAnswer' to prevent cheating, 
-    // but we MUST include 'attempts' so the Dashboard can see the scores!
-    const sanitizedQuiz = {
+    if (!quiz) {
+      return json({ error: "Game not found." }, 404);
+    }
+
+    return json({
       _id: quiz._id,
       creatorName: quiz.creatorName,
       quizTitle: quiz.quizTitle,
-      attempts: quiz.attempts, // Added this back!
-      questions: quiz.questions.map(q => ({
+      createdAt: quiz.createdAt,
+      questions: quiz.questions.map((q) => ({
         id: q.id,
         statement: q.statement,
-        bgColor: q.bgColor
-      }))
-    };
-    
-    return NextResponse.json(sanitizedQuiz);
+        bgColor: q.bgColor,
+      })),
+    });
   } catch (error) {
-    console.error("Next.js API Error:", error);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    console.error("NHIE GET error:", error);
+
+    return json({ error: "Unable to load game." }, 500);
   }
 }
 
 export async function DELETE(req, { params }) {
   try {
-    await connectDB();
-    
-    // Await params for Next.js 15+ compatibility
-    const resolvedParams = await params;
-    const id = resolvedParams.id;
+    const { id } = await params;
 
-    // Permanently deletes the quiz from the MongoDB Database
-    const deletedQuiz = await NhieQuiz.findByIdAndDelete(id);
-    
-    if (!deletedQuiz) {
-      return NextResponse.json({ error: "Quiz already deleted or not found" }, { status: 404 });
+    if (!mongoose.isValidObjectId(id)) {
+      return json({ error: "Invalid game ID." }, 400);
     }
 
-    return NextResponse.json({ success: true, message: "Quiz permanently deleted from backend" });
+    const ownerToken = req.headers.get("x-owner-token");
+
+    await connectDB();
+
+    const quiz = await NhieQuiz.findById(id)
+      .select("+ownerTokenHash")
+      .lean();
+
+    if (!quiz) {
+      return json({ error: "Game not found." }, 404);
+    }
+
+    if (!quiz.ownerTokenHash) {
+      return json(
+        {
+          error:
+            "This is a legacy challenge without ownership credentials. Please contact support for verified deletion.",
+        },
+        403
+      );
+    }
+
+    if (!validToken(ownerToken, quiz.ownerTokenHash)) {
+      return json(
+        { error: "You are not authorized to delete this game." },
+        403
+      );
+    }
+
+    const deleted = await NhieQuiz.findOneAndDelete({
+      _id: id,
+      ownerTokenHash: quiz.ownerTokenHash,
+    });
+
+    if (!deleted) {
+      return json({ error: "Game not found." }, 404);
+    }
+
+    return json({
+      success: true,
+      message: "Challenge deleted successfully.",
+    });
   } catch (error) {
-    console.error("DELETE API Error:", error);
-    return NextResponse.json({ error: "Failed to delete from database" }, { status: 500 });
+    console.error("NHIE DELETE error:", error);
+
+    return json(
+      { error: "Unable to delete challenge." },
+      500
+    );
   }
 }

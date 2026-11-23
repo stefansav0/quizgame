@@ -15,10 +15,13 @@ import InfoSection from "@/components/nhie/InfoSection";
 import FloatingLayout from "@/components/FloatingLayout";
 
 const CHALLENGE_KEY = "nhie_challenge_id";
+const OWNER_TOKEN_KEY = "nhie_owner_token";
 const DRAFT_KEY = "nhie_creator_draft_v1";
 const TOTAL_QUESTIONS = 10;
 
-// Fisher-Yates shuffle for more consistent randomization.
+const VALID_ANSWERS = ["I Have", "Never"];
+
+// Shuffle the question bank.
 function shuffleQuestions(items) {
   const shuffled = [...items];
 
@@ -43,11 +46,13 @@ function getErrorMessage(error, fallback) {
 export default function CreateNHIEChallenge() {
   const activeTheme = "light";
 
+  // Loading states
   const [isLoading, setIsLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Game states
   const [step, setStep] = useState(0);
   const [createdChallengeId, setCreatedChallengeId] =
     useState(null);
@@ -60,20 +65,23 @@ export default function CreateNHIEChallenge() {
 
   const [questions, setQuestions] = useState([]);
   const [questionBank, setQuestionBank] = useState([]);
-  const [showBankModal, setShowBankModal] =
-    useState(false);
+  const [showBankModal, setShowBankModal] = useState(false);
 
+  // Messages
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
 
-  // Prevent repeated save/delete requests.
+  // Prevent duplicate requests
   const submittingRef = useRef(false);
   const deletingRef = useRef(false);
   const generatingRef = useRef(false);
 
-  // ----------------------------------------
-  // 1. RESTORE SAVED CHALLENGE OR DRAFT
-  // ----------------------------------------
+  // Keep token available during the current session.
+  const ownerTokenRef = useRef(null);
+
+  // ==========================================
+  // 1. RESTORE EXISTING GAME OR SAVED DRAFT
+  // ==========================================
 
   useEffect(() => {
     try {
@@ -81,8 +89,18 @@ export default function CreateNHIEChallenge() {
         localStorage.getItem(CHALLENGE_KEY);
 
       if (existingId) {
+        ownerTokenRef.current =
+          localStorage.getItem(OWNER_TOKEN_KEY);
+
         setCreatedChallengeId(existingId);
         setStep(11);
+
+        if (!ownerTokenRef.current) {
+          setNotice(
+            "This saved challenge has no ownership token in this browser. You can view and share it, but deletion requires verified ownership."
+          );
+        }
+
         return;
       }
 
@@ -96,8 +114,12 @@ export default function CreateNHIEChallenge() {
 
       const draft = JSON.parse(savedDraft);
 
-      if (!draft || typeof draft !== "object") {
-        throw new Error("Invalid draft");
+      if (
+        !draft ||
+        typeof draft !== "object" ||
+        Array.isArray(draft)
+      ) {
+        throw new Error("Invalid saved draft.");
       }
 
       const restoredInfo = {
@@ -133,8 +155,8 @@ export default function CreateNHIEChallenge() {
 
         setStep(
           Number.isInteger(restoredStep) &&
-          restoredStep >= 1 &&
-          restoredStep <= TOTAL_QUESTIONS
+            restoredStep >= 1 &&
+            restoredStep <= TOTAL_QUESTIONS
             ? restoredStep
             : 1
         );
@@ -163,9 +185,9 @@ export default function CreateNHIEChallenge() {
     }
   }, []);
 
-  // ----------------------------------------
-  // 2. AUTOMATICALLY SAVE DRAFT PROGRESS
-  // ----------------------------------------
+  // ==========================================
+  // 2. AUTOMATICALLY SAVE DRAFT
+  // ==========================================
 
   useEffect(() => {
     if (
@@ -177,7 +199,6 @@ export default function CreateNHIEChallenge() {
     }
 
     try {
-      // Preserve the setup information as well.
       if (
         step === 0 &&
         !userInfo.name &&
@@ -213,9 +234,9 @@ export default function CreateNHIEChallenge() {
     questionBank,
   ]);
 
-  // ----------------------------------------
+  // ==========================================
   // 3. GENERATE AND TRANSLATE QUESTIONS
-  // ----------------------------------------
+  // ==========================================
 
   const handleStartSetup = async () => {
     if (generatingRef.current) return;
@@ -226,7 +247,9 @@ export default function CreateNHIEChallenge() {
     const creatorName = userInfo.name.trim();
 
     if (!creatorName) {
-      setError("Please enter your name to continue.");
+      setError(
+        "Please enter your name to continue."
+      );
       return;
     }
 
@@ -254,14 +277,15 @@ export default function CreateNHIEChallenge() {
           }
 
           try {
-            const translated =
-              await translateText(
-                question,
-                language
-              );
+            const translated = await translateText(
+              question,
+              language
+            );
 
-            return typeof translated === "string" &&
+            return (
+              typeof translated === "string" &&
               translated.trim()
+            )
               ? translated
               : question;
           } catch (err) {
@@ -314,9 +338,9 @@ export default function CreateNHIEChallenge() {
     }
   };
 
-  // ----------------------------------------
-  // 4. SAVE CHALLENGE TO DATABASE
-  // ----------------------------------------
+  // ==========================================
+  // 4. CREATE AND SAVE THE CHALLENGE
+  // ==========================================
 
   const handleSaveAndShare = async () => {
     if (submittingRef.current) return;
@@ -341,18 +365,17 @@ export default function CreateNHIEChallenge() {
       return;
     }
 
-    // false is a valid answer, so do not use
-    // !question.creatorAnswer here.
-    const hasUnansweredQuestion =
-      questions.some(
-        (question) =>
-          question.creatorAnswer === null ||
-          question.creatorAnswer === undefined
-      );
+    // These strings must match the MongoDB schema.
+    const hasInvalidAnswer = questions.some(
+      (question) =>
+        !VALID_ANSWERS.includes(
+          question.creatorAnswer
+        )
+    );
 
-    if (hasUnansweredQuestion) {
+    if (hasInvalidAnswer) {
       setError(
-        "Please answer all 10 questions before sharing."
+        'Please answer all 10 questions using "I Have" or "Never" before sharing.'
       );
       return;
     }
@@ -390,9 +413,11 @@ export default function CreateNHIEChallenge() {
         );
       }
 
+      // Backend returns both challenge ID and token.
       const finalId =
-        data?.quizId ||
-        data?.challengeId;
+        data?.quizId || data?.challengeId;
+
+      const ownerToken = data?.ownerToken;
 
       if (
         typeof finalId !== "string" ||
@@ -403,19 +428,38 @@ export default function CreateNHIEChallenge() {
         );
       }
 
-      // Save the ID before switching screens.
-      // If storage is unavailable, the current
-      // session can still display the share screen.
+      if (
+        typeof ownerToken !== "string" ||
+        !/^[a-f0-9]{64}$/i.test(ownerToken)
+      ) {
+        throw new Error(
+          "The challenge was created, but the server did not return a valid ownership token. Verify that the updated creation API is deployed."
+        );
+      }
+
+      // Keep a session copy in case localStorage fails.
+      ownerTokenRef.current = ownerToken;
+
+      let savedLocally = false;
+
       try {
+        // Save token and ID together.
+        localStorage.setItem(
+          OWNER_TOKEN_KEY,
+          ownerToken
+        );
+
         localStorage.setItem(
           CHALLENGE_KEY,
           finalId
         );
 
         localStorage.removeItem(DRAFT_KEY);
+
+        savedLocally = true;
       } catch (storageError) {
-        console.warn(
-          "Unable to remember game on this device:",
+        console.error(
+          "Unable to save challenge ownership:",
           storageError
         );
       }
@@ -423,6 +467,12 @@ export default function CreateNHIEChallenge() {
       setCreatedChallengeId(finalId);
       setShowBankModal(false);
       setStep(11);
+
+      if (!savedLocally) {
+        setError(
+          "Your challenge was created, but this browser could not save its ownership details. Keep this page open; you may lose the ability to manage it after leaving."
+        );
+      }
     } catch (err) {
       console.error(
         "NHIE creation error:",
@@ -441,9 +491,9 @@ export default function CreateNHIEChallenge() {
     }
   };
 
-  // ----------------------------------------
-  // 5. DELETE EXISTING CHALLENGE
-  // ----------------------------------------
+  // ==========================================
+  // 5. SECURELY DELETE EXISTING CHALLENGE
+  // ==========================================
 
   const handleDeleteChallenge = async () => {
     if (deletingRef.current) return;
@@ -451,6 +501,26 @@ export default function CreateNHIEChallenge() {
     if (!createdChallengeId) {
       setError(
         "No saved game was found to delete."
+      );
+      return;
+    }
+
+    // Retrieve the owner's token.
+    let ownerToken = ownerTokenRef.current;
+
+    if (!ownerToken) {
+      try {
+        ownerToken = localStorage.getItem(
+          OWNER_TOKEN_KEY
+        );
+      } catch {
+        // Browser storage may be unavailable.
+      }
+    }
+
+    if (!ownerToken) {
+      setError(
+        "This browser does not have the ownership token for this challenge. For an older challenge, use a verified support process to request deletion."
       );
       return;
     }
@@ -473,6 +543,9 @@ export default function CreateNHIEChallenge() {
         )}`,
         {
           method: "DELETE",
+          headers: {
+            "x-owner-token": ownerToken,
+          },
         }
       );
 
@@ -481,7 +554,7 @@ export default function CreateNHIEChallenge() {
       try {
         data = await response.json();
       } catch {
-        // Some APIs return no response body.
+        // Some APIs have no response body.
       }
 
       if (!response.ok) {
@@ -491,20 +564,27 @@ export default function CreateNHIEChallenge() {
         );
       }
 
-      // Clear local data ONLY after the
-      // server confirms successful deletion.
+      // Clear local data after successful deletion.
       try {
         localStorage.removeItem(
           CHALLENGE_KEY
         );
 
-        localStorage.removeItem(DRAFT_KEY);
+        localStorage.removeItem(
+          OWNER_TOKEN_KEY
+        );
+
+        localStorage.removeItem(
+          DRAFT_KEY
+        );
       } catch (storageError) {
         console.warn(
           "Could not clear local storage:",
           storageError
         );
       }
+
+      ownerTokenRef.current = null;
 
       setCreatedChallengeId(null);
 
@@ -540,9 +620,9 @@ export default function CreateNHIEChallenge() {
     }
   };
 
-  // ----------------------------------------
+  // ==========================================
   // 6. LOADING SCREEN
-  // ----------------------------------------
+  // ==========================================
 
   if (isLoading) {
     return (
@@ -565,15 +645,15 @@ export default function CreateNHIEChallenge() {
     );
   }
 
-  // ----------------------------------------
+  // ==========================================
   // 7. MAIN CREATOR INTERFACE
-  // ----------------------------------------
+  // ==========================================
 
   return (
     <FloatingLayout activeTheme={activeTheme}>
       <div className="relative z-20 w-full max-w-xl flex-shrink-0 font-sans text-slate-900 selection:bg-emerald-200">
+        {/* ERRORS */}
 
-        {/* Errors and success messages */}
         {error && (
           <div
             role="alert"
@@ -593,6 +673,8 @@ export default function CreateNHIEChallenge() {
             </div>
           </div>
         )}
+
+        {/* NOTICES */}
 
         {notice && (
           <div
@@ -615,20 +697,20 @@ export default function CreateNHIEChallenge() {
         )}
 
         <AnimatePresence mode="wait">
-          {/* SETUP */}
+          {/* SETUP FORM */}
+
           {step === 0 && (
             <SetupForm
               key="nhie-setup"
               userInfo={userInfo}
               setUserInfo={setUserInfo}
               isGenerating={isGenerating}
-              handleStartSetup={
-                handleStartSetup
-              }
+              handleStartSetup={handleStartSetup}
             />
           )}
 
           {/* QUESTION EDITOR */}
+
           {step >= 1 &&
             step <= TOTAL_QUESTIONS && (
               <QuestionEditor
@@ -647,7 +729,8 @@ export default function CreateNHIEChallenge() {
               />
             )}
 
-          {/* SHARE SCREEN */}
+          {/* SHARE SCREEN / DASHBOARD */}
+
           {step === 11 &&
             createdChallengeId && (
               <ShareScreen
@@ -664,17 +747,17 @@ export default function CreateNHIEChallenge() {
         </AnimatePresence>
       </div>
 
-      {/* Supporting information */}
+      {/* ADDITIONAL INFORMATION */}
+
       <InfoSection
         activeTheme={activeTheme}
       />
 
-      {/* Question bank modal */}
+      {/* QUESTION BANK MODAL */}
+
       <QuestionBankModal
         showBankModal={showBankModal}
-        setShowBankModal={
-          setShowBankModal
-        }
+        setShowBankModal={setShowBankModal}
         questionBank={questionBank}
         step={step}
         questions={questions}

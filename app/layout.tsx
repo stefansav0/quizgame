@@ -5,7 +5,7 @@ import Script from "next/script";
 
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import AnalyticsTracker from "@/components/AnalyticsTracker";
+
 
 import "./globals.css";
 
@@ -108,7 +108,7 @@ export default function RootLayout({
 
         <Footer />
 
-        <AnalyticsTracker />
+        
       </body>
     </html>
   );
