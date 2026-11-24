@@ -468,7 +468,65 @@ export default function CreateLetter() {
           )}
         </AnimatePresence>
 
-        {/* Ads are disabled until AdSense approval and ad-slot setup. */}
+        {/* JOURNEY INFORMATIONAL CONTENT */}
+<section className="mt-10 rounded-3xl border border-white/10 bg-white p-6 text-slate-800 shadow-lg sm:p-8">
+
+  <div className="journey-content">
+
+    <h2 className="mb-4 text-2xl font-black">
+      Create a Personalized Secret Letter
+    </h2>
+
+    <p className="mb-4 leading-7 text-slate-600">
+      A secret letter is a creative way to express your
+      feelings, share memories, or surprise someone
+      special with a thoughtful message.
+    </p>
+
+    <p className="mb-4 leading-7 text-slate-600">
+      GetKnowify allows you to personalize your letter
+      with different themes and templates. You can
+      write your own message and generate a shareable
+      link for your recipient.
+    </p>
+
+    <h2 className="mb-4 mt-8 text-xl font-bold">
+      When Should You Send a Secret Letter?
+    </h2>
+
+    <p className="mb-4 leading-7 text-slate-600">
+      Personalized letters can be used for birthdays,
+      anniversaries, friendship celebrations, apologies,
+      or simply to express appreciation for someone.
+    </p>
+
+    <p className="mb-4 leading-7 text-slate-600">
+      Make your message meaningful by including shared
+      memories, personal experiences, and genuine
+      thoughts about the person receiving it.
+    </p>
+
+    <h2 className="mb-4 mt-8 text-xl font-bold">
+      Keep Your Personal Information Safe
+    </h2>
+
+    <p className="mb-4 leading-7 text-slate-600">
+      Avoid including passwords, financial information,
+      private addresses, or other sensitive information
+      in your letters.
+    </p>
+
+    <p className="leading-7 text-slate-600">
+      Remember that recipients may forward your shared
+      link to other people. Only include information
+      that you are comfortable sharing.
+    </p>
+
+  </div>
+
+</section>
+
+        
 
         <footer className="mt-8 text-center text-xs text-slate-400">
           <Link href="/privacy" className="hover:text-white">

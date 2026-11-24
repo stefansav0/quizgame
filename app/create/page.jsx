@@ -534,7 +534,7 @@ export default function CreateQuiz() {
       {/* Decorative emoji animation */}
       <FallingEmojis />
 
-      <main className="relative z-[10] min-h-screen w-full overflow-x-hidden bg-slate-50 font-sans text-slate-900">
+      <div className="relative z-[10] min-h-screen w-full overflow-x-hidden bg-slate-50 font-sans text-slate-900">
 
         {/* ====================================================
             HERO
@@ -911,7 +911,7 @@ export default function CreateQuiz() {
                 What Makes a Good Friendship Quiz?
               </h2>
 
-              <div className="mt-5 space-y-4 text-base leading-7 text-slate-600 sm:text-lg">
+              <div className="journey-content mt-5 space-y-4 text-base leading-7 text-slate-600 sm:text-lg">
 
                 <p>
                   A good quiz should contain questions
@@ -1476,7 +1476,7 @@ export default function CreateQuiz() {
           )}
         </AnimatePresence>
 
-      </main>
+      </div>
     </FloatingLayout>
   );
 }

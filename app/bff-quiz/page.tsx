@@ -264,7 +264,7 @@ function CreateButton({
 
 export default function BFFQuizPage() {
   return (
-    <main className="min-h-screen overflow-hidden bg-white text-slate-900">
+    <div className="min-h-screen bg-white text-slate-900">
       {/* HERO */}
       <section className="relative overflow-hidden bg-gradient-to-b from-pink-50 via-purple-50/40 to-white">
         <div
@@ -350,9 +350,10 @@ export default function BFFQuizPage() {
       </section>
 
       {/* INTRODUCTION */}
-      <section className="border-t border-slate-100 px-5 py-16 sm:py-20">
-        <div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-2">
-          <div>
+      {/* INTRODUCTION */}
+<section className="border-t border-slate-100 px-5 py-16 sm:py-20">
+  <div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-2">
+    <div className="journey-content">
             <span className="inline-flex rounded-full bg-purple-50 px-4 py-1.5 text-xs font-extrabold uppercase tracking-widest text-purple-700">
               About the game
             </span>
@@ -712,6 +713,6 @@ export default function BFFQuizPage() {
           </p>
         </div>
       </section>
-    </main>
+    </div>
   );
 }

@@ -264,12 +264,13 @@ export default function HomeClient() {
       </section>
 
       {/* ABOUT GETKNOWIFY */}
-      <section
-        aria-labelledby="about-heading"
-        className="border-y border-slate-200 bg-white"
-      >
-        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-14 sm:px-6 md:py-20 lg:grid-cols-2 lg:items-center lg:gap-14 lg:px-8">
-          <div>
+      {/* ABOUT GETKNOWIFY */}
+<section
+  aria-labelledby="about-heading"
+  className="border-y border-slate-200 bg-white"
+>
+  <div className="mx-auto grid max-w-7xl gap-8 px-4 py-14 sm:px-6 md:py-20 lg:grid-cols-2 lg:items-center lg:gap-14 lg:px-8">
+    <div className="journey-content">
             <span className="text-sm font-bold uppercase tracking-wider text-indigo-600">
               About GetKnowify
             </span>
