@@ -391,7 +391,7 @@ export default async function IdeaPage({ params }) {
       {/* BACKGROUND */}
       <div className="absolute top-0 left-0 right-0 h-96 bg-white border-b border-slate-200/50 pointer-events-none z-0" />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-12 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 relative z-10">
         {/* BACK */}
         <nav className="mb-8">
           <Link
@@ -409,7 +409,7 @@ export default async function IdeaPage({ params }) {
           ================================================== */}
 
           <div className="lg:col-span-8">
-            <article className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden mb-16">
+            <article className="bg-white rounded-3xl shadow-sm border border-slate-200 mb-16">
               <div className="p-6 sm:p-8 md:p-12">
                 {/* HEADER */}
 
@@ -476,17 +476,17 @@ export default async function IdeaPage({ params }) {
                 ================================================== */}
 
                 <div className="w-full text-left">
-                  {hasStructuralHtml ? (
-                    <div
-                      className="idea-html-content"
-                      dangerouslySetInnerHTML={{ __html: safeContent }}
-                    />
-                  ) : (
-                    <div className="idea-fallback-content">
-                      {renderContent(safeContent)}
-                    </div>
-                  )}
-                </div>
+  {hasStructuralHtml ? (
+    <div
+      className="idea-html-content journey-content"
+      dangerouslySetInnerHTML={{ __html: safeContent }}
+    />
+  ) : (
+    <div className="idea-fallback-content journey-content">
+      {renderContent(safeContent)}
+    </div>
+  )}
+</div>
               </div>
             </article>
           </div>
@@ -496,7 +496,7 @@ export default async function IdeaPage({ params }) {
           ================================================== */}
 
           <aside className="lg:col-span-4">
-            <div className="lg:sticky lg:top-8">
+  <div className="journey-sidebar">
               <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 sm:p-8">
                 <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
                   <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
@@ -572,7 +572,7 @@ export default async function IdeaPage({ params }) {
             </div>
           </aside>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

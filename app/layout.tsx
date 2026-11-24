@@ -72,12 +72,12 @@ export default function RootLayout({
       <head>
         {/* Mediavine Journey ad script */}
         <Script
-          id="mediavine-journey"
-          src="https://scripts.scriptwrapper.com/tags/4e13d665-392f-4c84-a5e0-3e7902fb9991.js"
-          strategy="beforeInteractive"
-          data-noptimize="1"
-          data-cfasync="false"
-        />
+  id="mediavine-journey"
+  src="https://scripts.scriptwrapper.com/tags/4e13d665-392f-4c84-a5e0-3e7902fb9991.js"
+  strategy="afterInteractive"
+  data-noptimize="1"
+  data-cfasync="false"
+/>
       </head>
 
       <body
