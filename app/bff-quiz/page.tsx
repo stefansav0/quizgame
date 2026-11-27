@@ -251,6 +251,7 @@ function CreateButton({
   return (
     <Link
       href="/create"
+      prefetch={false}
       className={
         light
           ? "inline-flex min-h-14 items-center justify-center rounded-2xl bg-white px-8 py-4 text-center font-extrabold text-purple-700 shadow-lg transition hover:bg-pink-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"

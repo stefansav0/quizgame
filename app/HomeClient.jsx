@@ -1,4 +1,5 @@
 
+
 import Link from "next/link";
 import LatestBlogs from "@/components/LatestBlogs";
 
@@ -137,21 +138,24 @@ export default function HomeClient() {
               and discover who remembers the little things about you.
             </p>
 
-            <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-              <Link
-                href="/create"
-                className="rounded-2xl bg-indigo-600 px-8 py-4 text-base font-bold text-white shadow-lg shadow-indigo-200 transition hover:bg-indigo-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-600"
-              >
-                Create Your Quiz →
-              </Link>
+            
+<div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+  <Link
+    href="/create"
+    prefetch={false}
+    className="rounded-2xl bg-indigo-600 px-8 py-4 text-base font-bold text-white shadow-lg shadow-indigo-200 transition hover:bg-indigo-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-600"
+  >
+    Create Your Quiz →
+  </Link>
 
-              <Link
-                href="#explore-games"
-                className="rounded-2xl border border-slate-300 bg-white px-8 py-4 text-base font-bold text-slate-800 transition hover:border-indigo-300 hover:bg-indigo-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-600"
-              >
-                Explore Games
-              </Link>
-            </div>
+  <Link
+    href="#explore-games"
+    className="rounded-2xl border border-slate-300 bg-white px-8 py-4 text-base font-bold text-slate-800 transition hover:border-indigo-300 hover:bg-indigo-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-600"
+  >
+    Explore Games
+  </Link>
+</div>
+
 
             <p className="mt-5 text-sm text-slate-500">
               Personalize questions · Share a link · Compare results
@@ -185,29 +189,34 @@ export default function HomeClient() {
             </p>
           </div>
 
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
-            {games.map((game) => (
-              <Link
-                key={game.href}
-                href={game.href}
-                className={`group flex h-full flex-col rounded-3xl border border-slate-200 bg-gradient-to-br ${game.accent} p-7 shadow-sm transition hover:-translate-y-1 ${game.border} hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-600`}
-              >
-                <span aria-hidden="true" className="text-4xl">
-                  {game.emoji}
-                </span>
+          
+<div className="mt-10 grid gap-5 md:grid-cols-3">
+  {games.map((game) => (
+    <Link
+      key={game.href}
+      href={game.href}
+      prefetch={false}
+      className={`group flex h-full flex-col rounded-3xl border border-slate-200 bg-gradient-to-br ${game.accent} p-7 shadow-sm transition hover:-translate-y-1 ${game.border} hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-600`}
+    >
+      <span aria-hidden="true" className="text-4xl">
+        {game.emoji}
+      </span>
 
-                <h3 className="mt-5 text-2xl font-black">{game.title}</h3>
+      <h3 className="mt-5 text-2xl font-black">
+        {game.title}
+      </h3>
 
-                <p className="mt-3 flex-1 text-sm leading-7 text-slate-600 sm:text-base">
-                  {game.description}
-                </p>
+      <p className="mt-3 flex-1 text-sm leading-7 text-slate-600 sm:text-base">
+        {game.description}
+      </p>
 
-                <span className="mt-6 inline-flex font-bold text-indigo-700 group-hover:underline">
-                  {game.action} →
-                </span>
-              </Link>
-            ))}
-          </div>
+      <span className="mt-6 inline-flex font-bold text-indigo-700 group-hover:underline">
+        {game.action} →
+      </span>
+    </Link>
+  ))}
+</div>
+
         </div>
       </section>
 
@@ -254,17 +263,20 @@ export default function HomeClient() {
         </div>
 
         <div className="mt-9 text-center">
-          <Link
-            href="/create"
-            className="inline-flex rounded-2xl bg-indigo-600 px-7 py-3.5 font-bold text-white transition hover:bg-indigo-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-600"
-          >
-            Start Creating
-          </Link>
+          
+<Link
+  href="/create"
+  prefetch={false}
+  className="inline-flex rounded-2xl bg-indigo-600 px-7 py-3.5 font-bold text-white transition hover:bg-indigo-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-600"
+>
+  Start Creating
+</Link>
+
         </div>
       </section>
 
       {/* ABOUT GETKNOWIFY */}
-      {/* ABOUT GETKNOWIFY */}
+      
 <section
   aria-labelledby="about-heading"
   className="border-y border-slate-200 bg-white"
@@ -295,19 +307,23 @@ export default function HomeClient() {
             </p>
 
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-              <Link
-                href="/about"
-                className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-6 py-3 font-bold text-slate-800 transition hover:border-indigo-300 hover:bg-indigo-50"
-              >
-                Learn More About GetKnowify
-              </Link>
+              
+<Link
+  href="/about"
+  prefetch={false}
+  className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-6 py-3 font-bold text-slate-800 transition hover:border-indigo-300 hover:bg-indigo-50"
+>
+  Learn More About GetKnowify
+</Link>
 
-              <Link
-                href="/ideas"
-                className="inline-flex items-center justify-center rounded-2xl bg-indigo-600 px-6 py-3 font-bold text-white transition hover:bg-indigo-700"
-              >
-                Explore Quiz &amp; Game Ideas
-              </Link>
+<Link
+  href="/ideas"
+  prefetch={false}
+  className="inline-flex items-center justify-center rounded-2xl bg-indigo-600 px-6 py-3 font-bold text-white transition hover:bg-indigo-700"
+>
+  Explore Quiz &amp; Game Ideas
+</Link>
+
             </div>
           </div>
 
@@ -437,19 +453,25 @@ export default function HomeClient() {
           </p>
 
           <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
-            <Link
-              href="/create"
-              className="rounded-2xl bg-indigo-500 px-8 py-4 font-bold text-white transition hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
-            >
-              Create Your Quiz
-            </Link>
+            
+<Link
+  href="/create"
+  prefetch={false}
+  className="rounded-2xl bg-indigo-500 px-8 py-4 font-bold text-white transition hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+>
+  Create Your Quiz
+</Link>
 
-            <Link
-              href="/ideas"
-              className="rounded-2xl border border-slate-600 px-8 py-4 font-bold text-white transition hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
-            >
-              Explore Quiz &amp; Game Ideas
-            </Link>
+
+            
+<Link
+  href="/ideas"
+  prefetch={false}
+  className="rounded-2xl border border-slate-600 px-8 py-4 font-bold text-white transition hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+>
+  Explore Quiz &amp; Game Ideas
+</Link>
+
           </div>
         </div>
       </section>

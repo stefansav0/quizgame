@@ -210,13 +210,14 @@ function CreateQuizButton({
 }) {
   return (
     <Link
-      href="/create"
-      className={
-        light
-          ? "inline-flex min-h-14 items-center justify-center rounded-2xl bg-white px-8 py-4 text-center font-extrabold text-purple-700 shadow-lg transition hover:bg-purple-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
-          : "inline-flex min-h-14 items-center justify-center rounded-2xl bg-purple-600 px-8 py-4 text-center font-extrabold text-white shadow-lg shadow-purple-600/20 transition hover:bg-purple-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-purple-600"
-      }
-    >
+  href="/create"
+  prefetch={false}
+  className={
+    light
+      ? "inline-flex min-h-14 items-center justify-center rounded-2xl bg-white px-8 py-4 text-center font-extrabold text-purple-700 shadow-lg transition hover:bg-purple-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+      : "inline-flex min-h-14 items-center justify-center rounded-2xl bg-purple-600 px-8 py-4 text-center font-extrabold text-white shadow-lg shadow-purple-600/20 transition hover:bg-purple-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-purple-600"
+  }
+>
       {children}
     </Link>
   );
